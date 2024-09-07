@@ -1,0 +1,16 @@
+/* 
+  InfoPlist.strings
+  CurrencyCore
+
+  Created by Vitalii Sosin on 15.08.2024.
+  Copyright © 2024 SosinVitalii.com. All rights reserved.
+*/
+
+// MARK: - System
+
+"NSPhotoLibraryAddUsageDescription" = "Пожалуйста, предоставьте доступ к вашей галерее, чтобы сохранить изображения с зашифрованными данными.";
+"NSPhotoLibraryUsageDescription" = "Пожалуйста, предоставьте доступ к вашей галерее, чтобы загружать изображения для скрытия или извлечения данных.";
+"NSCameraUsageDescription" = "Пожалуйста, предоставьте доступ к камере, чтобы сделать фото и встроить в него скрытые данные.";
+"NSFaceIDUsageDescription" = "Пожалуйста, предоставьте доступ к Face ID для безопасного доступа к скрытым данным.";
+"NSMicrophoneUsageDescription" = "Пожалуйста, предоставьте доступ к микрофону, чтобы записывать аудиосообщения и встроить их в изображения.";
+"NSUserNotificationUsageDescription" = "Пожалуйста, предоставьте разрешение на отправку уведомлений, чтобы получать оповещения о статусе встроенных данных.";

@@ -1,0 +1,10 @@
+//
+//  MainScreenLocalization.strings
+//  CurrencyCore
+//
+//  Created by Vitalii Sosin on 07.09.2024.
+//
+
+// MARK: - MainScreenLocalization
+
+"State.Button.Title" = "Hello World";

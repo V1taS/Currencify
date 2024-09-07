@@ -1,0 +1,72 @@
+//
+//  AppSettingsDataManager.swift
+//  SKServices
+//
+//  Created by Vitalii Sosin on 06.06.2024.
+//
+
+import Foundation
+import SwiftUI
+import SKAbstractions
+import SKStyle
+
+// MARK: - AppSettingsDataManager
+
+public final class AppSettingsDataManager: IAppSettingsDataManager {
+  
+  // MARK: - Public properties
+  
+  public static let shared = AppSettingsDataManager()
+  
+  // MARK: - Private properties
+  
+  private var appSettingsData = SecureDataManagerService(.appSettingsData)
+  private let queueAppSettings = DispatchQueue(label: "com.sosinvitalii.AppSettingsDataQueue")
+  
+  // MARK: - Init
+  
+  private init() {}
+  
+  public func getAppSettingsModel() async -> AppSettingsModel {
+    await withCheckedContinuation { continuation in
+      queueAppSettings.async { [weak self] in
+        guard let self else { return }
+        let messengerModel: AppSettingsModel
+        if let model: AppSettingsModel? = self.appSettingsData.getModel(for: Constants.appSettingsManagerKey),
+           let unwrappedModel = model {
+          messengerModel = unwrappedModel
+        } else {
+          messengerModel = AppSettingsModel.setDefaultValues()
+        }
+        continuation.resume(returning: messengerModel)
+      }
+    }
+  }
+  
+  public func saveAppSettingsModel(_ model: AppSettingsModel) async {
+    await withCheckedContinuation { continuation in
+      queueAppSettings.async { [weak self] in
+        guard let self else { return }
+        self.appSettingsData.saveModel(model, for: Constants.appSettingsManagerKey)
+        continuation.resume()
+      }
+    }
+  }
+  
+  @discardableResult
+  public func deleteAllData() -> Bool {
+    appSettingsData.deleteAllData()
+  }
+  
+  public func setIsPremiumEnabled(_ value: Bool) async {
+    var model = await getAppSettingsModel()
+    model.isPremium = value
+    await saveAppSettingsModel(model)
+  }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+  static let appSettingsManagerKey = String(describing: AppSettingsDataManager.self)
+}
