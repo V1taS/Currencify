@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SKAbstractions
 
 /// События которые отправляем из Interactor в Presenter
 protocol MainScreenInteractorOutput: AnyObject {}

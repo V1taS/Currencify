@@ -66,6 +66,8 @@ extension SKBarButtonItem {
         return SKStyleAsset.constantAzure.color
       case .write:
         return SKStyleAsset.constantAzure.color
+      case .add:
+        return SKStyleAsset.constantAzure.color
       case .lock:
         return SKStyleAsset.constantAzure.color
       case .text:
@@ -88,6 +90,8 @@ extension SKBarButtonItem {
       case let .delete(_, button):
         return button
       case let .write(_, button):
+        return button
+      case let .add(_, button):
         return button
       case let .lock(_, button):
         return button
@@ -113,6 +117,8 @@ extension SKBarButtonItem {
       case let .write(action, _):
         return action
       case let .lock(action, _):
+        return action
+      case let .add(action, _):
         return action
       case let .text(_, action, _):
         return action
@@ -146,6 +152,8 @@ extension SKBarButtonItem {
         return UIImage(systemName: "square.and.pencil")
       case .lock:
         return UIImage(systemName: "lock")
+      case .add:
+        return UIImage(systemName: "plus")
       case .settings:
         return UIImage(systemName: "gear")
       case .text:
@@ -154,6 +162,7 @@ extension SKBarButtonItem {
     }
     
     case close(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
+    case add(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case done(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case refresh(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case share(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)

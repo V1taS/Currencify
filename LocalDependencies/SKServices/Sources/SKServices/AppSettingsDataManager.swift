@@ -61,6 +61,14 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
       self?.saveAppSettingsModel(updatedModel, completion: completion)
     }
   }
+  
+  public func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.centralBanks = centralBanks
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
 }
 
 // MARK: - Constants

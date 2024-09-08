@@ -57,7 +57,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if firstStart {
       [
         ConfigurationValueConfigurator(services: services),
-        PremiumConfigurator(services: services)
+        PremiumConfigurator(services: services),
+        CurrencyRatesConfigurator(services: services)
       ].configure()
     }
     firstStart = true
@@ -72,7 +73,8 @@ private extension SceneDelegate {
       ConfigurationValueConfigurator(services: services),
       FirstLaunchConfigurator(services: services),
       AppearanceConfigurator(services: services),
-      PremiumConfigurator(services: services)
+      PremiumConfigurator(services: services),
+      CurrencyRatesConfigurator(services: services)
     ]
   }
 }

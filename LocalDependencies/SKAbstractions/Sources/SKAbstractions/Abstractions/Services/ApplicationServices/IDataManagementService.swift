@@ -20,6 +20,9 @@ public protocol IDataManagementService {
   /// Возвращает сервис управления данными в облаке
   var cloudKitService: ICloudKitService { get }
   
+  /// Сервис для получения курсов валют
+  var currencyRatesService: ICurrencyRatesService { get }
+  
   /// Возвращает сервис управления безопасным хранением данных.
   /// - Parameters:
   ///   - serviceName: Ключ для определения типа сервиса безопасного хранения данных.

@@ -30,4 +30,10 @@ public protocol IAppSettingsDataManager {
   ///   - value: Булево значение, указывающее, включен ли премиум
   ///   - completion: Замыкание, которое будет вызвано после обновления статуса премиум
   func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void)
+  
+  /// Установить модель центральных банков
+  /// - Parameters:
+  ///   - centralBanks: Модель `CentralBanks`, содержащая данные о центральных банках
+  ///   - completion: Замыкание, которое будет вызвано после завершения сохранения данных центральных банков
+  func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void)
 }

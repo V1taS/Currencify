@@ -11,12 +11,18 @@ import Foundation
 public struct AppSettingsModel {
   
   public var isPremium: Bool
+  public var centralBanks: CentralBanks
   
   /// Инициализирует новый экземпляр `AppSettingsModel`
   /// - Parameters:
   ///   - isPremium: Премиум режим
-  public init(isPremium: Bool) {
+  ///   - centralBanks: Банк с курсами валют
+  public init(
+    isPremium: Bool,
+    centralBanks: CentralBanks
+  ) {
     self.isPremium = isPremium
+    self.centralBanks = centralBanks
   }
 }
 
@@ -24,7 +30,10 @@ public struct AppSettingsModel {
 
 extension AppSettingsModel {
   public static func setDefaultValues() -> Self {
-    return .init(isPremium: false)
+    return .init(
+      isPremium: false,
+      centralBanks: .centralBankOfRussia([:])
+    )
   }
 }
 

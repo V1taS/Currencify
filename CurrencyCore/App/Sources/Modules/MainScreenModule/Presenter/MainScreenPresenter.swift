@@ -60,7 +60,7 @@ extension MainScreenPresenter: MainScreenFactoryOutput {}
 
 extension MainScreenPresenter: SceneViewModel {
   var sceneTitle: String? {
-    "Главный экран"
+    "Currency"
   }
   
   var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode {
@@ -70,7 +70,7 @@ extension MainScreenPresenter: SceneViewModel {
   var leftBarButtonItems: [SKBarButtonItem] {
     [
       .init(
-        .close(
+        .add(
           action: { [weak self] in
             // TODO: -
           }, buttonItem: { [weak self] buttonItem in

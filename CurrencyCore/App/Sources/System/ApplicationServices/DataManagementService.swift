@@ -31,6 +31,11 @@ final class DataManagementService: IDataManagementService {
     CloudKitService()
   }
   
+  /// Сервис для получения курсов валют
+  var currencyRatesService: any ICurrencyRatesService {
+    CurrencyRatesService.shared
+  }
+  
   // MARK: - Funcs
   
   /// Возвращает сервис управления безопасным хранением данных.

@@ -16,7 +16,11 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IAnalyticsService, ISecureDataManagerService,
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
-                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService {
+                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService {
+  public func fetchCBCurrencyRates(completion: @escaping ([String : Double]) -> Void) {}
+  public func fetchECBCurrencyRates(completion: @escaping ([String : Double]) -> Void) {}
+  public var currencyRatesService: any ICurrencyRatesService { self }
+  public func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void) {}
   public func saveAppSettingsModel(_ model: AppSettingsModel, completion: @escaping () -> Void) {}
   public func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void) {}
   public func getConfigurationValue<T>(from keyName: String, completion: @escaping (Result<T?, any Error>) -> Void) {}
