@@ -1,0 +1,26 @@
+/*
+ PremiumScreenLocalization.strings
+ CurrencyCore
+ 
+ Created by Vitalii Sosin on 08.09.2024.
+ Copyright © 2024 SosinVitalii.com. All rights reserved.
+ */
+
+"buy" = "Buy";
+"for" = "for";
+"subscribe" = "Subscribe";
+"premium" = "Premium";
+"terms" = "Terms";
+"and" = "and";
+"privacy_policy" = "Privacy Policy";
+"restore" = "Restore";
+"monthly" = "Monthly";
+"most_popular" = "Most Popular";
+"annually" = "Annually";
+"seven_days_free" = "7 Days Free";
+"forever" = "Forever";
+"one_time_purchase" = "One-time Purchase";
+"processing_payment" = "Processing Payment";
+
+"page.1.title" = "Support the Project";
+"page.1.description" = "Become part of the community helping us grow rapidly";
