@@ -8,5 +8,7 @@
 import Foundation
 
 public enum Secrets {
-  public static let fiveMinutesAgoInSeconds: Double = 300 // 300 секунд = 5 минут
+  public static var supportMail = ""
+  public static var apiKeyApphud = ""
+  public static var premiumList: [PremiumModel] = []
 }

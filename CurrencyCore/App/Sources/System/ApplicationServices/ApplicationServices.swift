@@ -36,4 +36,9 @@ final class ApplicationServices: IApplicationServices {
   var appSettingsDataManager: IAppSettingsDataManager {
     AppSettingsDataManager.shared
   }
+  
+  /// Возвращает сервис для работы с платежами
+  var appPurchasesService: IAppPurchasesService {
+    AppPurchasesService.shared
+  }
 }

@@ -27,29 +27,25 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
   
   private init() {}
   
-  public func getAppSettingsModel() async -> AppSettingsModel {
-    await withCheckedContinuation { continuation in
-      queueAppSettings.async { [weak self] in
-        guard let self else { return }
-        let messengerModel: AppSettingsModel
-        if let model: AppSettingsModel? = self.appSettingsData.getModel(for: Constants.appSettingsManagerKey),
-           let unwrappedModel = model {
-          messengerModel = unwrappedModel
-        } else {
-          messengerModel = AppSettingsModel.setDefaultValues()
-        }
-        continuation.resume(returning: messengerModel)
+  public func getAppSettingsModel(completion: @escaping (AppSettingsModel) -> Void) {
+    queueAppSettings.async { [weak self] in
+      guard let self = self else { return }
+      let messengerModel: AppSettingsModel
+      if let model: AppSettingsModel? = self.appSettingsData.getModel(for: Constants.appSettingsManagerKey),
+         let unwrappedModel = model {
+        messengerModel = unwrappedModel
+      } else {
+        messengerModel = AppSettingsModel.setDefaultValues()
       }
+      completion(messengerModel)
     }
   }
   
-  public func saveAppSettingsModel(_ model: AppSettingsModel) async {
-    await withCheckedContinuation { continuation in
-      queueAppSettings.async { [weak self] in
-        guard let self else { return }
-        self.appSettingsData.saveModel(model, for: Constants.appSettingsManagerKey)
-        continuation.resume()
-      }
+  public func saveAppSettingsModel(_ model: AppSettingsModel, completion: @escaping () -> Void) {
+    queueAppSettings.async { [weak self] in
+      guard let self = self else { return }
+      self.appSettingsData.saveModel(model, for: Constants.appSettingsManagerKey)
+      completion()
     }
   }
   
@@ -58,10 +54,12 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     appSettingsData.deleteAllData()
   }
   
-  public func setIsPremiumEnabled(_ value: Bool) async {
-    var model = await getAppSettingsModel()
-    model.isPremium = value
-    await saveAppSettingsModel(model)
+  public func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.isPremium = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
   }
 }
 

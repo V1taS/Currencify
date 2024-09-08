@@ -11,7 +11,14 @@ import SKStyle
 import SKAbstractions
 
 public final class NotificationService: INotificationService {
-  public init() {}
+  
+  // MARK: - Singleton
+  
+  public static let shared = NotificationService()
+  
+  // Приватный инициализатор для предотвращения создания других экземпляров
+  private init() {}
+  
   private let notifications = Notifications()
   
   public func showNotification(_ type: NotificationServiceType) {

@@ -17,6 +17,12 @@ protocol SettingsScreenFactoryOutput: AnyObject {
   
   /// Открыть экран настроек языка
   func openLanguageSection()
+  
+  /// Пользователь выбрал обратную связь
+  func userSelectFeedBack()
+  
+  /// Пользователь выбрал Премиум
+  func userSelectPremium()
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
@@ -27,7 +33,8 @@ protocol SettingsScreenFactoryInput {
   /// Создать верхнюю секцию
   func createTopWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    languageValue: String
+    languageValue: String,
+    premiumState: String
   ) -> [WidgetCryptoView.Model]
   
   /// Создать верхнюю секцию
@@ -68,7 +75,8 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
   
   func createTopWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    languageValue: String
+    languageValue: String,
+    premiumState: String
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
     
@@ -94,6 +102,27 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       }
     )
     models.append(appearanceModel)
+    
+    let premiumModel = createWidgetWithChevron(
+      image: Image(systemName: "star.fill"),
+      backgroundColor: #colorLiteral(red: 0.8638121486, green: 0.2361198068, blue: 0.8861094117, alpha: 1),
+      title: CurrencyCoreStrings.SettingsScreenLocalization.Premium.title,
+      additionRightTitle: premiumState,
+      action: { [weak self] in
+        self?.output?.userSelectPremium()
+      }
+    )
+    models.append(premiumModel)
+    
+    let feedbackModel = createWidgetWithChevron(
+      image: Image(systemName: "pencil"),
+      backgroundColor: #colorLiteral(red: 0.6352941176, green: 0.5176470588, blue: 0.368627451, alpha: 1),
+      title: CurrencyCoreStrings.SettingsScreenLocalization.Feedback.title,
+      action: { [weak self] in
+        self?.output?.userSelectFeedBack()
+      }
+    )
+    models.append(feedbackModel)
     return models
   }
   

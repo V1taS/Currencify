@@ -28,6 +28,6 @@ final class UserInterfaceAndExperienceService: IUserInterfaceAndExperienceServic
   
   /// Возвращает сервис уведомлений.
   var notificationService: INotificationService {
-    NotificationService()
+    NotificationService.shared
   }
 }

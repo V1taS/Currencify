@@ -23,3 +23,5 @@
 "Application.Title" = "CurrencyCore";
 "Exit.Title" = "Выйти";
 "Premium.Title" = "Премиум";
+"Premium.Activated" = "Активирован";
+"Premium.NotActivated" = "Не активирован";

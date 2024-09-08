@@ -16,3 +16,8 @@
 "Notification.MailClientNotFound.Title" = "Почтовый клиент не найден";
 "Notification.IntentionDeleteAndExit.Title" = "Вы действительно хотите выйти и удалить все данные";
 "Notification.DeleteAndExit.Title" = "Выйти и удалить";
+"Notification.SomethingWentWrong.Title" = "Что-то пошло не так";
+"Notification.PremiumSuccess.Title" = "Премиум активирован";
+"Notification.PurchasesMissing.Title" = "Покупок не найдено";
+
+

@@ -23,3 +23,5 @@
 "Application.Title" = "CurrencyCore";
 "Exit.Title" = "Exit";
 "Premium.Title" = "Premium";
+"Premium.Activated" = "Activated";
+"Premium.NotActivated" = "Not activated";

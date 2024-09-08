@@ -16,3 +16,6 @@
 "Notification.MailClientNotFound.Title" = "Mail client not found";
 "Notification.IntentionDeleteAndExit.Title" = "Are you sure you want to exit and delete all data";
 "Notification.DeleteAndExit.Title" = "Exit and delete";
+"Notification.SomethingWentWrong.Title" = "Something went wrong";
+"Notification.PremiumSuccess.Title" = "Premium activated";
+"Notification.PurchasesMissing.Title" = "No purchases found";

@@ -12,6 +12,7 @@ import SKAbstractions
 import SKServices
 import SwiftUI
 import BackgroundTasks
+import ApphudSDK
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
@@ -23,6 +24,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
   private let services: IApplicationServices = ApplicationServices()
   private var rootCoordinator: RootCoordinator?
+  private var firstStart = false
   
   // MARK: - Internal func
   
@@ -46,8 +48,19 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     window?.makeKeyAndVisible()
     
     configurators().configure()
+    Apphud.start(apiKey: Secrets.apiKeyApphud)
     rootCoordinator = RootCoordinator(services)
     rootCoordinator?.start()
+  }
+  
+  func sceneDidBecomeActive(_ scene: UIScene) {
+    if firstStart {
+      [
+        ConfigurationValueConfigurator(services: services),
+        PremiumConfigurator(services: services)
+      ].configure()
+    }
+    firstStart = true
   }
 }
 
@@ -56,8 +69,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 private extension SceneDelegate {
   func configurators() -> [Configurator] {
     return [
+      ConfigurationValueConfigurator(services: services),
       FirstLaunchConfigurator(services: services),
-      AppearanceConfigurator(services: services)
+      AppearanceConfigurator(services: services),
+      PremiumConfigurator(services: services)
     ]
   }
 }

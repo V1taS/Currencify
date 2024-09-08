@@ -26,6 +26,11 @@ final class DataManagementService: IDataManagementService {
     DataMappingService()
   }
   
+  /// Сервис для работы с CloudKit для получения конфигурационных данных.
+  var cloudKitService: ICloudKitService {
+    CloudKitService()
+  }
+  
   // MARK: - Funcs
   
   /// Возвращает сервис управления безопасным хранением данных.

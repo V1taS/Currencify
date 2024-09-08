@@ -9,13 +9,16 @@ import Foundation
 
 /// Работа с настройками приложения
 public protocol IAppSettingsDataManager {
+  
   /// Получить модель настроек приложения
-  /// - Returns: Асинхронная операция, возвращающая модель настроек `AppSettingsModel`
-  func getAppSettingsModel() async -> AppSettingsModel
+  /// - Parameter completion: Замыкание, которое будет вызвано после получения данных. Возвращает модель настроек `AppSettingsModel`
+  func getAppSettingsModel(completion: @escaping (AppSettingsModel) -> Void)
   
   /// Сохранить модель настроек приложения
-  /// - Parameter model: Модель настроек `AppSettingsModel`, которую необходимо сохранить
-  func saveAppSettingsModel(_ model: AppSettingsModel) async
+  /// - Parameters:
+  ///   - model: Модель настроек `AppSettingsModel`, которую необходимо сохранить
+  ///   - completion: Замыкание, которое будет вызвано после завершения сохранения
+  func saveAppSettingsModel(_ model: AppSettingsModel, completion: @escaping () -> Void)
   
   /// Удалить все данные настроек приложения
   /// - Returns: Возвращает `true`, если данные успешно удалены
@@ -23,6 +26,8 @@ public protocol IAppSettingsDataManager {
   func deleteAllData() -> Bool
   
   /// Установить статус подписки на премиум
-  /// - Parameter value: Булево значение, указывающее, включен ли премиум
-  func setIsPremiumEnabled(_ value: Bool) async
+  /// - Parameters:
+  ///   - value: Булево значение, указывающее, включен ли премиум
+  ///   - completion: Замыкание, которое будет вызвано после обновления статуса премиум
+  func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void)
 }

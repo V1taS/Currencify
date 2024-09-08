@@ -10,47 +10,28 @@ import Foundation
 /// Модель данных для премиум-пользователя.
 public struct PremiumModel {
   
-  // MARK: - Public properties
+  /// Уникальное ID устройства
+  public let id: String
   
-  /// Определяет, является ли пользователь премиум.
+  /// Включен ли Премиум
   public let isPremium: Bool
   
-  /// Имя пользователя.
-  public let name: String
+  /// Имя
+  public let name: String?
   
-  /// Дата истечения премиум-статуса в формате строки ("dd.mm.yyyy"). Может быть `nil`.
-  public let expirationDate: Date?
-  
-  /// Идентификатор вендора.
-  public let vendorID: String
-  
-  // MARK: - Init
-  
-  /// Инициализатор для создания модели `PremiumModel`.
+  /// Инициализатор для создания модели премиум-пользователя.
   /// - Parameters:
-  ///   - isPremium: Булево значение, указывающее на наличие премиум-статуса.
-  ///   - name: Имя пользователя.
-  ///   - expirationDate: Дата истечения премиум-статуса. Может быть `nil`.
-  ///   - vendorID: Идентификатор вендора.
-  public init(isPremium: Bool, name: String, expirationDate: Date?, vendorID: String) {
+  ///   - id: Уникальный идентификатор устройства.
+  ///   - isPremium: Флаг, указывающий, является ли пользователь премиум.
+  ///   - name: Опциональное имя пользователя.
+  public init(
+    id: String,
+    isPremium: Bool,
+    name: String?
+  ) {
+    self.id = id
     self.isPremium = isPremium
     self.name = name
-    self.expirationDate = expirationDate
-    self.vendorID = vendorID
-  }
-  
-  /// Кастомный инициализатор для декодирования JSON.
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.isPremium = try container.decode(Bool.self, forKey: .isPremium)
-    self.name = try container.decode(String.self, forKey: .name)
-    self.vendorID = try container.decode(String.self, forKey: .vendorID)
-    
-    // Декодируем дату из строки
-    let dateString = try container.decode(String.self, forKey: .expirationDate)
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "dd.MM.yyyy"
-    self.expirationDate = dateFormatter.date(from: dateString)
   }
   
   // MARK: - Public funcs

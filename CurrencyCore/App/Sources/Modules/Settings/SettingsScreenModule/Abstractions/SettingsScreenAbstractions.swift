@@ -14,6 +14,12 @@ public protocol SettingsScreenModuleOutput: AnyObject {
   
   /// Открыть экран настроек языка
   func openLanguageSection()
+  
+  /// Пользователь выбрал обратную связь
+  func userSelectFeedBack()
+  
+  /// Пользователь выбрал Премиум
+  func userSelectPremium()
 }
 
 /// События которые отправляем из `Coordinator` в `SettingsScreenModule`

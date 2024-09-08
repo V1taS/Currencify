@@ -17,7 +17,8 @@ let package = Package(
     .package(path: "../../LocalDependencies/SKStyle"),
     .package(path: "../../LocalDependencies/SKAbstractions"),
     .package(path: "../../LocalDependencies/SKFoundation"),
-    .package(path: "../../LocalDependencies/SKNotifications")
+    .package(path: "../../LocalDependencies/SKNotifications"),
+    .package(url: "https://github.com/apphud/ApphudSDK", exact: "3.4.0")
   ],
   targets: [
     .target(
@@ -26,7 +27,8 @@ let package = Package(
         "SKStyle",
         "SKAbstractions",
         "SKFoundation",
-        "SKNotifications"
+        "SKNotifications",
+        "ApphudSDK"
       ]
     )
   ]

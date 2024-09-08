@@ -37,6 +37,9 @@ protocol SettingsScreenInteractorInput {
   /// Получить модель настроек приложения
   /// - Returns: Асинхронная операция, возвращающая модель настроек `AppSettingsModel`
   func getAppSettingsModel() async -> AppSettingsModel
+  
+  /// Получить статус премиума
+  func getIsPremiumState() async -> Bool
 }
 
 /// Интерактор
@@ -66,8 +69,16 @@ final class SettingsScreenInteractor {
 // MARK: - SettingsScreenInteractorInput
 
 extension SettingsScreenInteractor: SettingsScreenInteractorInput {
+  func getIsPremiumState() async -> Bool {
+    await getAppSettingsModel().isPremium
+  }
+  
   func getAppSettingsModel() async -> AppSettingsModel {
-    await appSettingsDataManager.getAppSettingsModel()
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.getAppSettingsModel { appSettingsModel in
+        continuation.resume(returning: appSettingsModel)
+      }
+    }
   }
   
   func deleteAllData() async -> Bool {

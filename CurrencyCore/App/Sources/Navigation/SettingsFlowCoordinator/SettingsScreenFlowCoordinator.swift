@@ -18,6 +18,8 @@ final class SettingsScreenFlowCoordinator: Coordinator<Void, SettingsScreenFinis
   private var settingsScreenModule: SettingsScreenModule?
   private var appearanceAppScreenModule: AppearanceAppScreenModule?
   private var navigationController: UINavigationController?
+  private var mailComposeModule: MailComposeModule?
+  private var premiumScreenModule: PremiumScreenModule?
   
   // MARK: - Initialization
   
@@ -40,6 +42,14 @@ final class SettingsScreenFlowCoordinator: Coordinator<Void, SettingsScreenFinis
 // MARK: - MainScreenModuleOutput
 
 extension SettingsScreenFlowCoordinator: SettingsScreenModuleOutput {
+  func userSelectPremium() {
+    openPremiumScreenModule()
+  }
+  
+  func userSelectFeedBack() {
+    openMailModule()
+  }
+  
   func userIntentionExit() {
     Task { @MainActor [weak self] in
       guard let self else { return }
@@ -91,6 +101,44 @@ extension SettingsScreenFlowCoordinator: SettingsScreenModuleOutput {
 
 extension SettingsScreenFlowCoordinator: AppearanceAppScreenModuleOutput {}
 
+// MARK: - PremiumScreenModuleOutput
+
+extension SettingsScreenFlowCoordinator: PremiumScreenModuleOutput {
+  func closeButtonAction() {}
+  func moduleClosed() {}
+  func didReceiveRestoredSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func didReceiveSubscriptionPurchaseSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func didReceiveOneTimePurchaseSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func somethingWentWrong() {
+    services.userInterfaceAndExperienceService
+      .notificationService.showNotification(
+        .positive(
+          title: CurrencyCoreStrings.SettingsScreenFlowCoordinatorLocalization
+            .Notification.SomethingWentWrong.title
+        )
+      )
+  }
+  
+  func didReceivePurchasesMissing() {
+    services.userInterfaceAndExperienceService
+      .notificationService.showNotification(
+        .positive(
+          title: CurrencyCoreStrings.SettingsScreenFlowCoordinatorLocalization
+            .Notification.PurchasesMissing.title
+        )
+      )
+  }
+}
+
 // MARK: - Open modules
 
 private extension SettingsScreenFlowCoordinator {
@@ -112,6 +160,37 @@ private extension SettingsScreenFlowCoordinator {
       animated: true
     )
   }
+  
+  func openMailModule() {
+    let mailComposeModule = MailComposeModule(services)
+    self.mailComposeModule = mailComposeModule
+    
+    guard mailComposeModule.canSendMail() else {
+      services.userInterfaceAndExperienceService
+        .notificationService.showNotification(
+          .negative(
+            title: CurrencyCoreStrings.SettingsScreenFlowCoordinatorLocalization
+              .Notification.MailClientNotFound.title
+          )
+        )
+      return
+    }
+    
+    mailComposeModule.start(completion: { [weak self] in
+      self?.mailComposeModule = nil
+    })
+  }
+  
+  func openPremiumScreenModule() {
+    let premiumScreenModule = PremiumScreenAssembly().createModule(services: services)
+    self.premiumScreenModule = premiumScreenModule
+    self.premiumScreenModule?.moduleOutput = self
+    premiumScreenModule.selectIsModalPresentationStyle(false)
+    navigationController?.pushViewController(
+      premiumScreenModule,
+      animated: true
+    )
+  }
 }
 
 // MARK: - Private
@@ -121,5 +200,21 @@ private extension SettingsScreenFlowCoordinator {
     settingsScreenModule = nil
     appearanceAppScreenModule = nil
     finishFlow?(flowType)
+  }
+  
+  func setIsPremiumSuccess() {
+    services.appSettingsDataManager.setIsPremiumEnabled(
+      true,
+      completion: { [weak self] in
+        guard let self else { return }
+        services.userInterfaceAndExperienceService
+          .notificationService.showNotification(
+            .positive(
+              title: CurrencyCoreStrings.SettingsScreenFlowCoordinatorLocalization
+                .Notification.PremiumSuccess.title
+            )
+          )
+      }
+    )
   }
 }

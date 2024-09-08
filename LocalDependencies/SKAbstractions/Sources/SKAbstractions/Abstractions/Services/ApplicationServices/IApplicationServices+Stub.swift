@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 // MARK: - ServicesStub
 
@@ -15,7 +16,16 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IAnalyticsService, ISecureDataManagerService,
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
-                                            IAppSettingsDataManager {
+                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService {
+  public func saveAppSettingsModel(_ model: AppSettingsModel, completion: @escaping () -> Void) {}
+  public func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void) {}
+  public func getConfigurationValue<T>(from keyName: String, completion: @escaping (Result<T?, any Error>) -> Void) {}
+  public var cloudKitService: any ICloudKitService { self }
+  public func getProducts(completion: @escaping ([SKProduct]) -> Void) {}
+  public func purchaseWith(_ productIdentifiers: String, completion: @escaping (AppPurchasesServiceState) -> Void) {}
+  public func restorePurchase(completion: @escaping (Bool) -> Void) {}
+  public func isValidatePurchase(completion: @escaping (Bool) -> Void) {}
+  public var appPurchasesService: any IAppPurchasesService { self }
   public func openSettings() async -> Result<Void, SystemServiceError> { .success(())}
   public func copyToClipboard(text: String, completion: @escaping (Result<Void, SystemServiceError>) -> Void) {}
   public func openURLInSafari(urlString: String, completion: @escaping (Result<Void, SystemServiceError>) -> Void) {}

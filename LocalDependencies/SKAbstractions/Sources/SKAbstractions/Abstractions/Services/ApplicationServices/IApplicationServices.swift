@@ -21,4 +21,7 @@ public protocol IApplicationServices {
   
   /// Работа с настройками приложения
   var appSettingsDataManager: IAppSettingsDataManager { get }
+  
+  /// Работа с платежами в приложении
+  var appPurchasesService: IAppPurchasesService { get }
 }

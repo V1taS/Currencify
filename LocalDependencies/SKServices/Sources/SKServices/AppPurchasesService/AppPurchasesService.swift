@@ -1,0 +1,86 @@
+//
+//  AppPurchasesService.swift
+//  SKServices
+//
+//  Created by Vitalii Sosin on 08.09.2024.
+//
+
+import Foundation
+import ApphudSDK
+import SKAbstractions
+import StoreKit
+
+public final class AppPurchasesService: IAppPurchasesService {
+  
+  // MARK: - Private properties
+  
+  private var cacheProducts: [ApphudProduct] = []
+  
+  // MARK: - Singleton
+  
+  public static let shared = AppPurchasesService()
+  
+  // Приватный инициализатор для предотвращения создания других экземпляров
+  private init() {}
+  
+  // MARK: - Internal func
+  
+  @MainActor
+  public func restorePurchase(completion: @escaping (_ isValidate: Bool) -> Void) {
+    Apphud.restorePurchases { [weak self] _, _, _ in
+      DispatchQueue.main.async {
+        self?.isValidatePurchase(completion: completion)
+      }
+    }
+  }
+  
+  @MainActor
+  public func purchaseWith(
+    _ productIdentifiers: String,
+    completion: @escaping (AppPurchasesServiceState) -> Void
+  ) {
+    
+    let products = cacheProducts.filter { $0.productId == productIdentifiers }
+    guard let product = products.first else {
+      completion(.somethingWentWrong)
+      return
+    }
+    
+    Apphud.purchase(product) { result in
+      DispatchQueue.main.async {
+        if let subscription = result.subscription, subscription.isActive() {
+          completion(.successfulSubscriptionPurchase)
+        } else if let purchase = result.nonRenewingPurchase, purchase.isActive() {
+          completion(.successfulOneTimePurchase)
+        } else {
+          completion(.somethingWentWrong)
+        }
+      }
+    }
+  }
+  
+  @MainActor
+  public func getProducts(completion: @escaping ([SKProduct]) -> Void) {
+    Apphud.paywallsDidLoadCallback { [weak self] paywalls, _  in
+      if let paywall = paywalls.first(where: { $0.identifier == PremiumScreenPaywallIdentifier.paywallID }) {
+        let products = paywall.products
+        self?.cacheProducts = products
+        let skProducts = products.compactMap {
+          return $0.skProduct
+        }
+        DispatchQueue.main.async {
+          completion(skProducts)
+        }
+      }
+    }
+  }
+  
+  @MainActor 
+  public func isValidatePurchase(completion: @escaping (_ isValidate: Bool) -> Void) {
+    let isSubscription = Apphud.hasActiveSubscription()
+    let isNonRenewingPurchase = Apphud.isNonRenewingPurchaseActive(
+      productIdentifier: PremiumScreenPurchaseType.lifetime.productIdentifiers
+    )
+    completion(isSubscription || isNonRenewingPurchase)
+  }
+}

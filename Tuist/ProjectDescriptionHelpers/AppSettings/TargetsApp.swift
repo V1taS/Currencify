@@ -24,6 +24,7 @@ public extension Array<Target> {
           "\(Constants.rootPath)/\(Constants.appPath)/Resources/**/*",
           "\(Constants.rootPath)/\(Constants.appPath)/Sources/**/*.strings"
         ],
+        entitlements: .file(path: .relativeToRoot("\(Constants.rootPath)/\(Constants.appPath)/Entity/\(Constants.appNameRelease).entitlements")),
         scripts: [
           .swiftlint(configPath: "\(Constants.appNameRelease)/\(Constants.appPath)/Sources"),
         ],

@@ -27,6 +27,7 @@ final class SettingsScreenPresenter: ObservableObject {
   
   private let interactor: SettingsScreenInteractorInput
   private let factory: SettingsScreenFactoryInput
+  private var premiumState: String = ""
   
   // MARK: - Initialization
   
@@ -74,6 +75,14 @@ extension SettingsScreenPresenter: SettingsScreenInteractorOutput {}
 // MARK: - SettingsScreenFactoryOutput
 
 extension SettingsScreenPresenter: SettingsScreenFactoryOutput {
+  func userSelectPremium() {
+    moduleOutput?.userSelectPremium()
+  }
+  
+  func userSelectFeedBack() {
+    moduleOutput?.userSelectFeedBack()
+  }
+  
   func openAppearanceSection() {
     moduleOutput?.openAppearanceSection()
   }
@@ -100,12 +109,27 @@ extension SettingsScreenPresenter: SceneViewModel {
 private extension SettingsScreenPresenter {
   @MainActor
   func updateContent() async {
+    await getPremiumActivatedState()
     stateCurrentLanguage = interactor.getCurrentLanguage()
     let appSettingsModel = await interactor.getAppSettingsModel()
     let languageValue = factory.createLanguageValue(from: stateCurrentLanguage)
     
-    stateTopWidgetModels = factory.createTopWidgetModels(appSettingsModel, languageValue: languageValue)
+    stateTopWidgetModels = factory.createTopWidgetModels(
+      appSettingsModel,
+      languageValue: languageValue, 
+      premiumState: premiumState
+    )
     stateBottomWidgetModels = factory.createBottomWidgetModels(appSettingsModel)
+  }
+  
+  func getPremiumActivatedState() async {
+    let isPremium = await interactor.getIsPremiumState()
+    
+    if isPremium {
+      premiumState = CurrencyCoreStrings.SettingsScreenLocalization.Premium.activated
+    } else {
+      premiumState = CurrencyCoreStrings.SettingsScreenLocalization.Premium.notActivated
+    }
   }
 }
 

@@ -17,6 +17,9 @@ public protocol IDataManagementService {
   /// - Returns: Сервис для маппинга данных.
   var dataMappingService: IDataMappingService { get }
   
+  /// Возвращает сервис управления данными в облаке
+  var cloudKitService: ICloudKitService { get }
+  
   /// Возвращает сервис управления безопасным хранением данных.
   /// - Parameters:
   ///   - serviceName: Ключ для определения типа сервиса безопасного хранения данных.
