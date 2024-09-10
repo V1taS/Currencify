@@ -8,12 +8,17 @@
 import Foundation
 
 /// Модель для работы с API Европейского Центрального Банка.
-/// Содержит метод для получения списка валют по курсу.
-struct ECBCurrencyRates {}
+/// Содержит дату и список валют по курсу.
+struct ECBCurrencyRates {
+  /// Дата курса валют в формате `Date`.
+  let date: Date
+  
+  /// Массив валют с курсами.
+  let currencies: [Currency]
+}
 
 /// Расширение для модели, связанное с валютами.
 extension ECBCurrencyRates {
-  
   /// Модель валюты, возвращаемой ЕЦБ.
   struct Currency: Codable {
     /// Код валюты (например, USD).
@@ -30,8 +35,9 @@ final class ECBXMLParser: NSObject, XMLParserDelegate {
   private var currentElement = ""
   private var currentCurrencyCode: String = ""
   private var currentCurrencyRate: Double = 0.0
+  private var currentDate: Date?
   
-  private var parserCompletionHandler: (([ECBCurrencyRates.Currency]) -> Void)?
+  private var parserCompletionHandler: ((ECBCurrencyRates?) -> Void)?
   
   init(data: Data) {
     super.init()
@@ -40,8 +46,10 @@ final class ECBXMLParser: NSObject, XMLParserDelegate {
     parser.parse()
   }
   
-  func parse() -> [ECBCurrencyRates.Currency] {
-    return currencies
+  /// Метод для парсинга данных
+  func parse() -> ECBCurrencyRates? {
+    guard let date = currentDate else { return nil }
+    return ECBCurrencyRates(date: date, currencies: currencies)
   }
   
   // MARK: - XMLParserDelegate Methods
@@ -54,7 +62,12 @@ final class ECBXMLParser: NSObject, XMLParserDelegate {
     attributes attributeDict: [String: String] = [:]
   ) {
     currentElement = elementName
-    if elementName == "Cube", let currency = attributeDict["currency"], let rate = attributeDict["rate"] {
+    
+    if elementName == "Cube", let time = attributeDict["time"] {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy-MM-dd"
+      currentDate = dateFormatter.date(from: time)
+    } else if elementName == "Cube", let currency = attributeDict["currency"], let rate = attributeDict["rate"] {
       currentCurrencyCode = currency
       currentCurrencyRate = Double(rate) ?? 0.0
     }
@@ -67,4 +80,3 @@ final class ECBXMLParser: NSObject, XMLParserDelegate {
     }
   }
 }
-

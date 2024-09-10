@@ -65,7 +65,7 @@ private extension PasscodeScreenView {
       
       Spacer()
       
-      KeyboardView(value: $pin, isEnabled: isEnabledKeyboard, onChange: { newValue in
+      KeyboardView(value: pin, isEnabled: isEnabledKeyboard, onChange: { newValue in
         guard newValue.count <= maxDigits else {
           return
         }

@@ -31,9 +31,40 @@ public protocol IAppSettingsDataManager {
   ///   - completion: Замыкание, которое будет вызвано после обновления статуса премиум
   func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void)
   
-  /// Установить модель центральных банков
+  /// Добавляет указанные валюты в список выбранных, если они ещё не добавлены.
   /// - Parameters:
-  ///   - centralBanks: Модель `CentralBanks`, содержащая данные о центральных банках
-  ///   - completion: Замыкание, которое будет вызвано после завершения сохранения данных центральных банков
-  func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void)
+  ///   - currencyRates: Массив валют для добавления.
+  ///   - completion: Замыкание, которое будет вызвано после завершения операции.
+  func setSelectedCurrencyRates(
+    _ currencyRates: [CurrencyRate.Currency],
+    completion: @escaping () -> Void
+  )
+  
+  /// Удаляет указанные валюты из списка выбранных.
+  /// - Parameters:
+  ///   - currencyRates: Массив валют для удаления.
+  ///   - completion: Замыкание, которое будет вызвано после завершения операции.
+  func removeCurrencyRates(
+    _ currencyRates: [CurrencyRate.Currency],
+    completion: @escaping () -> Void
+  )
+  
+  /// Удаляет все выбранные валюты из списка.
+  /// - Parameter completion: Замыкание, которое будет вызвано после завершения операции.
+  func removeAllCurrencyRates(
+    completion: @escaping () -> Void
+  )
+  
+  /// Устанавливает источник валютных данных.
+  /// - Параметры:
+  ///   - value: Источник валюты, который необходимо установить.
+  ///   - completion: Блок, который будет вызван после успешной установки источника.
+  func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void)
+  
+  /// Устанавливает количество знаков после запятой для отображения валютных значений.
+  ///
+  /// - Parameters:
+  ///   - value: Значение из перечисления `CurrencyDecimalPlaces`, определяющее количество знаков после запятой (от 0 до 5).
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void)
 }

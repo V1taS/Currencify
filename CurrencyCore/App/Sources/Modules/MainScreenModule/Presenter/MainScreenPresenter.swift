@@ -8,12 +8,17 @@
 import SKStyle
 import SKUIKit
 import SwiftUI
+import SKAbstractions
 
 final class MainScreenPresenter: ObservableObject {
   
   // MARK: - View state
   
-  @Published var stateButtonTitle = "Продолжить"
+  @Published var isCurrencyListEmpty = false
+  @Published var currencyWidgets: [WidgetCryptoView.Model] = []
+  @Published var activeCurrency: CurrencyRate.Currency = .USD
+  @Published var isUserInputVisible = false
+  @Published var enteredCurrencyAmount: String = "0"
   
   // MARK: - Internal properties
   
@@ -39,9 +44,18 @@ final class MainScreenPresenter: ObservableObject {
   
   // MARK: - The lifecycle of a UIViewController
   
-  lazy var viewDidLoad: (() -> Void)? = {}
+  lazy var viewDidLoad: (() -> Void)? = { [weak self] in
+    guard let self else { return }
+    setupInitialState()
+  }
   
   // MARK: - Internal func
+  
+  func refreshCurrencyData() {
+    interactor.fetchCBCurrencyRates { [weak self] in
+      self?.recalculateCurrencyWidgets()
+    }
+  }
 }
 
 // MARK: - MainScreenModuleInput
@@ -54,18 +68,30 @@ extension MainScreenPresenter: MainScreenInteractorOutput {}
 
 // MARK: - MainScreenFactoryOutput
 
-extension MainScreenPresenter: MainScreenFactoryOutput {}
+extension MainScreenPresenter: MainScreenFactoryOutput {
+  func userDidEnterAmount(_ amount: String) {
+    enteredCurrencyAmount = amount
+    recalculateCurrencyWidgets()
+  }
+  
+  func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) {
+    enteredCurrencyAmount = "\(rate)"
+    if activeCurrency == currency && isUserInputVisible {
+      isUserInputVisible = false
+      recalculateCurrencyWidgets()
+      return
+    }
+    activeCurrency = currency
+    isUserInputVisible = true
+    recalculateCurrencyWidgets()
+  }
+}
 
 // MARK: - SceneViewModel
 
 extension MainScreenPresenter: SceneViewModel {
-  var sceneTitle: String? {
-    "Currency"
-  }
-  
-  var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode {
-    .always
-  }
+  var sceneTitle: String? { Constants.title }
+  var largeTitleDisplayMode: UINavigationItem.LargeTitleDisplayMode { .always }
   
   var leftBarButtonItems: [SKBarButtonItem] {
     [
@@ -98,8 +124,47 @@ extension MainScreenPresenter: SceneViewModel {
 
 // MARK: - Private
 
-private extension MainScreenPresenter {}
+private extension MainScreenPresenter {
+  func setupInitialState() {
+    recalculateCurrencyWidgets()
+  }
+  
+  func validateRatesData() {
+    DispatchQueue.main.async { [weak self] in
+      guard let self else { return }
+      isCurrencyListEmpty = Secrets.currencyRateList.isEmpty || currencyWidgets.isEmpty
+      leftBarAddButton?.isEnabled = !Secrets.currencyRateList.isEmpty
+    }
+  }
+  
+  func recalculateCurrencyWidgets() {
+    interactor.getAppSettingsModel { [weak self] appSettingsModel in
+      guard let self else { return }
+      
+      let calculationMode: RateCalculationMode
+      switch appSettingsModel.currencySource {
+      case .cbr:
+        calculationMode = .inverse
+      case .ecb:
+        calculationMode = .direct
+      }
+      let availableRates = appSettingsModel.selectedCurrencyRate
+      let models = factory.createCurrencyWidgetModels(
+        forCurrency: activeCurrency,
+        amountEntered: enteredCurrencyAmount,
+        isUserInputActive: isUserInputVisible,
+        availableRates: availableRates,
+        rateCalculationMode: calculationMode,
+        decimalPlaces: appSettingsModel.currencyDecimalPlaces
+      )
+      currencyWidgets = models
+      validateRatesData()
+    }
+  }
+}
 
 // MARK: - Constants
 
-private enum Constants {}
+private enum Constants {
+  static let title = "Currency"
+}

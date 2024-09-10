@@ -62,10 +62,51 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
-  public func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void) {
+  public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {
     getAppSettingsModel { [weak self] model in
       var updatedModel = model
-      updatedModel.centralBanks = centralBanks
+      updatedModel.currencySource = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.currencyDecimalPlaces = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func setSelectedCurrencyRates(
+    _ currencyRates: [CurrencyRate.Currency],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      let newCurrencyRates = currencyRates.filter { !updatedModel.selectedCurrencyRate.contains($0) }
+      updatedModel.selectedCurrencyRate.append(contentsOf: newCurrencyRates)
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func removeCurrencyRates(
+    _ currencyRates: [CurrencyRate.Currency],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.selectedCurrencyRate.removeAll { currencyRates.contains($0) }
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func removeAllCurrencyRates(
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.selectedCurrencyRate.removeAll()
       self?.saveAppSettingsModel(updatedModel, completion: completion)
     }
   }

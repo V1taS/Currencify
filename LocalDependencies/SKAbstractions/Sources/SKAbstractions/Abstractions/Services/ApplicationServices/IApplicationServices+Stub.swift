@@ -17,10 +17,14 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService {
-  public func fetchCBCurrencyRates(completion: @escaping ([String : Double]) -> Void) {}
-  public func fetchECBCurrencyRates(completion: @escaping ([String : Double]) -> Void) {}
+  public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {}
+  public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {}
+  public func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {}
+  public func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {}
+  public func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {}
+  public func removeAllCurrencyRates(completion: @escaping () -> Void) {}
+  public func fetchCBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {}
   public var currencyRatesService: any ICurrencyRatesService { self }
-  public func setCentralBanks(_ centralBanks: CentralBanks, completion: @escaping () -> Void) {}
   public func saveAppSettingsModel(_ model: AppSettingsModel, completion: @escaping () -> Void) {}
   public func setIsPremiumEnabled(_ value: Bool, completion: @escaping () -> Void) {}
   public func getConfigurationValue<T>(from keyName: String, completion: @escaping (Result<T?, any Error>) -> Void) {}

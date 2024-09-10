@@ -29,18 +29,16 @@ struct CurrencyRatesConfigurator: Configurator {
     let semaphore = DispatchSemaphore(value: .zero)
     
     services.appSettingsDataManager.getAppSettingsModel { appSettingsModel in
-      switch appSettingsModel.centralBanks {
-      case .centralBankOfRussia:
-        services.dataManagementService.currencyRatesService.fetchCBCurrencyRates { rateDic in
-          services.appSettingsDataManager.setCentralBanks(.centralBankOfRussia(rateDic)) {
-            semaphore.signal()
-          }
+      switch appSettingsModel.currencySource {
+      case .cbr:
+        services.dataManagementService.currencyRatesService.fetchCBCurrencyRates { models in
+          Secrets.currencyRateList = models
+          semaphore.signal()
         }
-      case .europeanCentralBank:
-        services.dataManagementService.currencyRatesService.fetchECBCurrencyRates { rateDic in
-          services.appSettingsDataManager.setCentralBanks(.europeanCentralBank(rateDic)) {
-            semaphore.signal()
-          }
+      case .ecb:
+        services.dataManagementService.currencyRatesService.fetchECBCurrencyRates { models in
+          Secrets.currencyRateList = models
+          semaphore.signal()
         }
       }
     }

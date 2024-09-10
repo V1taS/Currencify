@@ -25,10 +25,14 @@ extension CBCurrencyRates {
     /// Курс валюты относительно рубля.
     let value: Double
     
+    /// Предыдущий курс валюты.
+    let previous: Double
+    
     enum CodingKeys: String, CodingKey {
       case charCode = "CharCode"
       case name = "Name"
       case value = "Value"
+      case previous = "Previous"
     }
   }
   
@@ -37,8 +41,35 @@ extension CBCurrencyRates {
     /// Словарь с валютами, где ключ - это код валюты, а значение - объект `Valute`.
     let valute: [String: Valute]
     
+    /// Дата актуального курса.
+    let date: Date
+    
     enum CodingKeys: String, CodingKey {
       case valute = "Valute"
+      case date = "Date"
+    }
+    
+    // Кастомный инициализатор для парсинга даты
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      self.valute = try container.decode([String: Valute].self, forKey: .valute)
+      
+      let dateString = try container.decode(String.self, forKey: .date)
+      
+      // Создаем DateFormatter для парсинга даты
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
+      
+      // Парсим строку даты в тип Date
+      if let parsedDate = dateFormatter.date(from: dateString) {
+        self.date = parsedDate
+      } else {
+        throw DecodingError.dataCorruptedError(
+          forKey: .date,
+          in: container,
+          debugDescription: "Неверный формат даты"
+        )
+      }
     }
   }
 }

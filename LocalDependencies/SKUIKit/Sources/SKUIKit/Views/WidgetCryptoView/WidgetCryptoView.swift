@@ -317,6 +317,7 @@ private extension WidgetCryptoView {
         item
           .frame(width: itemModel.size.width, height: itemModel.size.height)
           .allowsHitTesting(isHitTesting)
+          .layoutPriority(2)
       )
     case let .switcher(initNewValue, isEnabled, action):
       return AnyView(

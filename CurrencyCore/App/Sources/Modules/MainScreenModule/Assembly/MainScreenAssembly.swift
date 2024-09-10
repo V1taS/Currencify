@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SKUIKit
+import SKAbstractions
 
 /// Сборщик `MainScreen`
 public final class MainScreenAssembly {
@@ -15,8 +16,8 @@ public final class MainScreenAssembly {
   
   /// Собирает модуль `MainScreen`
   /// - Returns: Cобранный модуль `MainScreen`
-  public func createModule() -> MainScreenModule {
-    let interactor = MainScreenInteractor()
+  public func createModule(services: IApplicationServices) -> MainScreenModule {
+    let interactor = MainScreenInteractor(services: services)
     let factory = MainScreenFactory()
     let presenter = MainScreenPresenter(
       interactor: interactor,

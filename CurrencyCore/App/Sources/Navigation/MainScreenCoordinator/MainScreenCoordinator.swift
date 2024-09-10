@@ -49,7 +49,7 @@ extension MainScreenCoordinator: MainScreenModuleOutput {
 
 private extension MainScreenCoordinator {
   func openMainScreenModule() {
-    var mainScreenModule = MainScreenAssembly().createModule()
+    var mainScreenModule = MainScreenAssembly().createModule(services: services)
     mainScreenModule.input.moduleOutput = self
     self.mainScreenModule = mainScreenModule
     let navigationController = mainScreenModule.viewController.wrapToNavigationController()

@@ -7,4 +7,6 @@
 
 // MARK: - MainScreenLocalization
 
-"State.Button.Title" = "Hello World";
+"Button.Update.Title" = "Update";
+"Error.Load.Data.Title" = "Currency Load Error";
+"Error.Load.Data.Descriptor" = "Check your connection";

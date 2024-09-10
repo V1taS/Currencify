@@ -11,10 +11,10 @@ import Foundation
 public protocol ICurrencyRatesService {
   
   /// Получает курсы валют от Центрального банка России
-  /// - Parameter completion: Замыкание, которое возвращает словарь с кодами валют и их значениями
-  func fetchCBCurrencyRates(completion: @escaping ([String: Double]) -> Void)
+  /// - Parameter completion: Замыкание, которое возвращает массив моделей валют и их значений
+  func fetchCBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void)
   
-  /// Получает курсы валют от Европейского центрального банка
-  /// - Parameter completion: Замыкание, которое возвращает словарь с кодами валют и их значениями
-  func fetchECBCurrencyRates(completion: @escaping ([String: Double]) -> Void)
+  /// Получает курсы валют от Европейского Центрального Банка
+  /// - Parameter completion: Замыкание, которое возвращает массив моделей валют и их значений
+  func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void)
 }

@@ -22,72 +22,115 @@ public final class CurrencyRatesService: ICurrencyRatesService {
   // Приватный инициализатор для предотвращения создания других экземпляров
   private init() {}
   
+  // Запрос курсов валют от Центробанка России
+  public func fetchCBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {
+    let urlString = "https://www.cbr-xml-daily.ru/daily_json.js"
+    performRequest(with: urlString, parsingMethod: parseCBRData, completion: completion)
+  }
+  
+  // Запрос курсов валют от Европейского Центрального Банка
+  public func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {
+    let urlString = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+    performRequest(with: urlString, parsingMethod: parseECBData, completion: completion)
+  }
+}
+
+// MARK: - Private
+
+private extension CurrencyRatesService {
   // Создание сессии для запросов
-  private func createSession() -> URLSession {
+  func createSession() -> URLSession {
     let config = URLSessionConfiguration.default
     config.timeoutIntervalForRequest = 10
     config.timeoutIntervalForResource = 10
     return URLSession(configuration: config)
   }
   
-  // Запрос курсов валют от Центробанка России
-  public func fetchCBCurrencyRates(completion: @escaping ([String: Double]) -> Void) {
-    let urlString = "https://www.cbr-xml-daily.ru/daily_json.js"
-    
+  // Метод для выполнения сетевого запроса
+  func performRequest(
+    with urlString: String,
+    parsingMethod: @escaping (Data) throws -> [CurrencyRate],
+    completion: @escaping ([CurrencyRate]) -> Void
+  ) {
     guard let url = URL(string: urlString) else {
-      completion([:])
+      completion([])
       return
     }
     
     let task = createSession().dataTask(with: url) { data, _, error in
       if error != nil {
-        completion([:])
+        completion([])
         return
       }
       
       guard let data = data else {
-        completion([:])
+        completion([])
         return
       }
       
       do {
-        let decoder = JSONDecoder()
-        let cbrResponse = try decoder.decode(CBCurrencyRates.CBRResponse.self, from: data)
-        let currencies = Array(cbrResponse.valute.values)
-        let dictionary = Dictionary(uniqueKeysWithValues: currencies.compactMap { ($0.charCode, $0.value) })
-        completion(dictionary)
+        let parsedData = try parsingMethod(data)
+        completion(parsedData)
       } catch {
-        completion([:])
+        completion([])
       }
     }
     task.resume()
   }
   
-  // Запрос курсов валют от Европейского Центробанка
-  public func fetchECBCurrencyRates(completion: @escaping ([String: Double]) -> Void) {
-    let urlString = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+  // Парсинг данных от Центробанка России
+  func parseCBRData(_ data: Data) throws -> [CurrencyRate] {
+    let decoder = JSONDecoder()
+    let cbrResponse = try decoder.decode(CBCurrencyRates.CBRResponse.self, from: data)
+    let currencies = Array(cbrResponse.valute.values)
     
-    guard let url = URL(string: urlString) else {
-      completion([:])
-      return
+    var currencyModels: [CurrencyRate] = currencies.compactMap {
+      guard let currency = CurrencyRate.Currency(rawValue: $0.charCode) else {
+        return nil
+      }
+      return CurrencyRate(
+        currency: currency,
+        rate: $0.value,
+        lastUpdated: cbrResponse.date
+      )
     }
     
-    let task = createSession().dataTask(with: url) { data, _, error in
-      if error != nil {
-        completion([:])
-        return
+    // Добавить рубль с рассчитанным направлением изменения курса
+    currencyModels.append(
+      .init(
+        currency: .RUB,
+        rate: 1,
+        lastUpdated: cbrResponse.date
+      )
+    )
+    return currencyModels
+  }
+  
+  // Парсинг данных от Европейского Центрального Банка
+  func parseECBData(_ data: Data) throws -> [CurrencyRate] {
+    let parser = ECBXMLParser(data: data)
+    let ecbData = parser.parse()
+    
+    guard let ecbData else { return [] }
+    var currencyModels: [CurrencyRate] = ecbData.currencies.compactMap {
+      guard let currency = CurrencyRate.Currency(rawValue: $0.code) else {
+        return nil
       }
-      
-      guard let data = data else {
-        completion([:])
-        return
-      }
-      
-      let parser = ECBXMLParser(data: data)
-      let currencies = parser.parse()
-      let dictionary = Dictionary(uniqueKeysWithValues: currencies.compactMap { ($0.code, $0.rate) })
-      completion(dictionary)
+      return CurrencyRate(
+        currency: currency,
+        rate: $0.rate,
+        lastUpdated: ecbData.date
+      )
     }
-    task.resume()
+    
+    // Добавить евро с рассчитанным направлением изменения курса
+    currencyModels.append(
+      .init(
+        currency: .EUR,
+        rate: 1,
+        lastUpdated: ecbData.date
+      )
+    )
+    return currencyModels
   }
 }

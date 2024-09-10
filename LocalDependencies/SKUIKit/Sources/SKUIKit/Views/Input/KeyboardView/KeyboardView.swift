@@ -12,9 +12,9 @@ public struct KeyboardView: View {
   
   // MARK: - Private properties
   
-  @Binding private var value: String
+  @State private var value: String
   private var isEnabled: Bool
-  private let buttonSize: CGFloat = .s17
+  private let buttonSize: CGSize = .init(width: CGFloat.s18, height: .s12)
   private let onChange: ((_ newValue: String) -> Void)?
   
   // MARK: - Initialization
@@ -25,11 +25,11 @@ public struct KeyboardView: View {
   ///   - isEnabled: Клавиатура включена
   ///   - onChange: Акшен на каждый ввод с клавиатуры
   public init(
-    value: Binding<String>,
+    value: String,
     isEnabled: Bool,
     onChange: ((_ newValue: String) -> Void)?
   ) {
-    self._value = value
+    self.value = value
     self.isEnabled = isEnabled
     self.onChange = onChange
   }
@@ -37,7 +37,7 @@ public struct KeyboardView: View {
   // MARK: - Body
   
   public var body: some View {
-    VStack(spacing: .s6) {
+    VStack(spacing: .s2) {
       createNumberLine(numbers: Constants.firstLine)
       createNumberLine(numbers: Constants.secondLine)
       createNumberLine(numbers: Constants.thirdLine)
@@ -56,8 +56,9 @@ private extension KeyboardView {
     if title == "" {
       return AnyView(
         Color.clear
-          .frame(width: buttonSize, height: buttonSize)
-          .clipShape(Circle())
+          .frame(width: .infinity, height: buttonSize.height)
+          .clipShape(Rectangle())
+          .cornerRadius(.s3)
       )
     }
     
@@ -73,17 +74,17 @@ private extension KeyboardView {
           Text(title)
             .font(.fancy.text.largeTitle)
             .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
-            .fontWeight(.bold)
         }
-        .frame(width: buttonSize, height: buttonSize)
-        .clipShape(Circle())
+        .frame(width: .infinity, height: buttonSize.height)
+        .clipShape(Rectangle())
+        .cornerRadius(.s3)
       }
     )
   }
   
   func createNumberLine(numbers: [String]) -> AnyView {
     AnyView(
-      HStack(spacing: .zero) {
+      HStack(spacing: .s2) {
         ForEach(Array(numbers.enumerated()), id: \.offset) { _, number in
           switch number {
           case Constants.spacer:
@@ -117,11 +118,12 @@ private extension KeyboardView {
           Image(systemName: "delete.backward")
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: .s7, height: .s7)
+            .frame(width: .s7)
             .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
         }
-        .frame(width: buttonSize, height: buttonSize)
-        .clipShape(Circle())
+        .frame(width: .infinity, height: buttonSize.height)
+        .clipShape(Rectangle())
+        .cornerRadius(.s3)
       }
     )
   }
@@ -134,40 +136,24 @@ private enum Constants {
   static let spacer = "Spacer"
   static let remove = "Remove"
   static let firstLine: [String] = [
-    Constants.spacer,
     "1",
-    Constants.spacer,
     "2",
-    Constants.spacer,
-    "3",
-    Constants.spacer
+    "3"
   ]
   static let secondLine: [String] = [
-    Constants.spacer,
     "4",
-    Constants.spacer,
     "5",
-    Constants.spacer,
-    "6",
-    Constants.spacer
+    "6"
   ]
   static let thirdLine: [String] = [
-    Constants.spacer,
     "7",
-    Constants.spacer,
     "8",
-    Constants.spacer,
-    "9",
-    Constants.spacer
+    "9"
   ]
   static let fourthLine: [String] = [
-    Constants.spacer,
-    "",
-    Constants.spacer,
+    ",",
     "0",
-    Constants.spacer,
-    Constants.remove,
-    Constants.spacer
+    Constants.remove
   ]
 }
 
@@ -185,7 +171,7 @@ struct KeyboardView_Previews: PreviewProvider {
         
         HStack {
           KeyboardView(
-            value: .constant(""), 
+            value: "", 
             isEnabled: true,
             onChange: { newValue in }
           )

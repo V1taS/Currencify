@@ -1,0 +1,101 @@
+/*
+ CurrencyModelLocalization.strings
+ SKAbstractions
+ 
+ Created by Vitalii Sosin on 09.09.2024.
+ 
+ */
+
+"USD.Name" = "United States Dollar";
+"EUR.Name" = "Euro";
+"RUB.Name" = "Russian Ruble";
+"CAD.Name" = "Canadian Dollar";
+"BRL.Name" = "Brazilian Real";
+"VND.Name" = "Vietnamese Dong";
+"TMT.Name" = "Turkmenistan Manat";
+"HUF.Name" = "Hungarian Forint";
+"AZN.Name" = "Azerbaijani Manat";
+"BYN.Name" = "Belarusian Ruble";
+"ZAR.Name" = "South African Rand";
+"CHF.Name" = "Swiss Franc";
+"CZK.Name" = "Czech Koruna";
+"NZD.Name" = "New Zealand Dollar";
+"TRY.Name" = "Turkish Lira";
+"JPY.Name" = "Japanese Yen";
+"QAR.Name" = "Qatari Riyal";
+"BGN.Name" = "Bulgarian Lev";
+"SGD.Name" = "Singapore Dollar";
+"RSD.Name" = "Serbian Dinar";
+"NOK.Name" = "Norwegian Krone";
+"HKD.Name" = "Hong Kong Dollar";
+"THB.Name" = "Thai Baht";
+"SEK.Name" = "Swedish Krona";
+"MDL.Name" = "Moldovan Leu";
+"DKK.Name" = "Danish Krone";
+"AED.Name" = "UAE Dirham";
+"EGP.Name" = "Egyptian Pound";
+"KRW.Name" = "South Korean Won";
+"PLN.Name" = "Polish Zloty";
+"IDR.Name" = "Indonesian Rupiah";
+"CNY.Name" = "Chinese Yuan";
+"GBP.Name" = "British Pound Sterling";
+"GEL.Name" = "Georgian Lari";
+"UAH.Name" = "Ukrainian Hryvnia";
+"KGS.Name" = "Kyrgyzstani Som";
+"XDR.Name" = "Special Drawing Rights (SDR)";
+"TJS.Name" = "Tajikistani Somoni";
+"AMD.Name" = "Armenian Dram";
+"AUD.Name" = "Australian Dollar";
+"KZT.Name" = "Kazakhstani Tenge";
+"RON.Name" = "Romanian Leu";
+"UZS.Name" = "Uzbekistani Som";
+"INR.Name" = "Indian Rupee";
+
+// Countries (country)
+"USD.Country" = "United States";
+"EUR.Country" = "European Union";
+"RUB.Country" = "Russia";
+"CAD.Country" = "Canada";
+"BRL.Country" = "Brazil";
+"VND.Country" = "Vietnam";
+"TMT.Country" = "Turkmenistan";
+"HUF.Country" = "Hungary";
+"AZN.Country" = "Azerbaijan";
+"BYN.Country" = "Belarus";
+"ZAR.Country" = "South Africa";
+"CHF.Country" = "Switzerland";
+"CZK.Country" = "Czech Republic";
+"NZD.Country" = "New Zealand";
+"TRY.Country" = "Turkey";
+"JPY.Country" = "Japan";
+"QAR.Country" = "Qatar";
+"BGN.Country" = "Bulgaria";
+"SGD.Country" = "Singapore";
+"RSD.Country" = "Serbia";
+"NOK.Country" = "Norway";
+"HKD.Country" = "Hong Kong";
+"THB.Country" = "Thailand";
+"SEK.Country" = "Sweden";
+"MDL.Country" = "Moldova";
+"DKK.Country" = "Denmark";
+"AED.Country" = "United Arab Emirates";
+"EGP.Country" = "Egypt";
+"KRW.Country" = "South Korea";
+"PLN.Country" = "Poland";
+"IDR.Country" = "Indonesia";
+"CNY.Country" = "China";
+"GBP.Country" = "United Kingdom";
+"GEL.Country" = "Georgia";
+"UAH.Country" = "Ukraine";
+"KGS.Country" = "Kyrgyzstan";
+"XDR.Country" = "International Monetary Fund";
+"TJS.Country" = "Tajikistan";
+"AMD.Country" = "Armenia";
+"AUD.Country" = "Australia";
+"KZT.Country" = "Kazakhstan";
+"RON.Country" = "Romania";
+"UZS.Country" = "Uzbekistan";
+"INR.Country" = "India";
+
+"CurrencySource.CBR" = "Central Bank of Russia";
+"CurrencySource.ECB" = "European Central Bank";
