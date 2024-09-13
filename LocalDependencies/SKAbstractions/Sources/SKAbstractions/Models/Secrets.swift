@@ -10,7 +10,6 @@ import Foundation
 public enum Secrets {
   public static var supportMail = ""
   public static var apiKeyApphud = ""
-  public static var fredApi = ""
   public static var premiumList: [PremiumModel] = []
   public static var currencyRateList: [CurrencyRate] = []
 }

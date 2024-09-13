@@ -30,7 +30,6 @@ struct ConfigurationValueConfigurator: Configurator {
   // MARK: - Internal func
   
   func configure() {
-    getFredApi()
     getApiKeyApphud()
     getSupportOChatMail()
     getPremiumList()
@@ -40,12 +39,6 @@ struct ConfigurationValueConfigurator: Configurator {
 // MARK: - Private
 
 private extension ConfigurationValueConfigurator {
-  func getFredApi() {
-    if let value = getConfigurationValue(forKey: Constants.fredApi) {
-      Secrets.fredApi = value
-    }
-  }
-  
   func getApiKeyApphud() {
     if let value = getConfigurationValue(forKey: Constants.apiKeyApphud) {
       Secrets.apiKeyApphud = value
@@ -122,7 +115,6 @@ private enum Constants {
   static let supportOChatMail = "SupportOChatMail"
   static let premiumList = "PremiumList"
   static let apiKeyApphud = "ApiKeyApphud"
-  static let fredApi = "FredApi"
   
   static let oneDayPassKey = "OneDayPassKey"
 }
