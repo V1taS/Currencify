@@ -42,6 +42,10 @@ final class SettingsScreenFlowCoordinator: Coordinator<Void, SettingsScreenFinis
 // MARK: - MainScreenModuleOutput
 
 extension SettingsScreenFlowCoordinator: SettingsScreenModuleOutput {
+  func userSelectEditRate() {
+    // TODO: - 
+  }
+  
   func userSelectPremium() {
     openPremiumScreenModule()
   }

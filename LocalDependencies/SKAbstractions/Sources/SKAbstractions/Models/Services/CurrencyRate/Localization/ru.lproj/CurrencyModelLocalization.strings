@@ -97,5 +97,5 @@
 "UZS.Country" = "Узбекистан";
 "INR.Country" = "Индия";
 
-"CurrencySource.CBR" = "Центробанк России";
-"CurrencySource.ECB" = "Европейский Центральный Банк";
+"CurrencySource.CBR" = "ЦБ России";
+"CurrencySource.ECB" = "ЦБ Европы";

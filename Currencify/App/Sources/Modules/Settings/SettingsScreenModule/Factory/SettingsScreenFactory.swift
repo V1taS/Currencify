@@ -23,6 +23,15 @@ protocol SettingsScreenFactoryOutput: AnyObject {
   
   /// Пользователь выбрал Премиум
   func userSelectPremium()
+  
+  /// Пользователь выбрал Премиум
+  func userSelectMaxFraction(_ fraction: Int) async
+  
+  /// Пользователь выбрал Источник загрузки курсов валют
+  func userSelectCurrencyRateSource(_ rateSource: Int) async
+  
+  /// Пользователь выбрал отредактировать курс
+  func userSelectEditRate()
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
@@ -119,6 +128,8 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     premiumState: String
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
+    let lastUpdated = Secrets.currencyRateList.first?.lastUpdated ?? Date()
+    let isPremium = false
     
     let premiumModel = createWidgetWithChevron(
       image: Image(systemName: "star.fill"),
@@ -130,6 +141,51 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       }
     )
     models.append(premiumModel)
+    
+    let editRateModel = createWidgetWithChevron(
+      image: Image(systemName: "dollarsign"),
+      backgroundColor: #colorLiteral(red: 0.5217602253, green: 0.6389207244, blue: 0.9697448611, alpha: 1),
+      title: CurrencifyStrings.SettingsScreenLocalization
+        .EditRate.title,
+      action: { [weak self] in
+        self?.output?.userSelectEditRate()
+      }
+    )
+    models.append(editRateModel)
+    
+    let maxFractionModel = createMaxFraction(
+      title: CurrencifyStrings.SettingsScreenLocalization
+        .MaxFraction.title,
+      description: isPremium ? nil : CurrencifyStrings.SettingsScreenLocalization
+        .AvailableInPremiumOnly.title,
+      selectedSegment: appSettingsModel.currencyDecimalPlaces.rawValue,
+      segments: CurrencyDecimalPlaces.allCases.compactMap({ $0.rawValue }),
+      isPremium: isPremium,
+      action: { [weak self] newValue in
+        Task { [weak self] in
+          await self?.output?.userSelectMaxFraction(newValue)
+        }
+      }
+    )
+    models.append(maxFractionModel)
+    
+    let currencyRateSourceModel = createMaxFraction(
+      title: CurrencifyStrings.SettingsScreenLocalization
+        .CurrencyRateSource.title,
+      description: isPremium ? CurrencifyStrings.SettingsScreenLocalization
+        .LastUpdated.title("\(formatDate(lastUpdated))") : CurrencifyStrings.SettingsScreenLocalization
+        .AvailableInPremiumOnly.title,
+      selectedSegment: appSettingsModel.currencySource.rawValue,
+      segments: CurrencySource.allCases.compactMap({ $0.description }),
+      isPremium: isPremium,
+      action: { [weak self] newValue in
+        Task { [weak self] in
+          await self?.output?.userSelectCurrencyRateSource(newValue)
+        }
+      }
+    )
+    models.append(currencyRateSourceModel)
+    
     return models
   }
 }
@@ -137,6 +193,53 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
 // MARK: - Private
 
 private extension SettingsScreenFactory {
+  func createMaxFraction<Element: Collection>(
+    title: String,
+    description: String?,
+    selectedSegment: Int,
+    segments: Element,
+    isPremium: Bool,
+    action: @escaping (Int) -> Void
+  ) -> WidgetCryptoView.Model where Element.Element: CustomStringConvertible {
+    .init(
+      leftSide: nil,
+      rightSide: nil,
+      additionCenterContent: AnyView(
+        VStack {
+          HStack {
+            Text(title)
+              .font(.fancy.text.regular)
+              .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
+              .lineLimit(1)
+              .multilineTextAlignment(.leading)
+            Spacer()
+          }
+          
+          SegmentedPickerView(
+            selectedSegment: selectedSegment,
+            segments: segments,
+            isEnabled: isPremium,
+            action: action
+          )
+          
+          if let description {
+            HStack {
+              Text(description)
+                .font(.fancy.text.small)
+                .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor)
+                .lineLimit(1)
+                .multilineTextAlignment(.leading)
+              Spacer()
+            }
+          }
+        }
+          .padding(.bottom, .s1)
+      ),
+      isSelectable: false,
+      action: nil
+    )
+  }
+  
   func createWidgetWithChevron(
     image: Image,
     backgroundColor: UIColor,
@@ -177,6 +280,12 @@ private extension SettingsScreenFactory {
       ),
       action: action
     )
+  }
+  
+  func formatDate(_ date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "dd.MM.yyyy"
+    return dateFormatter.string(from: date)
   }
 }
 

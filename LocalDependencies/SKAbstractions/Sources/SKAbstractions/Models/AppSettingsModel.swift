@@ -45,7 +45,7 @@ public struct AppSettingsModel {
 extension AppSettingsModel {
   public static func setDefaultValues() -> Self {
     return .init(
-      isPremium: false,
+      isPremium: true,
       selectedCurrencyRate: [
         .USD,
         .EUR,

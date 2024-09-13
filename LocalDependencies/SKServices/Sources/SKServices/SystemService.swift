@@ -35,11 +35,13 @@ public final class SystemService: ISystemService {
         return
       }
       
-      UIApplication.shared.open(settingsURL) { success in
-        if success {
-          continuation.resume(returning: .success(()))
-        } else {
-          continuation.resume(returning: .failure(.failedToOpenURL))
+      DispatchQueue.main.async {
+        UIApplication.shared.open(settingsURL) { success in
+          if success {
+            continuation.resume(returning: .success(()))
+          } else {
+            continuation.resume(returning: .failure(.failedToOpenURL))
+          }
         }
       }
     }

@@ -25,3 +25,8 @@
 "Premium.Title" = "Премиум";
 "Premium.Activated" = "Активирован";
 "Premium.NotActivated" = "Не активирован";
+"EditRate.Title" = "Правка курса";
+"MaxFraction.Title" = "Максимальная дробь";
+"AvailableInPremiumOnly.Title" = "Доступно только в Премиум";
+"CurrencyRateSource.Title" = "Источник курсов валют";
+"LastUpdated.Title" = "Дата обновления %@";

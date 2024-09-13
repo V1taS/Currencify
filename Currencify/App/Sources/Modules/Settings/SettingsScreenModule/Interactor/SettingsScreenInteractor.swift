@@ -40,6 +40,15 @@ protocol SettingsScreenInteractorInput {
   
   /// Получить статус премиума
   func getIsPremiumState() async -> Bool
+  
+  /// Устанавливает источник валютных данных.
+  func setCurrencySource(_ value: CurrencySource) async
+  
+  /// Устанавливает количество знаков после запятой для отображения валютных значений.
+  func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces) async
+  
+  /// Загрузить курсы из нового источника
+  func fetchurrencyRates(_ currencySource: CurrencySource) async
 }
 
 /// Интерактор
@@ -54,6 +63,7 @@ final class SettingsScreenInteractor {
   private let systemService: ISystemService
   private let notificationService: INotificationService
   private let appSettingsDataManager: IAppSettingsDataManager
+  private let dataManagementService: IDataManagementService
   
   // MARK: - Initialization
   
@@ -63,12 +73,46 @@ final class SettingsScreenInteractor {
     systemService = services.userInterfaceAndExperienceService.systemService
     notificationService = services.userInterfaceAndExperienceService.notificationService
     appSettingsDataManager = services.appSettingsDataManager
+    dataManagementService = services.dataManagementService
   }
 }
 
 // MARK: - SettingsScreenInteractorInput
 
 extension SettingsScreenInteractor: SettingsScreenInteractorInput {
+  func fetchurrencyRates(_ currencySource: CurrencySource) async {
+    await withCheckedContinuation { continuation in
+      switch currencySource {
+      case .cbr:
+        dataManagementService.currencyRatesService.fetchCBCurrencyRates { models in
+          Secrets.currencyRateList = models
+          continuation.resume()
+        }
+      case .ecb:
+        dataManagementService.currencyRatesService.fetchECBCurrencyRates { models in
+          Secrets.currencyRateList = models
+          continuation.resume()
+        }
+      }
+    }
+  }
+  
+  func setCurrencySource(_ value: CurrencySource) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setCurrencySource(value) {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setCurrencyDecimalPlaces(value) {
+        continuation.resume()
+      }
+    }
+  }
+  
   func getIsPremiumState() async -> Bool {
     await getAppSettingsModel().isPremium
   }

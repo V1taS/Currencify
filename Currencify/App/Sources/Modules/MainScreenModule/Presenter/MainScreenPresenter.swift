@@ -49,6 +49,11 @@ final class MainScreenPresenter: ObservableObject {
     setupInitialState()
   }
   
+  lazy var viewWillAppear: (() -> Void)? = { [weak self] in
+    guard let self else { return }
+    recalculateCurrencyWidgets()
+  }
+  
   // MARK: - Internal func
   
   func refreshCurrencyData() {
@@ -125,9 +130,7 @@ extension MainScreenPresenter: SceneViewModel {
 // MARK: - Private
 
 private extension MainScreenPresenter {
-  func setupInitialState() {
-    recalculateCurrencyWidgets()
-  }
+  func setupInitialState() {}
   
   func validateRatesData() {
     DispatchQueue.main.async { [weak self] in

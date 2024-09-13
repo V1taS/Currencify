@@ -25,3 +25,8 @@
 "Premium.Title" = "Premium";
 "Premium.Activated" = "Activated";
 "Premium.NotActivated" = "Not activated";
+"EditRate.Title" = "Edit rate";
+"MaxFraction.Title" = "Maximum fraction";
+"AvailableInPremiumOnly.Title" = "Available in Premium only";
+"CurrencyRateSource.Title" = "Currency rate source";
+"LastUpdated.Title" = "Last updated on %@";

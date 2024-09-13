@@ -8,7 +8,7 @@
 import Foundation
 
 /// Перечисление для указания количества десятичных знаков в валютных значениях.
-public enum CurrencyDecimalPlaces: Int {
+public enum CurrencyDecimalPlaces: Int, CaseIterable {
   /// Без десятичных знаков.
   case zero = 0
   

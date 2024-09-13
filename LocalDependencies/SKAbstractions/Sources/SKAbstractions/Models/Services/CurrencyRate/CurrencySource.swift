@@ -10,7 +10,7 @@ import Foundation
 /// Источник курсов валют
 /// - `cbr`: Центробанк России
 /// - `ecb`: Европейский Центральный Банк
-public enum CurrencySource {
+public enum CurrencySource: Int, CaseIterable {
   
   /// Центробанк России
   case cbr
