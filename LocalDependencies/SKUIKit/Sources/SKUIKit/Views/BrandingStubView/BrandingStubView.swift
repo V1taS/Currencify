@@ -30,7 +30,7 @@ public struct BrandingStubView: View {
       VStack(spacing: .s4) {
         Spacer()
         
-        Image(SKStyleAsset.pixelLogo.name, bundle: SKStyleResources.bundle)
+        Image(SKStyleAsset.currencifyLogo.name, bundle: SKStyleResources.bundle)
           .resizable()
           .renderingMode(.template)
           .aspectRatio(contentMode: .fit)

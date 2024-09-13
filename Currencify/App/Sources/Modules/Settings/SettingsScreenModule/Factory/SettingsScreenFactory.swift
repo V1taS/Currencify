@@ -33,13 +33,13 @@ protocol SettingsScreenFactoryInput {
   /// Создать верхнюю секцию
   func createTopWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    languageValue: String,
-    premiumState: String
+    languageValue: String
   ) -> [WidgetCryptoView.Model]
   
   /// Создать верхнюю секцию
   func createBottomWidgetModels(
-    _ appSettingsModel: AppSettingsModel
+    _ appSettingsModel: AppSettingsModel,
+    premiumState: String
   ) -> [WidgetCryptoView.Model]
   
   /// Создаем заголовок, какой язык выбран в приложении Русский или Английский
@@ -75,22 +75,9 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
   
   func createTopWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    languageValue: String,
-    premiumState: String
+    languageValue: String
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
-    
-    let languageModel = createWidgetWithChevron(
-      image: Image(systemName: "globe"),
-      backgroundColor: #colorLiteral(red: 0.02118782885, green: 0.6728788018, blue: 0.6930519938, alpha: 1),
-      title: CurrencifyStrings.SettingsScreenLocalization
-        .State.Language.title,
-      additionRightTitle: languageValue,
-      action: { [weak self] in
-        self?.output?.openLanguageSection()
-      }
-    )
-    models.append(languageModel)
     
     let appearanceModel = createWidgetWithChevron(
       image: Image(systemName: "applepencil.and.scribble"),
@@ -103,16 +90,17 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     )
     models.append(appearanceModel)
     
-    let premiumModel = createWidgetWithChevron(
-      image: Image(systemName: "star.fill"),
-      backgroundColor: #colorLiteral(red: 0.8638121486, green: 0.2361198068, blue: 0.8861094117, alpha: 1),
-      title: CurrencifyStrings.SettingsScreenLocalization.Premium.title,
-      additionRightTitle: premiumState,
+    let languageModel = createWidgetWithChevron(
+      image: Image(systemName: "globe"),
+      backgroundColor: #colorLiteral(red: 0.02118782885, green: 0.6728788018, blue: 0.6930519938, alpha: 1),
+      title: CurrencifyStrings.SettingsScreenLocalization
+        .State.Language.title,
+      additionRightTitle: languageValue,
       action: { [weak self] in
-        self?.output?.userSelectPremium()
+        self?.output?.openLanguageSection()
       }
     )
-    models.append(premiumModel)
+    models.append(languageModel)
     
     let feedbackModel = createWidgetWithChevron(
       image: Image(systemName: "pencil"),
@@ -127,9 +115,22 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
   }
   
   func createBottomWidgetModels(
-    _ appSettingsModel: AppSettingsModel
+    _ appSettingsModel: AppSettingsModel,
+    premiumState: String
   ) -> [WidgetCryptoView.Model] {
-    return []
+    var models: [WidgetCryptoView.Model] = []
+    
+    let premiumModel = createWidgetWithChevron(
+      image: Image(systemName: "star.fill"),
+      backgroundColor: #colorLiteral(red: 0.8638121486, green: 0.2361198068, blue: 0.8861094117, alpha: 1),
+      title: CurrencifyStrings.SettingsScreenLocalization.Premium.title,
+      additionRightTitle: premiumState,
+      action: { [weak self] in
+        self?.output?.userSelectPremium()
+      }
+    )
+    models.append(premiumModel)
+    return models
   }
 }
 

@@ -33,7 +33,7 @@ public enum SKStyleAsset {
   public static let navy = SKStyleColors(name: "navy")
   public static let onyx = SKStyleColors(name: "onyx")
   public static let componentSlateMessageBG = SKStyleColors(name: "componentSlateMessageBG")
-  public static let pixelLogo = SKStyleAssetData(name: "pixel_logo")
+  public static let currencifyLogo = SKStyleAssetData(name: "currencify_logo")
 }
 // swiftlint:enable identifier_name line_length nesting type_body_length type_name
 

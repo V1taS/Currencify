@@ -116,10 +116,12 @@ private extension SettingsScreenPresenter {
     
     stateTopWidgetModels = factory.createTopWidgetModels(
       appSettingsModel,
-      languageValue: languageValue, 
+      languageValue: languageValue
+    )
+    stateBottomWidgetModels = factory.createBottomWidgetModels(
+      appSettingsModel,
       premiumState: premiumState
     )
-    stateBottomWidgetModels = factory.createBottomWidgetModels(appSettingsModel)
   }
   
   func getPremiumActivatedState() async {

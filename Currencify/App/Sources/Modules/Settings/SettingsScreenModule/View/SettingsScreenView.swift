@@ -88,7 +88,7 @@ struct SettingsScreenView: View {
 private extension SettingsScreenView {
   func applicationVersionView() -> some View {
     VStack(spacing: .zero) {
-      Image(SKStyleAsset.pixelLogo.name, bundle: SKStyleResources.bundle)
+      Image(SKStyleAsset.currencifyLogo.name, bundle: SKStyleResources.bundle)
       .resizable()
       .renderingMode(.template)
       .foregroundColor(SKStyleAsset.ghost.swiftUIColor)

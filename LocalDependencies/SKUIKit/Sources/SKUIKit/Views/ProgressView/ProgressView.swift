@@ -45,7 +45,7 @@ public struct ProgressGradientView: View {
             )
             .frame(width: innerCircleDiameter, height: innerCircleDiameter)
             .overlay {
-              Image(SKStyleAsset.pixelLogo.name, bundle: SKStyleResources.bundle)
+              Image(SKStyleAsset.currencifyLogo.name, bundle: SKStyleResources.bundle)
               .resizable()
               .renderingMode(.template)
               .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
