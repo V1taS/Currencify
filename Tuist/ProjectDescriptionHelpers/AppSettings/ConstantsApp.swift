@@ -6,13 +6,13 @@ public enum Constants {
   // App
   static public let organizationName = "SosinVitalii.com"
   static public let reverseOrganizationName = "com.sosinvitalii"
-  static public let appNameRelease = "CurrencyCore"
-  static public let appDisplayName = "CurrencyCore"
-  static public let appNameDebug = "CurrencyCore-Dev"
-  static public let rootPath = "CurrencyCore"
+  static public let appNameRelease = "Currencify"
+  static public let appDisplayName = "Currencify"
+  static public let appNameDebug = "Currencify-Dev"
+  static public let rootPath = "Currencify"
   static public let appPath = "App"
   static public let dependenciesPath = "LocalDependencies"
-  static public let bundleApp = "com.sosinvitalii.CurrencyCore"
+  static public let bundleApp = "com.sosinvitalii.Currencify"
   static public let developmentRegion = "en"
 
   // Settings

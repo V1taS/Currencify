@@ -65,8 +65,8 @@ fastlane/test_output
 Derived
 graph.png
 derived_data
-CurrencyCore.xcodeproj
-CurrencyCore.xcworkspace
+Currencify.xcodeproj
+Currencify.xcworkspace
 Tuist/Package.resolved
 LocalDependencies/SKServices/SKServices.xcodeproj/project.pbxproj
 LocalDependencies/SKUIKit/SKUIKit.xcodeproj/project.pbxproj

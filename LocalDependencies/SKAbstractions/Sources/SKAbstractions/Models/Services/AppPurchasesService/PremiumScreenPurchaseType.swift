@@ -13,11 +13,11 @@ public enum PremiumScreenPurchaseType: CaseIterable {
   public var productIdentifiers: String {
     switch self {
     case .yearly:
-      return "com.sosinvitalii.CurrencyCore.YearlyPremiumAccess"
+      return "com.sosinvitalii.Currencify.YearlyPremiumAccess"
     case .monthly:
-      return "com.sosinvitalii.CurrencyCore.MonthlyPremiumAccess"
+      return "com.sosinvitalii.Currencify.MonthlyPremiumAccess"
     case .lifetime:
-      return "com.sosinvitalii.CurrencyCore.OneTimePurchasePremiumAccess"
+      return "com.sosinvitalii.Currencify.OneTimePurchasePremiumAccess"
     }
   }
   

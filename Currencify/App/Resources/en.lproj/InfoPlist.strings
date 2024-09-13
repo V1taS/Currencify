@@ -1,0 +1,16 @@
+/* 
+  InfoPlist.strings
+  Currencify
+
+  Created by Vitalii Sosin on 15.08.2024.
+  Copyright © 2024 SosinVitalii.com. All rights reserved.
+*/
+
+// MARK: - System
+
+"NSPhotoLibraryAddUsageDescription" = "Please grant access to your gallery to save images with embedded data.";
+"NSPhotoLibraryUsageDescription" = "Please grant access to your gallery to upload images for hiding or extracting data.";
+"NSCameraUsageDescription" = "Please grant access to your camera to take photos and embed hidden data in them.";
+"NSFaceIDUsageDescription" = "Please grant access to Face ID for secure access to hidden data.";
+"NSMicrophoneUsageDescription" = "Please grant access to the microphone to record audio messages and embed them in images.";
+"NSUserNotificationUsageDescription" = "Please allow notifications to receive updates on the status of embedded data.";

@@ -16,7 +16,7 @@ public final class CloudKitService: ICloudKitService {
   public init() {}
   
   public func getConfigurationValue<T>(from keyName: String, completion: @escaping (Result<T?, Error>) -> Void) {
-    let container = CKContainer(identifier: "iCloud.com.sosinvitalii.CurrencyCore")
+    let container = CKContainer(identifier: "iCloud.com.sosinvitalii.Currencify")
     let publicDatabase = container.publicCloudDatabase
     let predicate = NSPredicate(value: true)
     let query = CKQuery(recordType: "Config", predicate: predicate)

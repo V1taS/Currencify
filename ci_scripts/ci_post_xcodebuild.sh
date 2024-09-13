@@ -21,7 +21,7 @@ if [ -z "$CI_PULL_REQUEST_NUMBER" ] && [ -z "$CI_PULL_REQUEST_SOURCE_BRANCH" ]; 
     git tag $MARKETING_VERSION
     
     # Установка токена аутентификации для GitHub
-    git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/V1taS/CurrencyCore.git
+    git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/V1taS/Currencify.git
     
     # Пуш тегов
     git push --tags

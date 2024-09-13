@@ -5,8 +5,8 @@
 cd /Volumes/workspace/repository/
 
 # Обновление файла с версиями
-echo "MARKETING_VERSION=1.$CI_BUILD_NUMBER" > CurrencyCore.xcconfig
-echo "CURRENT_PROJECT_VERSION=$CI_BUILD_NUMBER" >> CurrencyCore.xcconfig
+echo "MARKETING_VERSION=1.$CI_BUILD_NUMBER" > Currencify.xcconfig
+echo "CURRENT_PROJECT_VERSION=$CI_BUILD_NUMBER" >> Currencify.xcconfig
 
 # Печать новых версий в консоль
 echo "✅ MARKETING_VERSION=1.$CI_BUILD_NUMBER"

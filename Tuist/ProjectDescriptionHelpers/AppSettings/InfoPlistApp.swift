@@ -91,7 +91,7 @@ public extension InfoPlist {
         .string("processing")
       ]),
       "BGTaskSchedulerPermittedIdentifiers": .array([
-        .string("com.sosinvitalii.CurrencyCore.refresh")
+        .string("com.sosinvitalii.Currencify.refresh")
       ]),
       "UIKeyboardDoesNotSupportHardwareKeyboard": .boolean(true),
       "UITextInputTraitSoftwareKeyboardBehavior": .integer(1),

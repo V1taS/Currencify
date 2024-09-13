@@ -1,4 +1,4 @@
-# CurrencyCore (SwiftUI)
+# Currencify (SwiftUI)
 
 ## SetUP
 

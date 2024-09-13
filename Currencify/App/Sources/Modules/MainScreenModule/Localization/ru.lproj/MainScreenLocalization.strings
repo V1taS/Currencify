@@ -1,0 +1,12 @@
+//
+//  MainScreenLocalization.strings
+//  Currencify
+//
+//  Created by Vitalii Sosin on 07.09.2024.
+//
+
+// MARK: - MainScreenLocalization
+
+"Button.Update.Title" = "Обновить";
+"Error.Load.Data.Title" = "Ошибка загрузки курсов валют";
+"Error.Load.Data.Descriptor" = "Проверьте соединение";

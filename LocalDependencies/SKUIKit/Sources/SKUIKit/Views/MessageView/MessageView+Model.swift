@@ -1,6 +1,6 @@
 //
 //  MessageView+Model.swift
-//  CurrencyCore
+//  Currencify
 //
 //  Created by Vitalii Sosin on 24.06.2024.
 //  Copyright © 2024 SosinVitalii.com. All rights reserved.
