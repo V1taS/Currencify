@@ -73,14 +73,24 @@ final class PremiumScreenFactory: PremiumScreenFactoryInput {
       .onboardingPage(
         [
           OnboardingViewModel.PageModel(
-            title: CurrencifyStrings.PremiumScreenLocalization.Page._1.title,
-            description: CurrencifyStrings.PremiumScreenLocalization.Page._1.description,
-            lottieAnimationJSONName: CurrencifyAsset.premiumDonate.name
+            title: CurrencifyStrings.PremiumScreenLocalization.Page._3.title,
+            description: CurrencifyStrings.PremiumScreenLocalization.Page._3.description,
+            lottieAnimationJSONName: CurrencifyAsset.animationPreciseFraction.name
           ),
           OnboardingViewModel.PageModel(
-            title: CurrencifyStrings.PremiumScreenLocalization.Page._1.title,
-            description: CurrencifyStrings.PremiumScreenLocalization.Page._1.description,
-            lottieAnimationJSONName: CurrencifyAsset.premiumDonate.name
+            title: CurrencifyStrings.PremiumScreenLocalization.Page._2.title,
+            description: CurrencifyStrings.PremiumScreenLocalization.Page._2.description,
+            lottieAnimationJSONName: CurrencifyAsset.animationRateAdjustment.name
+          ),
+          OnboardingViewModel.PageModel(
+            title: CurrencifyStrings.PremiumScreenLocalization.Page._4.title,
+            description: CurrencifyStrings.PremiumScreenLocalization.Page._4.description,
+            lottieAnimationJSONName: CurrencifyAsset.animationSourceSelection.name
+          ),
+          OnboardingViewModel.PageModel(
+            title: CurrencifyStrings.PremiumScreenLocalization.Page._5.title,
+            description: CurrencifyStrings.PremiumScreenLocalization.Page._5.description,
+            lottieAnimationJSONName: CurrencifyAsset.animationMoreCurrencies.name
           ),
           OnboardingViewModel.PageModel(
             title: CurrencifyStrings.PremiumScreenLocalization.Page._1.title,

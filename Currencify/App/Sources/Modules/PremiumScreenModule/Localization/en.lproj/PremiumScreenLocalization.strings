@@ -24,3 +24,15 @@
 
 "page.1.title" = "Support the Project";
 "page.1.description" = "Become part of the community helping us grow rapidly";
+
+"page.2.title" = "Rate Adjustment";
+"page.2.description" = "Adjust currency rates by the selected percentage";
+
+"page.3.title" = "Calculation Precision";
+"page.3.description" = "Set the number of decimal places from 0 to 5";
+
+"page.4.title" = "Data Source";
+"page.4.description" = "Choose the source for currency rates";
+
+"page.5.title" = "More Currencies";
+"page.5.description" = "Add multiple currencies to the main screen to display rates";
