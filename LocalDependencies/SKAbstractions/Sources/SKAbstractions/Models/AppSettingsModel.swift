@@ -21,22 +21,28 @@ public struct AppSettingsModel {
   /// Количество знаков после запятой для отображения валютных значений.
   public var currencyDecimalPlaces: CurrencyDecimalPlaces
   
+  /// Корекция текущего курса в процентах
+  public var rateCorrectionPercentage: Double
+  
   /// Инициализирует новый экземпляр `AppSettingsModel`
   /// - Parameters:
   ///   - isPremium: Премиум режим
   ///   - selectedCurrencyRate: Выбранные валюты
   ///   - currencySource: Источник курсов валют
-  ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений.
+  ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений
+  ///   - rateCorrectionPercentage: Корекция текущего курса в процентах
   public init(
     isPremium: Bool,
     selectedCurrencyRate: [CurrencyRate.Currency],
     currencySource: CurrencySource,
-    currencyDecimalPlaces: CurrencyDecimalPlaces
+    currencyDecimalPlaces: CurrencyDecimalPlaces,
+    rateCorrectionPercentage: Double
   ) {
     self.isPremium = isPremium
     self.selectedCurrencyRate = selectedCurrencyRate
     self.currencySource = currencySource
     self.currencyDecimalPlaces = currencyDecimalPlaces
+    self.rateCorrectionPercentage = rateCorrectionPercentage
   }
 }
 
@@ -52,7 +58,8 @@ extension AppSettingsModel {
         .RUB
       ],
       currencySource: .cbr, 
-      currencyDecimalPlaces: .two
+      currencyDecimalPlaces: .two, 
+      rateCorrectionPercentage: .zero
     )
   }
 }

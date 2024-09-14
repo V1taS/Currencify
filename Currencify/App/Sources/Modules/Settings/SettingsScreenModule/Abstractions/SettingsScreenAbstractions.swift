@@ -20,9 +20,6 @@ public protocol SettingsScreenModuleOutput: AnyObject {
   
   /// Пользователь выбрал Премиум
   func userSelectPremium()
-  
-  /// Пользователь выбрал отредактировать курс
-  func userSelectEditRate()
 }
 
 /// События которые отправляем из `Coordinator` в `SettingsScreenModule`

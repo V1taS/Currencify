@@ -30,3 +30,4 @@
 "AvailableInPremiumOnly.Title" = "Доступно только в Премиум";
 "CurrencyRateSource.Title" = "Источник курсов валют";
 "LastUpdated.Title" = "Дата обновления %@";
+"EditRate.Description" = "Увеличьте или уменьшите стоимость всех валют на выбранный вами процент";

@@ -17,6 +17,7 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService {
+  public func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void) {}
   public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {}
   public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {}
   public func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {}

@@ -62,9 +62,14 @@ public protocol IAppSettingsDataManager {
   func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void)
   
   /// Устанавливает количество знаков после запятой для отображения валютных значений.
-  ///
   /// - Parameters:
   ///   - value: Значение из перечисления `CurrencyDecimalPlaces`, определяющее количество знаков после запятой (от 0 до 5).
   ///   - completion: Замыкание, которое вызывается после завершения операции.
   func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void)
+  
+  /// Устанавливает корекцию текущего курса в процентах
+  /// - Parameters:
+  ///   - value: Значение корректировки в проценте
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void)
 }

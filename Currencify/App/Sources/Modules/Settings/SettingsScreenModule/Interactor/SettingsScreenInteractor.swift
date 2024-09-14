@@ -49,6 +49,11 @@ protocol SettingsScreenInteractorInput {
   
   /// Загрузить курсы из нового источника
   func fetchurrencyRates(_ currencySource: CurrencySource) async
+  
+  /// Устанавливает корекцию текущего курса в процентах
+  /// - Parameters:
+  ///   - value: Значение корректировки в проценте
+  func setRateCorrectionPercentage(_ value: Double) async
 }
 
 /// Интерактор
@@ -80,6 +85,14 @@ final class SettingsScreenInteractor {
 // MARK: - SettingsScreenInteractorInput
 
 extension SettingsScreenInteractor: SettingsScreenInteractorInput {
+  func setRateCorrectionPercentage(_ value: Double) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setRateCorrectionPercentage(value) {
+        continuation.resume()
+      }
+    }
+  }
+  
   func fetchurrencyRates(_ currencySource: CurrencySource) async {
     await withCheckedContinuation { continuation in
       switch currencySource {

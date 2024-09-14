@@ -17,7 +17,8 @@ let package = Package(
     .package(path: "../../LocalDependencies/lottie-ios"),
     .package(path: "../../LocalDependencies/SKStyle"),
     .package(path: "../../LocalDependencies/SKAbstractions"),
-    .package(path: "../../LocalDependencies/SKFoundation")
+    .package(path: "../../LocalDependencies/SKFoundation"),
+    .package(path: "../../LocalDependencies/CompactSlider")
   ],
   targets: [
     .target(
@@ -26,7 +27,8 @@ let package = Package(
         .product(name: "Lottie", package: "lottie-ios"),
         "SKStyle",
         "SKAbstractions",
-        "SKFoundation"
+        "SKFoundation",
+        "CompactSlider"
       ]
     )
   ]

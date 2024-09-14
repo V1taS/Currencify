@@ -75,14 +75,14 @@ extension SettingsScreenPresenter: SettingsScreenInteractorOutput {}
 // MARK: - SettingsScreenFactoryOutput
 
 extension SettingsScreenPresenter: SettingsScreenFactoryOutput {
+  func didChangeRateCorrectionPercentage(_ value: Double) async {
+    await interactor.setRateCorrectionPercentage(value)
+  }
+  
   func userSelectCurrencyRateSource(_ rateSource: Int) async {
     await interactor.fetchurrencyRates(CurrencySource(rawValue: rateSource) ?? .cbr)
     await interactor.setCurrencySource(CurrencySource(rawValue: rateSource) ?? .cbr)
     await updateContent()
-  }
-  
-  func userSelectEditRate() {
-    moduleOutput?.userSelectEditRate()
   }
   
   @MainActor

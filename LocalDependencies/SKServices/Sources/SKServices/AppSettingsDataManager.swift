@@ -62,6 +62,14 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
+  public func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.rateCorrectionPercentage = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
   public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {
     getAppSettingsModel { [weak self] model in
       var updatedModel = model

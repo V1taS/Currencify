@@ -30,8 +30,8 @@ protocol SettingsScreenFactoryOutput: AnyObject {
   /// Пользователь выбрал Источник загрузки курсов валют
   func userSelectCurrencyRateSource(_ rateSource: Int) async
   
-  /// Пользователь выбрал отредактировать курс
-  func userSelectEditRate()
+  /// Была сделана корекция текущего курса
+  func didChangeRateCorrectionPercentage(_ value: Double) async
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
@@ -129,7 +129,11 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
     let lastUpdated = Secrets.currencyRateList.first?.lastUpdated ?? Date()
-    let isPremium = false
+    let availableInPremiumOnly = CurrencifyStrings.SettingsScreenLocalization
+      .AvailableInPremiumOnly.title
+    let editRateDescription = CurrencifyStrings.SettingsScreenLocalization.EditRate.description
+    let editRateDescriptionNonPremium = "\(editRateDescription) \n\n\(availableInPremiumOnly)"
+    let isPremium = appSettingsModel.isPremium
     
     let premiumModel = createWidgetWithChevron(
       image: Image(systemName: "star.fill"),
@@ -142,46 +146,55 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     )
     models.append(premiumModel)
     
-    let editRateModel = createWidgetWithChevron(
-      image: Image(systemName: "dollarsign"),
-      backgroundColor: #colorLiteral(red: 0.5217602253, green: 0.6389207244, blue: 0.9697448611, alpha: 1),
-      title: CurrencifyStrings.SettingsScreenLocalization
-        .EditRate.title,
+    let editRateModel = createEditRateModel(
+      title: CurrencifyStrings.SettingsScreenLocalization.EditRate.title,
+      description: isPremium ? editRateDescription : editRateDescriptionNonPremium,
+      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
+      isPremium: isPremium,
+      actionSlider: { [weak self] newValue in
+        Task { [weak self] in
+          await self?.output?.didChangeRateCorrectionPercentage(newValue)
+        }
+      },
       action: { [weak self] in
-        self?.output?.userSelectEditRate()
+        self?.output?.userSelectPremium()
       }
     )
     models.append(editRateModel)
     
-    let maxFractionModel = createMaxFraction(
+    let maxFractionModel = createSegmentedPickerModel(
       title: CurrencifyStrings.SettingsScreenLocalization
         .MaxFraction.title,
-      description: isPremium ? nil : CurrencifyStrings.SettingsScreenLocalization
-        .AvailableInPremiumOnly.title,
+      description: isPremium ? nil : availableInPremiumOnly,
       selectedSegment: appSettingsModel.currencyDecimalPlaces.rawValue,
       segments: CurrencyDecimalPlaces.allCases.compactMap({ $0.rawValue }),
-      isPremium: isPremium,
-      action: { [weak self] newValue in
+      isPremium: isPremium, 
+      actionSegmented: { [weak self] newValue in
         Task { [weak self] in
           await self?.output?.userSelectMaxFraction(newValue)
         }
+      },
+      action: { [weak self] in
+        self?.output?.userSelectPremium()
       }
     )
     models.append(maxFractionModel)
     
-    let currencyRateSourceModel = createMaxFraction(
+    let currencyRateSourceModel = createSegmentedPickerModel(
       title: CurrencifyStrings.SettingsScreenLocalization
         .CurrencyRateSource.title,
       description: isPremium ? CurrencifyStrings.SettingsScreenLocalization
-        .LastUpdated.title("\(formatDate(lastUpdated))") : CurrencifyStrings.SettingsScreenLocalization
-        .AvailableInPremiumOnly.title,
+        .LastUpdated.title("\(formatDate(lastUpdated))") : availableInPremiumOnly,
       selectedSegment: appSettingsModel.currencySource.rawValue,
       segments: CurrencySource.allCases.compactMap({ $0.description }),
-      isPremium: isPremium,
-      action: { [weak self] newValue in
+      isPremium: isPremium, 
+      actionSegmented: { [weak self] newValue in
         Task { [weak self] in
           await self?.output?.userSelectCurrencyRateSource(newValue)
         }
+      },
+      action: { [weak self] in
+        self?.output?.userSelectPremium()
       }
     )
     models.append(currencyRateSourceModel)
@@ -193,13 +206,61 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
 // MARK: - Private
 
 private extension SettingsScreenFactory {
-  func createMaxFraction<Element: Collection>(
+  func createEditRateModel(
+    title: String,
+    description: String?,
+    rateCorrectionPercentage: Double,
+    isPremium: Bool,
+    actionSlider: @escaping (Double) -> Void,
+    action: @escaping () -> Void
+  ) -> WidgetCryptoView.Model {
+    .init(
+      leftSide: nil,
+      additionCenterContent: AnyView(
+        VStack {
+          HStack {
+            Text(title)
+              .font(.fancy.text.regular)
+              .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
+              .lineLimit(1)
+              .multilineTextAlignment(.leading)
+              .allowsHitTesting(false)
+            Spacer()
+          }
+          
+          CompactSliderView(
+            value: rateCorrectionPercentage,
+            isEnabled: isPremium) { newValue in
+              actionSlider(newValue)
+            }
+          
+          if let description {
+            HStack {
+              Text(description)
+                .font(.fancy.text.small)
+                .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor)
+                .lineLimit(.max)
+                .multilineTextAlignment(.leading)
+                .allowsHitTesting(false)
+              Spacer()
+            }
+          }
+        }
+          .padding(.bottom, .s1)
+      ),
+      isSelectable: !isPremium,
+      action: action
+    )
+  }
+  
+  func createSegmentedPickerModel<Element: Collection>(
     title: String,
     description: String?,
     selectedSegment: Int,
     segments: Element,
     isPremium: Bool,
-    action: @escaping (Int) -> Void
+    actionSegmented: @escaping (Int) -> Void,
+    action: @escaping () -> Void
   ) -> WidgetCryptoView.Model where Element.Element: CustomStringConvertible {
     .init(
       leftSide: nil,
@@ -212,6 +273,7 @@ private extension SettingsScreenFactory {
               .foregroundColor(SKStyleAsset.ghost.swiftUIColor)
               .lineLimit(1)
               .multilineTextAlignment(.leading)
+              .allowsHitTesting(false)
             Spacer()
           }
           
@@ -219,7 +281,7 @@ private extension SettingsScreenFactory {
             selectedSegment: selectedSegment,
             segments: segments,
             isEnabled: isPremium,
-            action: action
+            action: actionSegmented
           )
           
           if let description {
@@ -229,14 +291,15 @@ private extension SettingsScreenFactory {
                 .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor)
                 .lineLimit(1)
                 .multilineTextAlignment(.leading)
+                .allowsHitTesting(false)
               Spacer()
             }
           }
         }
           .padding(.bottom, .s1)
       ),
-      isSelectable: false,
-      action: nil
+      isSelectable: !isPremium,
+      action: action
     )
   }
   
