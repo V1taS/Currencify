@@ -17,17 +17,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchMainScreenImage" translatesAutoresizingMaskIntoConstraints="NO" id="kp1-Cq-S96" userLabel="launchMainScreenImage">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchMainScreenImageNew" translatesAutoresizingMaskIntoConstraints="NO" id="aHc-na-HdJ">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" name="onyx"/>
                         <constraints>
-                            <constraint firstItem="kp1-Cq-S96" firstAttribute="trailing" secondItem="Bcu-3y-fUS" secondAttribute="trailing" id="2LV-lX-doV"/>
-                            <constraint firstAttribute="bottom" secondItem="kp1-Cq-S96" secondAttribute="bottom" id="S8y-e7-dD1"/>
-                            <constraint firstItem="kp1-Cq-S96" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="TXj-Ez-Jla"/>
-                            <constraint firstItem="kp1-Cq-S96" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" id="VwM-D2-kZO"/>
+                            <constraint firstItem="aHc-na-HdJ" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="0jS-Bj-dD2"/>
+                            <constraint firstItem="aHc-na-HdJ" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" id="TID-Sw-yUi"/>
+                            <constraint firstItem="aHc-na-HdJ" firstAttribute="trailing" secondItem="Bcu-3y-fUS" secondAttribute="trailing" id="bym-hl-fMG"/>
+                            <constraint firstAttribute="bottom" secondItem="aHc-na-HdJ" secondAttribute="bottom" id="njX-6y-HsK"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -37,7 +37,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="launchMainScreenImage" width="1000" height="2000"/>
+        <image name="launchMainScreenImageNew" width="1000" height="2000"/>
         <namedColor name="onyx">
             <color red="0.94900000095367432" green="0.94900000095367432" blue="0.96899998188018799" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
