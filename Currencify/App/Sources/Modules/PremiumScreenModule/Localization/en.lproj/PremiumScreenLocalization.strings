@@ -36,3 +36,6 @@
 
 "page.5.title" = "More Currencies";
 "page.5.description" = "Add multiple currencies to the main screen to display rates";
+
+"sale" = "Sale";
+"one_time_purchase" = "One-time purchase";

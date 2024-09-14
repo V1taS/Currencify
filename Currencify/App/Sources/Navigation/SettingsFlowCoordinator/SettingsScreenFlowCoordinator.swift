@@ -105,7 +105,6 @@ extension SettingsScreenFlowCoordinator: AppearanceAppScreenModuleOutput {}
 
 extension SettingsScreenFlowCoordinator: PremiumScreenModuleOutput {
   func closeButtonAction() {}
-  func moduleClosed() {}
   func didReceiveRestoredSuccess() {
     setIsPremiumSuccess()
   }

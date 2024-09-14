@@ -244,6 +244,8 @@ private extension PremiumScreenView {
                        forCellReuseIdentifier: CustomPaddingCell.reuseIdentifier)
     tableView.register(DividerTableViewCell.self,
                        forCellReuseIdentifier: DividerTableViewCell.reuseIdentifier)
+    tableView.register(SaleTableViewCell.self,
+                       forCellReuseIdentifier: SaleTableViewCell.reuseIdentifier)
     
     tableView.separatorStyle = .none
     tableView.contentInset.bottom = appearance.defaultInset
@@ -253,7 +255,8 @@ private extension PremiumScreenView {
   
   func updateButtonTitleWith(monthlyAmount: String?,
                              yearlyAmount: String?,
-                             lifetimeAmount: String?) {
+                             lifetimeAmount: String?,
+                             lifetimeSaleAmount: String?) {
     let appearance = Appearance()
     let buttontitle = cachePurchaseType == .lifetime ? appearance.purchaseTitle : appearance.subscribeTitle
     var amount: String?
@@ -264,6 +267,8 @@ private extension PremiumScreenView {
       amount = yearlyAmount
     case .lifetime:
       amount = lifetimeAmount
+    case .lifetimeSale:
+      amount = lifetimeSaleAmount
     }
     mainButton.setTitle("\(buttontitle) \(appearance.forTitle) \(amount ?? "-")", for: .normal)
   }
@@ -315,7 +320,8 @@ extension PremiumScreenView: UITableViewDataSource {
       ) as? PurchasesCardsCell {
         updateButtonTitleWith(monthlyAmount: centerSideCardAmount,
                               yearlyAmount: leftSideCardAmount,
-                              lifetimeAmount: rightSideCardAmount)
+                              lifetimeAmount: rightSideCardAmount, 
+                              lifetimeSaleAmount: nil)
         
         cell.configureCellWith(
           models: [
@@ -361,6 +367,14 @@ extension PremiumScreenView: UITableViewDataSource {
       if let cell = tableView.dequeueReusableCell(
         withIdentifier: DividerTableViewCell.reuseIdentifier
       ) as? DividerTableViewCell {
+        viewCell = cell
+      }
+    case let .lifetimeSale(title, oldPrice, newPrice):
+      if let cell = tableView.dequeueReusableCell(
+        withIdentifier: SaleTableViewCell.reuseIdentifier
+      ) as? SaleTableViewCell {
+        cell.configureCellWith(title: title, oldPrice: oldPrice, newPrice: newPrice)
+        cachePurchaseType = .lifetimeSale
         viewCell = cell
       }
     }

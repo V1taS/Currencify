@@ -31,9 +31,6 @@ protocol PremiumScreenModuleOutput: AnyObject {
   
   /// Модуль был закрыт
   func closeButtonAction()
-  
-  /// Модуль был закрыт
-  func moduleClosed()
 }
 
 /// События которые отправляем из `другого модуля` в `текущий модуль`
@@ -42,6 +39,9 @@ protocol PremiumScreenModuleInput {
   /// Выбрать способ показа экрана
   /// - Parameter isModalPresentation: Открывается экран снизу вверх
   func selectIsModalPresentationStyle(_ isModalPresentation: Bool)
+  
+  /// Установить распродажу
+  func setLifetimeSale(_ value: Bool)
   
   /// События которые отправляем из `текущего модуля` в `другой модуль`
   var moduleOutput: PremiumScreenModuleOutput? { get set }

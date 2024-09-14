@@ -47,8 +47,13 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     window = UIWindow(windowScene: windowScene)
     window?.makeKeyAndVisible()
     
-    configurators().configure()
+    ConfigurationValueConfigurator(services: services).configure()
+    FirstLaunchConfigurator(services: services).configure()
+    AppearanceConfigurator(services: services).configure()
+    CurrencyRatesConfigurator(services: services).configure()
     Apphud.start(apiKey: Secrets.apiKeyApphud)
+    PremiumConfigurator(services: services).configure()
+    
     rootCoordinator = RootCoordinator(services)
     rootCoordinator?.start()
   }
@@ -67,14 +72,4 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 // MARK: - Private
 
-private extension SceneDelegate {
-  func configurators() -> [Configurator] {
-    return [
-      ConfigurationValueConfigurator(services: services),
-      FirstLaunchConfigurator(services: services),
-      AppearanceConfigurator(services: services),
-      PremiumConfigurator(services: services),
-      CurrencyRatesConfigurator(services: services)
-    ]
-  }
-}
+private extension SceneDelegate {}

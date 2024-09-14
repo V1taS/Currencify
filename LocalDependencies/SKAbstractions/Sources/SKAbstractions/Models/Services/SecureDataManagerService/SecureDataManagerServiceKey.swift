@@ -25,7 +25,8 @@ extension SecureDataManagerServiceKey {
   static public var itemsToClear: [SecureDataManagerServiceKey] {
     [
       .modelHandler,
-      .appSettingsData
+      .appSettingsData,
+      .configurationSecrets
     ]
   }
 }

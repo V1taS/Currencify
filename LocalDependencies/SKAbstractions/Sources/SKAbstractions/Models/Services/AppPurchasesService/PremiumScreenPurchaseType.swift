@@ -18,6 +18,8 @@ public enum PremiumScreenPurchaseType: CaseIterable {
       return "com.sosinvitalii.Currencify.MonthlyPremiumAccess"
     case .lifetime:
       return "com.sosinvitalii.Currencify.OneTimePurchasePremiumAccess"
+    case .lifetimeSale:
+      return "com.sosinvitalii.Currencify.OneTimePurchasePremiumAccessSale"
     }
   }
   
@@ -29,4 +31,7 @@ public enum PremiumScreenPurchaseType: CaseIterable {
   
   /// Погупка навсегда
   case lifetime
+  
+  /// Погупка навсегда (Распродажа)
+  case lifetimeSale
 }

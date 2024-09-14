@@ -18,6 +18,11 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
   
   private var settingsScreenFlowCoordinator: SettingsScreenFlowCoordinator?
   private var mainScreenModule: MainScreenModule?
+  private var premiumScreenModule: PremiumScreenModule?
+  private var premiumScreenNavigationController: UINavigationController?
+  private var secureDataManagerService: ISecureDataManagerService {
+    services.dataManagementService.getSecureDataManagerService(.configurationSecrets)
+  }
   
   // MARK: - Initialization
   
@@ -25,15 +30,40 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
   ///   - services: Сервисы приложения
   init(_ services: IApplicationServices) {
     self.services = services
+    super.init()
+    
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(appDidEnterForeground),
+      name: UIApplication.willEnterForegroundNotification,
+      object: nil
+    )
+  }
+  
+  deinit {
+    NotificationCenter.default.removeObserver(
+      self,
+      name: UIApplication.willEnterForegroundNotification,
+      object: nil
+    )
   }
   
   // MARK: - Internal func
   
   override func start(parameter: Void) {
+    incrementCounterOnScreenOpen()
+    
     Task { @MainActor [weak self] in
       guard let self else { return }
       openMainScreenModule()
     }
+  }
+  
+  // Метод, который будет вызван при переходе в foreground
+  @objc 
+  func appDidEnterForeground() {
+    presentSalePremium()
+    incrementCounterOnScreenOpen()
   }
 }
 
@@ -45,7 +75,47 @@ extension MainScreenCoordinator: MainScreenModuleOutput {
   }
 }
 
-// MARK: - Private
+// MARK: - PremiumScreenModuleOutput
+
+extension MainScreenCoordinator: PremiumScreenModuleOutput {
+  func closeButtonAction() {
+    premiumScreenModule?.dismiss(animated: true)
+  }
+  
+  func didReceiveRestoredSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func didReceiveSubscriptionPurchaseSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func didReceiveOneTimePurchaseSuccess() {
+    setIsPremiumSuccess()
+  }
+  
+  func somethingWentWrong() {
+    services.userInterfaceAndExperienceService
+      .notificationService.showNotification(
+        .positive(
+          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+            .Notification.SomethingWentWrong.title
+        )
+      )
+  }
+  
+  func didReceivePurchasesMissing() {
+    services.userInterfaceAndExperienceService
+      .notificationService.showNotification(
+        .positive(
+          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+            .Notification.PurchasesMissing.title
+        )
+      )
+  }
+}
+
+// MARK: - Open modules
 
 private extension MainScreenCoordinator {
   func openMainScreenModule() {
@@ -69,8 +139,64 @@ private extension MainScreenCoordinator {
     
     settingsScreenFlowCoordinator.start()
   }
+  
+  func openPremiumSaleScreenModule() {
+    let premiumScreenModule = PremiumScreenAssembly().createModule(services: services)
+    self.premiumScreenModule = premiumScreenModule
+    self.premiumScreenModule?.moduleOutput = self
+    premiumScreenModule.selectIsModalPresentationStyle(true)
+    premiumScreenModule.setLifetimeSale(true)
+    
+    let premiumScreenNavigationController = UINavigationController(rootViewController: premiumScreenModule)
+    self.premiumScreenNavigationController = premiumScreenNavigationController
+    premiumScreenNavigationController.modalPresentationStyle = .fullScreen
+    navigationController?.present(premiumScreenNavigationController, animated: true)
+  }
 }
 
 // MARK: - Private
 
-private extension MainScreenCoordinator {}
+private extension MainScreenCoordinator {
+  func incrementCounterOnScreenOpen() {
+    var count = getCounterOnScreenOpen()
+    count += 1
+    secureDataManagerService.saveString("\(count)", key: Constants.salePremiumKey)
+  }
+  
+  func getCounterOnScreenOpen() -> Int {
+    let countString = secureDataManagerService.getString(for: Constants.salePremiumKey) ?? ""
+    return Int(countString) ?? .zero
+  }
+  
+  func presentSalePremium() {
+    let count = getCounterOnScreenOpen()
+    services.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
+      guard let self, !appSettingsModel.isPremium, count.isMultiple(of: 10) else { return }
+      DispatchQueue.main.async { [weak self] in
+        self?.openPremiumSaleScreenModule()
+      }
+    }
+  }
+  
+  func setIsPremiumSuccess() {
+    services.appSettingsDataManager.setIsPremiumEnabled(
+      true,
+      completion: { [weak self] in
+        guard let self else { return }
+        services.userInterfaceAndExperienceService
+          .notificationService.showNotification(
+            .positive(
+              title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+                .Notification.PremiumSuccess.title
+            )
+          )
+      }
+    )
+  }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+  static let salePremiumKey = "SalePremiumKey"
+}

@@ -71,6 +71,8 @@ public final class AppPurchasesService: IAppPurchasesService {
         DispatchQueue.main.async {
           completion(skProducts)
         }
+      } else {
+        completion([])
       }
     }
   }
@@ -81,6 +83,9 @@ public final class AppPurchasesService: IAppPurchasesService {
     let isNonRenewingPurchase = Apphud.isNonRenewingPurchaseActive(
       productIdentifier: PremiumScreenPurchaseType.lifetime.productIdentifiers
     )
-    completion(isSubscription || isNonRenewingPurchase)
+    let isNonRenewingPurchaseSale = Apphud.isNonRenewingPurchaseActive(
+      productIdentifier: PremiumScreenPurchaseType.lifetimeSale.productIdentifiers
+    )
+    completion(isSubscription || isNonRenewingPurchase || isNonRenewingPurchaseSale)
   }
 }

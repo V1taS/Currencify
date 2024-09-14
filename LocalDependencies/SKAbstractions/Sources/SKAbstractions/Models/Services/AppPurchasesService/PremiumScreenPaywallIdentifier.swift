@@ -8,5 +8,5 @@
 import Foundation
 
 public enum PremiumScreenPaywallIdentifier {
-  public static let paywallID = "PremiumAccess"
+  public static let paywallID = "Premium"
 }

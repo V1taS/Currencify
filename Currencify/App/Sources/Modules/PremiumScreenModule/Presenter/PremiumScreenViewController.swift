@@ -24,6 +24,7 @@ final class PremiumScreenViewController: PremiumScreenModule {
   private let factory: PremiumScreenFactoryInput
   private var cacheIsModalPresentation = false
   private var cacheModels: [SKProduct] = []
+  private var isLifetimeSale = false
   
   // MARK: - Initialization
   
@@ -53,7 +54,7 @@ final class PremiumScreenViewController: PremiumScreenModule {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    factory.createListModelWith(models: [])
+    factory.createListModelWith(models: [], isLifetimeSale: isLifetimeSale)
     navigationItem.largeTitleDisplayMode = .never
     setNavigationBar()
   }
@@ -64,15 +65,14 @@ final class PremiumScreenViewController: PremiumScreenModule {
     interactor.getProducts()
   }
   
-  override func viewDidDisappear(_ animated: Bool) {
-    super.viewDidDisappear(animated)
-    moduleOutput?.moduleClosed()
-  }
-  
   // MARK: - Internal func
   
   func selectIsModalPresentationStyle(_ isModalPresentation: Bool) {
     cacheIsModalPresentation = isModalPresentation
+  }
+  
+  func setLifetimeSale(_ value: Bool) {
+    isLifetimeSale = value
   }
 }
 
@@ -137,7 +137,14 @@ extension PremiumScreenViewController: PremiumScreenInteractorOutput {
   
   func didReceive(models: [SKProduct]) {
     cacheModels = models
-    factory.createListModelWith(models: models)
+    factory.createListModelWith(models: models, isLifetimeSale: isLifetimeSale)
+    
+    if isLifetimeSale {
+      let lifetimeSaleProduct = models.filter {
+        $0.productIdentifier == PremiumScreenPurchaseType.lifetimeSale.productIdentifiers
+      }.first
+      factory.createMainButtonTitleFrom(.lifetime, amount: lifetimeSaleProduct?.localizedPrice)
+    }
   }
 }
 
