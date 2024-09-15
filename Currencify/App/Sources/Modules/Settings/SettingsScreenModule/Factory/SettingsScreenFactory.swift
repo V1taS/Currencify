@@ -24,6 +24,9 @@ protocol SettingsScreenFactoryOutput: AnyObject {
   /// Пользователь выбрал Премиум
   func userSelectPremium()
   
+  /// Кнопка поделиться была нажата
+  func shareButtonSelected()
+  
   /// Пользователь выбрал Премиум
   func userSelectMaxFraction(_ fraction: Int) async
   
@@ -120,6 +123,16 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       }
     )
     models.append(feedbackModel)
+    
+    let shareModel = createWidgetWithChevron(
+      image: Image(systemName: "square.and.arrow.up"),
+      backgroundColor: #colorLiteral(red: 0.2063956261, green: 0.5307067633, blue: 0.2265998721, alpha: 1),
+      title: CurrencifyStrings.SettingsScreenLocalization.share,
+      action: { [weak self] in
+        self?.output?.shareButtonSelected()
+      }
+    )
+    models.append(shareModel)
     return models
   }
   

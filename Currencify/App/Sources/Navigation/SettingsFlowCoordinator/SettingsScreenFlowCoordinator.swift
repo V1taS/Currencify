@@ -42,6 +42,10 @@ final class SettingsScreenFlowCoordinator: Coordinator<Void, SettingsScreenFinis
 // MARK: - MainScreenModuleOutput
 
 extension SettingsScreenFlowCoordinator: SettingsScreenModuleOutput {
+  func shareButtonSelected() {
+    openShareApp()
+  }
+  
   func userSelectPremium() {
     openPremiumScreenModule()
   }
@@ -190,6 +194,29 @@ private extension SettingsScreenFlowCoordinator {
       animated: true
     )
   }
+  
+  func openShareApp() {
+    guard let url = Constants.shareAppUrl else {
+      return
+    }
+
+    let objectsToShare = [url]
+    let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      if let popup = activityVC.popoverPresentationController {
+        popup.sourceView = settingsScreenModule?.viewController.view
+        popup.sourceRect = CGRect(
+          x: (settingsScreenModule?.viewController.view.frame.size.width ?? .zero) / 2,
+          y: (settingsScreenModule?.viewController.view.frame.size.height ?? .zero) / 4,
+          width: .zero,
+          height: .zero
+        )
+      }
+    }
+
+    settingsScreenModule?.viewController.present(activityVC, animated: true, completion: nil)
+  }
 }
 
 // MARK: - Private
@@ -216,4 +243,10 @@ private extension SettingsScreenFlowCoordinator {
       }
     )
   }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+  static let shareAppUrl = URL(string: "https://apps.apple.com/app/currencify/id6680185806")
 }

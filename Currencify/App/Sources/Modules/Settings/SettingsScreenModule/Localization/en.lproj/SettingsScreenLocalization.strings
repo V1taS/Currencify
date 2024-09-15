@@ -31,3 +31,4 @@
 "CurrencyRateSource.Title" = "Currency rate source";
 "LastUpdated.Title" = "Last updated on %@";
 "EditRate.Description" = "Increase or decrease the value of all currencies by a percentage of your choice";
+"share" = "Share";

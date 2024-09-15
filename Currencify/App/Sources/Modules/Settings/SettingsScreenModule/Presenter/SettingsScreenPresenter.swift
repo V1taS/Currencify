@@ -75,6 +75,10 @@ extension SettingsScreenPresenter: SettingsScreenInteractorOutput {}
 // MARK: - SettingsScreenFactoryOutput
 
 extension SettingsScreenPresenter: SettingsScreenFactoryOutput {
+  func shareButtonSelected() {
+    moduleOutput?.shareButtonSelected()
+  }
+  
   func didChangeRateCorrectionPercentage(_ value: Double) async {
     await interactor.setRateCorrectionPercentage(value)
   }

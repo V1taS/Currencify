@@ -20,6 +20,9 @@ public protocol SettingsScreenModuleOutput: AnyObject {
   
   /// Пользователь выбрал Премиум
   func userSelectPremium()
+  
+  /// Кнопка поделиться была нажата
+  func shareButtonSelected()
 }
 
 /// События которые отправляем из `Coordinator` в `SettingsScreenModule`
