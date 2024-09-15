@@ -16,7 +16,17 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IAnalyticsService, ISecureDataManagerService,
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
-                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService {
+                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+  public func countCharactersAfterComma(in string: String) -> Int? { nil }
+  public func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void) {}
+  public func setActiveCurrency(_ value: CurrencyRate.Currency, completion: @escaping () -> Void) {}
+  public func replaceDotsWithCommas(in input: String) -> String { "" }
+  public func replaceCommasWithDots(in input: String) -> String { "" }
+  public func removeAllSpaces(from input: String) -> String { "" }
+  public func removeExtraZeros(from input: String) -> String { "" }
+  public func formatNumberString(_ input: String) -> String { "" }
+  public func formatDouble(_ value: Double, decimalPlaces: Int) -> String { "" }
+  public var textFormatterService: any ITextFormatterService { self }
   public func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void) {}
   public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {}
   public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {}

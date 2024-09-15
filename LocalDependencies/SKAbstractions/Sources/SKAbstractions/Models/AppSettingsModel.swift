@@ -24,6 +24,12 @@ public struct AppSettingsModel {
   /// Корекция текущего курса в процентах
   public var rateCorrectionPercentage: Double
   
+  /// Последнее значение которое ввел пользователь
+  public var enteredCurrencyAmount: Double
+  
+  /// Валюта последнего значения что расчитывал пользователь
+  public var activeCurrency: CurrencyRate.Currency
+  
   /// Инициализирует новый экземпляр `AppSettingsModel`
   /// - Parameters:
   ///   - isPremium: Премиум режим
@@ -31,18 +37,24 @@ public struct AppSettingsModel {
   ///   - currencySource: Источник курсов валют
   ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений
   ///   - rateCorrectionPercentage: Корекция текущего курса в процентах
+  ///   - enteredCurrencyAmount: Последнее значение которое ввел пользователь
+  ///   - activeCurrency: Валюта последнего значения что расчитывал пользователь
   public init(
     isPremium: Bool,
     selectedCurrencyRate: [CurrencyRate.Currency],
     currencySource: CurrencySource,
     currencyDecimalPlaces: CurrencyDecimalPlaces,
-    rateCorrectionPercentage: Double
+    rateCorrectionPercentage: Double,
+    enteredCurrencyAmount: Double,
+    activeCurrency: CurrencyRate.Currency
   ) {
     self.isPremium = isPremium
     self.selectedCurrencyRate = selectedCurrencyRate
     self.currencySource = currencySource
     self.currencyDecimalPlaces = currencyDecimalPlaces
     self.rateCorrectionPercentage = rateCorrectionPercentage
+    self.enteredCurrencyAmount = enteredCurrencyAmount
+    self.activeCurrency = activeCurrency
   }
 }
 
@@ -59,7 +71,9 @@ extension AppSettingsModel {
       ],
       currencySource: .cbr, 
       currencyDecimalPlaces: .two, 
-      rateCorrectionPercentage: .zero
+      rateCorrectionPercentage: .zero,
+      enteredCurrencyAmount: .zero,
+      activeCurrency: .USD
     )
   }
 }

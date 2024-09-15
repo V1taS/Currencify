@@ -192,4 +192,23 @@ final class TextFormatterServiceTests: XCTestCase {
     XCTAssertEqual(service.formatDouble(1234.999, decimalPlaces: 2), "1 235,00")
     XCTAssertEqual(service.formatDouble(-0.5555, decimalPlaces: 3), "-0,556")
   }
+  
+  // MARK: - countCharactersAfterComma
+  
+  func testCountCharactersAfterComma() {
+    // Стандартные случаи
+    XCTAssertEqual(service.countCharactersAfterComma(in: "123,456"), 3)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "1.23,45"), 2)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "123,4"), 1)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "123,"), 0)
+    XCTAssertEqual(service.countCharactersAfterComma(in: ","), 0)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "123"), nil)
+    XCTAssertEqual(service.countCharactersAfterComma(in: ""), nil)
+    
+    // Дополнительные случаи
+    XCTAssertEqual(service.countCharactersAfterComma(in: "123,4567890"), 7)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "abc,defghijkl"), 9)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "NoCommaHere"), nil)
+    XCTAssertEqual(service.countCharactersAfterComma(in: "StartsWithComma,"), 0)
+  }
 }

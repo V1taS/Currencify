@@ -13,31 +13,23 @@ import SKStyle
 /// Cобытия которые отправляем из Factory в Presenter
 protocol MainScreenFactoryOutput: AnyObject {
   /// Пользователь нажал на валюту
-  func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double)
+  func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) async
   
   /// Пользователь вводит сумму
-  func userDidEnterAmount(_ amount: String)
+  func userDidEnterAmount(_ amount: Double, commaIsSet: Bool) async
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
 protocol MainScreenFactoryInput {
-  /// Создает модели для виджета на основе выбранной валюты, текущего значения валюты, отображения клавиатуры, режима расчета и количества знаков после запятой.
-  /// Метод принимает выбранную валюту, текущее значение валюты, статус отображения клавиатуры, список валют, режим расчета и количество знаков после запятой, после чего формирует модели для отображения в виджете.
-  /// - Parameters:
-  ///   - selectedCurrency: Текущая выбранная валюта, для которой производится расчет.
-  ///   - currentCurrencyValue: Текущее значение валюты, которое используется для расчетов.
-  ///   - isKeyboardShown: Флаг, указывающий на то, отображена ли клавиатура.
-  ///   - selectedCurrencyRates: Список валют, для которых нужно создать модели.
-  ///   - calculationMode: Режим расчета валютных курсов (прямой или обратный).
-  ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений.
-  /// - Returns: Массив моделей `WidgetCryptoView.Model` для отображения в виджете.
   func createCurrencyWidgetModels(
     forCurrency selectedCurrency: CurrencyRate.Currency,
-    amountEntered: String,
+    amountEntered: Double,
     isUserInputActive: Bool,
     availableRates: [CurrencyRate.Currency],
     rateCalculationMode: RateCalculationMode,
-    decimalPlaces: CurrencyDecimalPlaces
+    decimalPlaces: CurrencyDecimalPlaces,
+    commaIsSet: Bool,
+    rateCorrectionPercentage: Double
   ) -> [WidgetCryptoView.Model]
 }
 
@@ -47,6 +39,18 @@ final class MainScreenFactory {
   // MARK: - Internal properties
   
   weak var output: MainScreenFactoryOutput?
+  
+  // MARK: - Private properties
+  
+  private let textFormatterService: ITextFormatterService
+  
+  // MARK: - Initialization
+  
+  /// - Parameters:
+  ///  - textFormatterService: Текстовый форматер
+  init(textFormatterService: ITextFormatterService) {
+    self.textFormatterService = textFormatterService
+  }
 }
 
 // MARK: - MainScreenFactoryInput
@@ -54,16 +58,18 @@ final class MainScreenFactory {
 extension MainScreenFactory: MainScreenFactoryInput {
   func createCurrencyWidgetModels(
     forCurrency selectedCurrency: CurrencyRate.Currency,
-    amountEntered: String,
+    amountEntered: Double,
     isUserInputActive: Bool,
     availableRates: [CurrencyRate.Currency],
     rateCalculationMode: RateCalculationMode,
-    decimalPlaces: CurrencyDecimalPlaces
+    decimalPlaces: CurrencyDecimalPlaces,
+    commaIsSet: Bool,
+    rateCorrectionPercentage: Double
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
     let allCurrencyRates: [CurrencyRate] = CurrencyRate.calculateCurrencyRates(
       from: selectedCurrency,
-      amount: Double(amountEntered) ?? .zero,
+      amount: amountEntered,
       calculationMode: rateCalculationMode
     )
     let filteredCurrencyRates = allCurrencyRates.filter { currencyRate in
@@ -71,15 +77,16 @@ extension MainScreenFactory: MainScreenFactoryInput {
         currencyRate.currency == selectedCurrency
       }
     }
-    
+
     for currencyRate in filteredCurrencyRates {
       models.append(
         createWidgetModel(
           selectedCurrency: selectedCurrency,
           currencyRate: currencyRate,
           currencyDecimalPlaces: decimalPlaces,
-          currentCurrencyValue: amountEntered,
-          isKeyboardShown: isUserInputActive
+          isKeyboardShown: isUserInputActive,
+          commaIsSet: commaIsSet,
+          rateCorrectionPercentage: rateCorrectionPercentage
         )
       )
     }
@@ -94,49 +101,67 @@ private extension MainScreenFactory {
     selectedCurrency: CurrencyRate.Currency,
     currencyRate: CurrencyRate,
     currencyDecimalPlaces: CurrencyDecimalPlaces,
-    currentCurrencyValue: String,
-    isKeyboardShown: Bool
+    isKeyboardShown: Bool,
+    commaIsSet: Bool,
+    rateCorrectionPercentage: Double
   ) -> WidgetCryptoView.Model {
     var additionCenterContent: AnyView?
-    let value = (Double(currentCurrencyValue) ?? .zero) == .zero ? "0" : removeLeadingZeros(from: replaceCommasWithDots(in: currentCurrencyValue))
+    var currencyRateRate = currencyRate.rate
+
+    if rateCorrectionPercentage != .zero, currencyRate.currency != selectedCurrency {
+      let correctedCurrencyRates = applyRateCorrection(
+        to: currencyRate,
+        correctionPercentage: rateCorrectionPercentage
+      )
+      currencyRateRate = correctedCurrencyRates.rate
+    }
+    
+    let currencyValue = textFormatterService.formatDouble(
+      currencyRateRate,
+      decimalPlaces: currencyDecimalPlaces.rawValue
+    )
+    let currencyValueReplaceDotsWithCommas = textFormatterService.replaceDotsWithCommas(in: currencyValue)
+    var currencyValueRemoveExtraZeros = textFormatterService.removeExtraZeros(
+      from: currencyValueReplaceDotsWithCommas
+    )
+    
+    if commaIsSet, currencyRate.currency == selectedCurrency {
+      currencyValueRemoveExtraZeros += ","
+    }
     
     if isKeyboardShown, currencyRate.currency == selectedCurrency {
       additionCenterContent = AnyView(
         KeyboardView(
-          value: value,
+          value: currencyValueRemoveExtraZeros,
           isEnabled: true
-        ) { [weak self] newValue in
+        ) {
+          [weak self] newValue in
           guard let self else { return }
-          output?.userDidEnterAmount(addZeroIfNeeded(in: replaceCommasWithDots(in: newValue)))
+          let clearedTextFromSpaces = textFormatterService.removeAllSpaces(from: newValue)
+          let textReplaceCommasWithDots = textFormatterService.replaceCommasWithDots(in: clearedTextFromSpaces)
+          let textToDouble = Double(textReplaceCommasWithDots) ?? .zero
+          let lastCharacterIsComma = newValue.last == ","
+          
+          let countCharactersAfterComma = textFormatterService.countCharactersAfterComma(in: newValue)
+          if let countCharactersAfterComma, countCharactersAfterComma > currencyDecimalPlaces.rawValue {
+            triggerHapticFeedback(.error)
+          }
+          
+          Task { [weak self] in
+            guard let self else { return }
+            await output?.userDidEnterAmount(
+              textToDouble,
+              commaIsSet: lastCharacterIsComma
+            )
+          }
         }
           .padding(.top, .s4)
           .padding(.bottom, .s1)
       )
     }
     
-    let title: AnyView = if currencyRate.currency == selectedCurrency, isKeyboardShown {
-      AnyView(
-        Text(truncateAfterDecimalSeparator(in: removeLeadingZeros(from: value), toPlaces: currencyDecimalPlaces.rawValue))
-          .font(.fancy.constant.h2)
-          .foregroundStyle(
-            (Double(currentCurrencyValue) ?? .zero) == .zero ? SKStyleAsset.constantSlate.swiftUIColor : SKStyleAsset.ghost.swiftUIColor
-          )
-          .lineLimit(1)
-          .minimumScaleFactor(0.7)
-      )
-    } else {
-      AnyView(
-        Text(formatAmount(currencyRate.rate, fractionDigits: currencyDecimalPlaces.rawValue))
-          .font(.fancy.constant.h2)
-          .foregroundStyle(
-            (Double(currentCurrencyValue) ?? .zero) == .zero ? SKStyleAsset.constantSlate.swiftUIColor : SKStyleAsset.ghost.swiftUIColor
-          )
-          .lineLimit(1)
-          .minimumScaleFactor(0.7)
-      )
-    }
-    
     return WidgetCryptoView.Model(
+      additionalID: currencyRate.currency.rawValue,
       leftSide: .init(
         itemModel: .custom(
           item: AnyView(
@@ -159,97 +184,42 @@ private extension MainScreenFactory {
       ),
       rightSide: .init(
         itemModel: .custom(
-          item: title,
+          item: AnyView(
+            Text(currencyValueRemoveExtraZeros)
+              .font(.fancy.constant.h2)
+              .foregroundStyle(
+                currencyRate.rate == .zero ? SKStyleAsset.constantSlate.swiftUIColor : SKStyleAsset.ghost.swiftUIColor
+              )
+              .lineLimit(1)
+              .minimumScaleFactor(0.7)
+          ),
           size: .custom(width: nil, height: nil)
         )
       ),
       additionCenterContent: additionCenterContent,
       backgroundColor: nil,
       action: { [weak self] in
-        guard let self else { return }
-        output?.userDidSelectCurrency(currencyRate.currency, withRate: currencyRate.rate)
+        
+        Task { [weak self] in
+          guard let self else { return }
+          await output?.userDidSelectCurrency(currencyRate.currency, withRate: currencyRate.rate)
+        }
       }
     )
   }
   
-  func formatAmount(_ amount: Double, fractionDigits: Int) -> String {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.numberStyle = .decimal
-    numberFormatter.maximumFractionDigits = fractionDigits
-    numberFormatter.minimumFractionDigits = fractionDigits
-    numberFormatter.groupingSeparator = " "  // Разделитель разрядов
-    numberFormatter.decimalSeparator = ","   // Разделитель дробной части
-    if let formattedAmount = numberFormatter.string(from: NSNumber(value: amount)) {
-      return formattedAmount
-    }
-    return String(format: "%.\(fractionDigits)f", amount).replacingOccurrences(of: ".", with: ",")
+  func triggerHapticFeedback(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(type)
   }
   
-  func removeLeadingZeros(from string: String) -> String {
-      // Удаляем ведущие нули
-      var cleanedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
-      
-      // Удаляем ведущие нули, если они есть перед значащими цифрами
-      cleanedString = cleanedString.replacingOccurrences(of: "^0+(?=[^0])", with: "", options: .regularExpression)
-      
-      // Проверяем наличие запятой или точки для обработки дробной части
-      if let decimalSeparatorIndex = cleanedString.firstIndex(where: { $0 == "." || $0 == "," }) {
-          let beforeSeparator = cleanedString[..<decimalSeparatorIndex]
-          let afterSeparator = cleanedString[cleanedString.index(after: decimalSeparatorIndex)...]
-          
-          // Убираем только крайние нули справа после запятой или точки
-          let trimmedAfterSeparator = afterSeparator.replacingOccurrences(of: "0+$", with: "", options: .regularExpression)
-          
-          // Если вся дробная часть оказалась пустой, убираем и разделитель
-          if trimmedAfterSeparator.isEmpty {
-              cleanedString = String(beforeSeparator)
-          } else {
-              cleanedString = String(beforeSeparator) + String(cleanedString[decimalSeparatorIndex]) + trimmedAfterSeparator
-          }
-      }
-      
-      // Если строка оказалась пустой (например, была "000"), возвращаем "0"
-      return cleanedString.isEmpty ? "0" : cleanedString
-  }
-  
-  func replaceCommasWithDots(in string: String) -> String {
-    return string.replacingOccurrences(of: ",", with: ".")
-  }
-  
-  func truncateAfterDecimalSeparator(in string: String, toPlaces places: Int) -> String {
-    // Определяем разделители (запятая или точка)
-    let decimalSeparators: [Character] = [".", ","]
-    
-    // Ищем индекс первого разделителя
-    if let separatorIndex = string.firstIndex(where: { decimalSeparators.contains($0) }) {
-      // Разделяем строку на две части: до и после разделителя
-      let beforeSeparator = string[..<separatorIndex]
-      let afterSeparator = string[string.index(after: separatorIndex)...]
-      
-      // Ограничиваем количество символов после разделителя
-      let truncatedAfterSeparator = afterSeparator.prefix(places)
-      
-      // Собираем строку обратно
-      return String(beforeSeparator) + String(string[separatorIndex]) + truncatedAfterSeparator
-    }
-    
-    // Если нет запятой или точки, возвращаем строку без изменений
-    return string
-  }
-  
-  func addZeroIfNeeded(in string: String) -> String {
-    // Ищем индекс точки или запятой
-    if let decimalSeparatorIndex = string.firstIndex(where: { $0 == "." || $0 == "," }) {
-      let afterSeparator = string[string.index(after: decimalSeparatorIndex)...]
-      
-      // Если после разделителя ничего нет, добавляем "0"
-      if afterSeparator.isEmpty {
-        return string + "0"
-      }
-    }
-    
-    // Если ничего менять не нужно, возвращаем исходную строку
-    return string
+  func applyRateCorrection(to currencyRate: CurrencyRate, correctionPercentage: Double) -> CurrencyRate {
+    let correctedRate = currencyRate.rate * (1 + correctionPercentage / 100)
+    return CurrencyRate(
+      currency: currencyRate.currency,
+      rate: correctedRate,
+      lastUpdated: currencyRate.lastUpdated
+    )
   }
 }
 

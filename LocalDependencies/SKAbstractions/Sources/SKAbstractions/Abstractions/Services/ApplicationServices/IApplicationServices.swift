@@ -24,4 +24,7 @@ public protocol IApplicationServices {
   
   /// Работа с платежами в приложении
   var appPurchasesService: IAppPurchasesService { get }
+  
+  /// Основной форматер в приложении
+  var textFormatterService: ITextFormatterService { get }
 }

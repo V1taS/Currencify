@@ -72,4 +72,16 @@ public protocol IAppSettingsDataManager {
   ///   - value: Значение корректировки в проценте
   ///   - completion: Замыкание, которое вызывается после завершения операции.
   func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void)
+  
+  /// Устанавливает введённую сумму валюты.
+  /// - Parameters:
+  ///   - value: Строка, представляющая введённую сумму валюты.
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void)
+  
+  /// Устанавливает активную валюту для отображения курсов.
+  /// - Parameters:
+  ///   - value: Валюта, которая будет установлена как активная.
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setActiveCurrency(_ value: CurrencyRate.Currency, completion: @escaping () -> Void)
 }

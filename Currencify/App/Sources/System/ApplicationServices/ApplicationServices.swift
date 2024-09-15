@@ -41,4 +41,9 @@ final class ApplicationServices: IApplicationServices {
   var appPurchasesService: IAppPurchasesService {
     AppPurchasesService.shared
   }
+  
+  /// Основной форматер в приложении
+  var textFormatterService: ITextFormatterService {
+    TextFormatterService()
+  }
 }

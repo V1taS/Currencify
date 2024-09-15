@@ -14,7 +14,8 @@ import SKStyle
 extension WidgetCryptoView {
   public struct Model: Identifiable, Hashable {
     // MARK: - Public properties
-    public let id: UUID
+    public let id: String
+    public let additionalID: String
     public let leftSide: ContentModel?
     public let rightSide: ContentModel?
     public let additionCenterTextModel: TextModel?
@@ -34,14 +35,18 @@ extension WidgetCryptoView {
     ///   - isSelectable: Можно ли нажать на ячейку
     ///   - backgroundColor: Цвет фона виджета
     ///   - action: Замыкание, которое будет выполняться при нажатии на виджет
-    public init(leftSide: WidgetCryptoView.ContentModel?,
-                rightSide: WidgetCryptoView.ContentModel? = nil,
-                additionCenterTextModel: TextModel? = nil,
-                additionCenterContent: AnyView? = nil,
-                isSelectable: Bool = true,
-                backgroundColor: Color? = nil,
-                action: (() -> Void)? = nil) {
-      self.id = UUID()
+    public init(
+      additionalID: String = UUID().uuidString,
+      leftSide: WidgetCryptoView.ContentModel?,
+      rightSide: WidgetCryptoView.ContentModel? = nil,
+      additionCenterTextModel: TextModel? = nil,
+      additionCenterContent: AnyView? = nil,
+      isSelectable: Bool = true,
+      backgroundColor: Color? = nil,
+      action: (() -> Void)? = nil
+    ) {
+      self.id = UUID().uuidString
+      self.additionalID = additionalID
       self.leftSide = leftSide
       self.rightSide = rightSide
       self.additionCenterTextModel = additionCenterTextModel

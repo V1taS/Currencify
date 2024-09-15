@@ -18,7 +18,7 @@ public final class MainScreenAssembly {
   /// - Returns: Cобранный модуль `MainScreen`
   public func createModule(services: IApplicationServices) -> MainScreenModule {
     let interactor = MainScreenInteractor(services: services)
-    let factory = MainScreenFactory()
+    let factory = MainScreenFactory(textFormatterService: services.textFormatterService)
     let presenter = MainScreenPresenter(
       interactor: interactor,
       factory: factory

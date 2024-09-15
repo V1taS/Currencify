@@ -14,36 +14,33 @@ protocol MainScreenInteractorOutput: AnyObject {}
 /// События которые отправляем от Presenter к Interactor
 protocol MainScreenInteractorInput {
   /// Получает курсы валют от Центрального банка России
-  /// - Parameter completion: Замыкание, которое возвращает словарь с кодами валют и их значениями
-  func fetchCBCurrencyRates(completion: @escaping () -> Void)
+  func fetchCurrencyRates() async
   
   /// Получить модель настроек приложения
-  /// - Parameter completion: Замыкание, которое будет вызвано после получения данных. Возвращает модель настроек `AppSettingsModel`
-  func getAppSettingsModel(completion: @escaping (AppSettingsModel) -> Void)
+  func getAppSettingsModel() async -> AppSettingsModel
   
   /// Добавляет указанные валюты в список выбранных, если они ещё не добавлены.
   /// - Parameters:
   ///   - currencyRates: Массив валют для добавления.
-  ///   - completion: Замыкание, которое будет вызвано после завершения операции.
-  func setSelectedCurrencyRates(
-    _ currencyRates: [CurrencyRate.Currency],
-    completion: @escaping () -> Void
-  )
+  func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency]) async
   
   /// Удаляет указанные валюты из списка выбранных.
   /// - Parameters:
   ///   - currencyRates: Массив валют для удаления.
-  ///   - completion: Замыкание, которое будет вызвано после завершения операции.
-  func removeCurrencyRates(
-    _ currencyRates: [CurrencyRate.Currency],
-    completion: @escaping () -> Void
-  )
+  func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency]) async
   
   /// Удаляет все выбранные валюты из списка.
-  /// - Parameter completion: Замыкание, которое будет вызвано после завершения операции.
-  func removeAllCurrencyRates(
-    completion: @escaping () -> Void
-  )
+  func removeAllCurrencyRates() async
+  
+  /// Устанавливает введённую сумму валюты.
+  /// - Parameters:
+  ///   - value: Строка, представляющая введённую сумму валюты.
+  func setEnteredCurrencyAmount(_ value: Double) async
+  
+  /// Устанавливает активную валюту для отображения курсов.
+  /// - Parameters:
+  ///   - value: Валюта, которая будет установлена как активная.
+  func setActiveCurrency(_ value: CurrencyRate.Currency) async
 }
 
 /// Интерактор
@@ -71,45 +68,70 @@ final class MainScreenInteractor {
 // MARK: - MainScreenInteractorInput
 
 extension MainScreenInteractor: MainScreenInteractorInput {
-  func getAppSettingsModel(completion: @escaping (AppSettingsModel) -> Void) {
-    appSettingsDataManager.getAppSettingsModel(completion: completion)
-  }
-  
-  func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {
-    appSettingsDataManager.setSelectedCurrencyRates(currencyRates, completion: completion)
-  }
-  
-  func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {
-    appSettingsDataManager.removeCurrencyRates(currencyRates, completion: completion)
-  }
-  
-  func removeAllCurrencyRates(completion: @escaping () -> Void) {
-    appSettingsDataManager.removeAllCurrencyRates(completion: completion)
-  }
-  
-  /// Получает курсы валют от Центрального банка России
-  /// - Parameter completion: Замыкание, которое возвращает словарь с кодами валют и их значениями
-  func fetchCBCurrencyRates(completion: @escaping () -> Void) {
-    DispatchQueue.global().async { [weak self] in
-      guard let self else { return }
+  func fetchCurrencyRates() async {
+    await withCheckedContinuation { continuation in
       appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
         guard let self else { return }
         switch appSettingsModel.currencySource {
         case .cbr:
           currencyRatesService.fetchCBCurrencyRates { models in
-            DispatchQueue.main.async {
-              Secrets.currencyRateList = models
-              completion()
-            }
+            Secrets.currencyRateList = models
+            continuation.resume()
           }
         case .ecb:
           currencyRatesService.fetchECBCurrencyRates {  models in
-            DispatchQueue.main.async {
-              Secrets.currencyRateList = models
-              completion()
-            }
+            Secrets.currencyRateList = models
+            continuation.resume()
           }
         }
+      }
+    }
+  }
+  
+  func getAppSettingsModel() async -> AppSettingsModel {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.getAppSettingsModel { appSettingsModel in
+        continuation.resume(returning: appSettingsModel)
+      }
+    }
+  }
+  
+  func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency]) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setSelectedCurrencyRates(currencyRates) {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency]) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.removeCurrencyRates(currencyRates) {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func removeAllCurrencyRates() async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.removeAllCurrencyRates {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func setEnteredCurrencyAmount(_ value: Double) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setEnteredCurrencyAmount(value) {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func setActiveCurrency(_ value: CurrencyRate.Currency) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setActiveCurrency(value) {
+        continuation.resume()
       }
     }
   }

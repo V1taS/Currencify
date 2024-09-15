@@ -11,34 +11,22 @@ import SKFoundation
 
 // MARK: - TextFormatterService
 
-public final class TextFormatterService {
+public final class TextFormatterService: ITextFormatterService {
   public init() {}
   
-  /// Заменяет все символы точки `.` в строке на запятые `,`.
-  /// - Parameter input: Исходная строка.
-  /// - Returns: Строка с заменёнными точками на запятые.
-  func replaceDotsWithCommas(in input: String) -> String {
+  public func replaceDotsWithCommas(in input: String) -> String {
     return input.replacingOccurrences(of: ".", with: ",")
   }
   
-  /// Заменяет все символы запятой `,` в строке на точки `.`.
-  /// - Parameter input: Исходная строка.
-  /// - Returns: Строка с заменёнными запятыми на точки.
-  func replaceCommasWithDots(in input: String) -> String {
+  public func replaceCommasWithDots(in input: String) -> String {
     return input.replacingOccurrences(of: ",", with: ".")
   }
   
-  /// Удаляет все пробельные символы из строки.
-  /// - Parameter input: Исходная строка.
-  /// - Returns: Строка без пробелов.
-  func removeAllSpaces(from input: String) -> String {
+  public func removeAllSpaces(from input: String) -> String {
     return input.replacingOccurrences(of: " ", with: "")
   }
   
-  /// Удаляет ведущие нули из строки. Если есть десятичная часть, удаляет конечные нули после разделителя `,`.
-  /// - Parameter input: Исходная строка, представляющая число.
-  /// - Returns: Строка без лишних нулей.
-  func removeExtraZeros(from input: String) -> String {
+  public func removeExtraZeros(from input: String) -> String {
     var result = input
     
     // Удаление ведущих нулей, кроме случая "0,".
@@ -66,10 +54,7 @@ public final class TextFormatterService {
     return result
   }
   
-  /// Форматирует числовую строку, разделяя целую часть пробелами, а дробную часть отделяет запятой.
-  /// - Parameter input: Исходная строка, представляющая число.
-  /// - Returns: Отформатированная строка.
-  func formatNumberString(_ input: String) -> String {
+  public func formatNumberString(_ input: String) -> String {
     let components = input.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
     var integerPart = String(components.first ?? "")
     let fractionalPart = components.count > 1 ? String(components[1]) : ""
@@ -93,12 +78,7 @@ public final class TextFormatterService {
     }
   }
   
-  /// Форматирует число типа `Double` в строку с указанным количеством знаков после запятой.
-  /// - Parameters:
-  ///   - value: Число типа `Double`.
-  ///   - decimalPlaces: Количество знаков после запятой.
-  /// - Returns: Отформатированная строка.
-  func formatDouble(_ value: Double, decimalPlaces: Int) -> String {
+  public func formatDouble(_ value: Double, decimalPlaces: Int) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .decimal
     formatter.decimalSeparator = ","
@@ -106,5 +86,21 @@ public final class TextFormatterService {
     formatter.minimumFractionDigits = decimalPlaces
     formatter.maximumFractionDigits = decimalPlaces
     return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+  }
+  
+  public func countCharactersAfterComma(in string: String) -> Int? {
+    // Находим индекс запятой
+    guard let commaIndex = string.firstIndex(of: ",") else {
+      return nil // Если запятая не найдена, возвращаем nil
+    }
+    
+    // Получаем индекс следующего символа после запятой
+    let nextIndex = string.index(after: commaIndex)
+    
+    // Извлекаем подстроку после запятой
+    let substringAfterComma = string[nextIndex...]
+    
+    // Возвращаем количество символов в подстроке
+    return substringAfterComma.count
   }
 }

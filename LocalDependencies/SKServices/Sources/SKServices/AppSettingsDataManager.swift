@@ -86,6 +86,22 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
+  public func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.enteredCurrencyAmount = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func setActiveCurrency(_ value: CurrencyRate.Currency, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.activeCurrency = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
   public func setSelectedCurrencyRates(
     _ currencyRates: [CurrencyRate.Currency],
     completion: @escaping () -> Void

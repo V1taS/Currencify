@@ -10,3 +10,5 @@
 "Button.Update.Title" = "Обновить";
 "Error.Load.Data.Title" = "Ошибка загрузки курсов валют";
 "Error.Load.Data.Descriptor" = "Проверьте соединение";
+"SearchCurrency.Placeholder" = "Название валюты";
+"CurrencyDelete" = "Удалить";

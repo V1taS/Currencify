@@ -45,17 +45,13 @@ private extension MainScreenView {
   func createSearchCurrencyRateView() -> some View {
     VStack {
       SearchCurrencyRateView(
-        placeholder: "placeholder",
-        currencyRates: [
-          .init(currency: .USD, rate: 1.0, lastUpdated: Date()),
-          .init(currency: .EUR, rate: 1.0, lastUpdated: Date()),
-          .init(currency: .RUB, rate: 1.0, lastUpdated: Date()),
-          .init(currency: .RSD, rate: 1.0, lastUpdated: Date()),
-          .init(currency: .AED, rate: 1.0, lastUpdated: Date())
-        ],
-        availableCurrencyRate: [.RUB],
+        placeholder: CurrencifyStrings.MainScreenLocalization.SearchCurrency.placeholder,
+        currencyRates: Secrets.currencyRateList,
+        availableCurrencyRate: presenter.availableCurrencyRate,
         action: { newValue in
-          // Ваш код обработки действия
+          Task {
+            await presenter.userAddCurrencyRate(newValue: newValue)
+          }
         }
       )
       .background(
@@ -107,7 +103,9 @@ private extension MainScreenView {
         text: CurrencifyStrings.MainScreenLocalization
           .Button.Update.title,
         action: {
-          presenter.refreshCurrencyData()
+          Task {
+            await presenter.refreshCurrencyData()
+          }
         }
       )
     }
@@ -117,7 +115,7 @@ private extension MainScreenView {
   
   func createContent() -> some View {
     List {
-      ForEach(Array(presenter.currencyWidgets.enumerated()), id: \.element.id) { index, model in
+      ForEach(Array(presenter.currencyWidgets.enumerated()), id: \.element.id) { _, model in
         VStack(spacing: .zero) {
           WidgetCryptoView(model)
             .clipShape(RoundedRectangle(cornerRadius: .s3))
@@ -127,9 +125,11 @@ private extension MainScreenView {
         .listRowSeparator(.hidden)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
           Button {
-            // TODO: - Удалить
+            Task {
+              await presenter.userRemoveCurrencyRate(currencyAlpha: model.additionalID)
+            }
           } label: {
-            Text("Удалить")
+            Text(CurrencifyStrings.MainScreenLocalization.currencyDelete)
           }
           .tint(SKStyleAsset.constantRuby.swiftUIColor)
         }
