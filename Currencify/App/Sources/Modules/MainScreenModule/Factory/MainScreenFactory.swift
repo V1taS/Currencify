@@ -77,8 +77,16 @@ extension MainScreenFactory: MainScreenFactoryInput {
         currencyRate.currency == selectedCurrency
       }
     }
+    
+    let sortedCurrencyRates = filteredCurrencyRates.sorted { first, second in
+      guard let firstIndex = availableRates.firstIndex(of: first.currency),
+            let secondIndex = availableRates.firstIndex(of: second.currency) else {
+        return false
+      }
+      return firstIndex < secondIndex
+    }
 
-    for currencyRate in filteredCurrencyRates {
+    for currencyRate in sortedCurrencyRates {
       models.append(
         createWidgetModel(
           selectedCurrency: selectedCurrency,

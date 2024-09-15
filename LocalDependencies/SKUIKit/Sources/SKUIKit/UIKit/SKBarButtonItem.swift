@@ -54,6 +54,8 @@ extension SKBarButtonItem {
   public enum ButtonType {
     var tintColor: UIColor {
       switch self {
+      case .edit:
+        return SKStyleAsset.constantAzure.color
       case .close:
         return SKStyleAsset.constantAzure.color
       case .done:
@@ -79,6 +81,8 @@ extension SKBarButtonItem {
     
     var buttonItem: ((SKBarButtonItem?) -> Void)? {
       switch self {
+      case let .edit(_, button):
+        return button
       case let .close(_, button):
         return button
       case let .done(_, button):
@@ -104,6 +108,8 @@ extension SKBarButtonItem {
     
     var action: (() -> Void)? {
       switch self {
+      case let .edit(action, _):
+        return action
       case let .close(action, _):
         return action
       case let .done(action, _):
@@ -140,6 +146,8 @@ extension SKBarButtonItem {
       switch self {
       case .close:
         return UIImage(systemName: "xmark")
+      case .edit:
+        return UIImage(systemName: "arrow.up.arrow.down")
       case .done:
         return UIImage(systemName: "checkmark")
       case .refresh:
@@ -161,6 +169,7 @@ extension SKBarButtonItem {
       }
     }
     
+    case edit(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case close(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case add(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)
     case done(action: (() -> Void)?, buttonItem: ((SKBarButtonItem?) -> Void)? = nil)

@@ -36,6 +36,7 @@ struct MainScreenView: View {
         createSearchCurrencyRateView()
       }
     }
+    .environment(\.editMode, $presenter.isEditMode)
   }
 }
 
@@ -120,7 +121,7 @@ private extension MainScreenView {
           WidgetCryptoView(model)
             .clipShape(RoundedRectangle(cornerRadius: .s3))
         }
-        .listRowBackground(Color.clear)
+        .listRowBackground(SKStyleAsset.onyx.swiftUIColor)
         .listRowInsets(.init(top: .zero, leading: .s4, bottom: .zero, trailing: .s4))
         .listRowSeparator(.hidden)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -134,11 +135,18 @@ private extension MainScreenView {
           .tint(SKStyleAsset.constantRuby.swiftUIColor)
         }
       }
+      .onMove(perform: move)
     }
     .background(Color.clear)
     .listStyle(PlainListStyle())
     .listRowSpacing(.s4)
     .listRowSeparator(.hidden)
+  }
+  
+  func move(from source: IndexSet, to destination: Int) {
+    Task {
+      await presenter.moveCurrencyRates(from: source, to: destination)
+    }
   }
 }
 

@@ -19,6 +19,7 @@ final class MainScreenPresenter: ObservableObject {
   @Published var isCurrencyListEmpty = false
   @Published var isUserInputVisible = false
   @Published var isSearchViewVisible = false
+  @Published var isEditMode: EditMode = .inactive
   
   // MARK: - Internal properties
   
@@ -92,6 +93,16 @@ final class MainScreenPresenter: ObservableObject {
     await interactor.removeCurrencyRates([currency])
     await recalculateCurrencyWidgets()
   }
+  
+  @MainActor
+  func moveCurrencyRates(from source: IndexSet, to destination: Int) async {
+    currencyWidgets.move(fromOffsets: source, toOffset: destination)
+    let appSettingsModel = await interactor.getAppSettingsModel()
+    var selectedCurrencyRate = appSettingsModel.selectedCurrencyRate
+    selectedCurrencyRate.move(fromOffsets: source, toOffset: destination)
+    await interactor.removeAllCurrencyRates()
+    await interactor.setSelectedCurrencyRates(selectedCurrencyRate)
+  }
 }
 
 // MARK: - MainScreenModuleInput
@@ -142,6 +153,16 @@ extension MainScreenPresenter: SceneViewModel {
             self?.isSearchViewVisible = true
           }, buttonItem: { [weak self] buttonItem in
             self?.leftBarAddButton = buttonItem
+          }
+        )
+      ),
+      .init(
+        .edit(
+          action: { [weak self] in
+            guard let self else { return }
+            isEditMode = isEditMode == .inactive ? .active : .inactive
+          }, buttonItem: { [weak self] buttonItem in
+            
           }
         )
       )
