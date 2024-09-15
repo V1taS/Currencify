@@ -28,6 +28,7 @@ public enum SKStyleAsset {
   public static let constantOnyx = SKStyleColors(name: "constantOnyx")
   public static let constantRuby = SKStyleColors(name: "constantRuby")
   public static let constantSlate = SKStyleColors(name: "constantSlate")
+  public static let constantSearchCurrency = SKStyleColors(name: "constantSearchCurrency")
   public static let constantLightMistGray = SKStyleColors(name: "constantLightMistGray")
   public static let ghost = SKStyleColors(name: "ghost")
   public static let navy = SKStyleColors(name: "navy")

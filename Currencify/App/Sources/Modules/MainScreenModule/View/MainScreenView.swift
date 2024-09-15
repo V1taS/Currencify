@@ -17,15 +17,23 @@ struct MainScreenView: View {
   
   @StateObject
   var presenter: MainScreenPresenter
+  @State private var searchViewFrame: CGRect = .zero
   
   // MARK: - Body
   
   var body: some View {
-    VStack {
-      if presenter.isCurrencyListEmpty {
-        createEmptyState()
-      } else {
-        createContent()
+    ZStack(alignment: .topLeading) {
+      VStack {
+        if presenter.isCurrencyListEmpty {
+          createEmptyState()
+        } else {
+          createContent()
+        }
+      }
+      
+      // SearchCurrencyRateView с анимацией показа и скрытия
+      if presenter.isSearchViewVisible {
+        createSearchCurrencyRateView()
       }
     }
   }
@@ -34,6 +42,49 @@ struct MainScreenView: View {
 // MARK: - Private
 
 private extension MainScreenView {
+  func createSearchCurrencyRateView() -> some View {
+    VStack {
+      SearchCurrencyRateView(
+        placeholder: "placeholder",
+        currencyRates: [
+          .init(currency: .USD, rate: 1.0, lastUpdated: Date()),
+          .init(currency: .EUR, rate: 1.0, lastUpdated: Date()),
+          .init(currency: .RUB, rate: 1.0, lastUpdated: Date()),
+          .init(currency: .RSD, rate: 1.0, lastUpdated: Date()),
+          .init(currency: .AED, rate: 1.0, lastUpdated: Date())
+        ],
+        availableCurrencyRate: [.RUB],
+        action: { newValue in
+          // Ваш код обработки действия
+        }
+      )
+      .background(
+        GeometryReader { geometry in
+          Color.clear
+            .onAppear {
+              self.searchViewFrame = geometry.frame(in: .global)
+            }
+            .onChange(of: geometry.frame(in: .global)) { newFrame in
+              self.searchViewFrame = newFrame
+            }
+        }
+      )
+      .padding(.leading, .s4)
+      .padding(.top, .s4)
+      .transition(.move(edge: .top))
+      .animation(.easeInOut, value: presenter.isSearchViewVisible)
+      .onReceive(NotificationCenter.default.publisher(for: .globalTouchEvent)) { notification in
+        guard let touch = notification.object as? UITouch else {
+          return
+        }
+        let touchPoint = touch.location(in: nil)
+        if !searchViewFrame.contains(touchPoint) {
+          presenter.isSearchViewVisible = false
+        }
+      }
+    }
+  }
+  
   func createEmptyState() -> some View {
     VStack {
       ScrollView(showsIndicators: false) {

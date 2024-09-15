@@ -19,6 +19,7 @@ final class MainScreenPresenter: ObservableObject {
   @Published var activeCurrency: CurrencyRate.Currency = .USD
   @Published var isUserInputVisible = false
   @Published var enteredCurrencyAmount: String = "0"
+  @Published var isSearchViewVisible: Bool = false
   
   // MARK: - Internal properties
   
@@ -104,7 +105,7 @@ extension MainScreenPresenter: SceneViewModel {
       .init(
         .add(
           action: { [weak self] in
-            // TODO: -
+            self?.isSearchViewVisible = true
           }, buttonItem: { [weak self] buttonItem in
             self?.leftBarAddButton = buttonItem
           }
@@ -115,15 +116,15 @@ extension MainScreenPresenter: SceneViewModel {
   
   var rightBarButtonItems: [SKBarButtonItem] {
     [
-      .init(
-        .share(
-          action: { [weak self] in
-            // TODO: -
-          }, buttonItem: { [weak self] buttonItem in
-            self?.rightBarShareButton = buttonItem
-          }
-        )
-      ),
+//      .init(
+//        .share(
+//          action: { [weak self] in
+//            // TODO: -
+//          }, buttonItem: { [weak self] buttonItem in
+//            self?.rightBarShareButton = buttonItem
+//          }
+//        )
+//      ),
       .init(
         .settings(
           action: { [weak self] in
@@ -180,5 +181,5 @@ private extension MainScreenPresenter {
 // MARK: - Constants
 
 private enum Constants {
-  static let title = "Currency"
+  static let title = "Currencify"
 }

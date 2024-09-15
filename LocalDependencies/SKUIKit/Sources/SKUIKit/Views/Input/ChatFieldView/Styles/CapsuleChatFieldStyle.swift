@@ -14,6 +14,7 @@ struct CapsuleChatFieldStyle: TextFieldStyle {
       .padding(.vertical, .s2)
       .padding(.horizontal, .s3)
       .textFieldStyle(.plain)
+      .background(SKStyleAsset.navy.swiftUIColor)
       .clipShape(ClipShape())
       .overlay(ClipShape().stroke(Color(.separator)))
   }

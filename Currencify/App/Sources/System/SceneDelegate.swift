@@ -44,9 +44,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     options connectionOptions: UIScene.ConnectionOptions
   ) {
     guard let windowScene = scene as? UIWindowScene else { return }
-    window = UIWindow(windowScene: windowScene)
-    window?.makeKeyAndVisible()
-    
+    window = TouchObservingWindow(windowScene: windowScene)
     ConfigurationValueConfigurator(services: services).configure()
     FirstLaunchConfigurator(services: services).configure()
     AppearanceConfigurator(services: services).configure()
