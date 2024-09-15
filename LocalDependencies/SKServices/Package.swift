@@ -30,6 +30,10 @@ let package = Package(
         "SKNotifications",
         "ApphudSDK"
       ]
-    )
+    ),
+    .testTarget(
+      name: "SKServicesTests",
+      dependencies: ["SKServices"]
+    ),
   ]
 )

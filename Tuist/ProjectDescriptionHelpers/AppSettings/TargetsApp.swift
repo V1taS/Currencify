@@ -35,17 +35,17 @@ public extension Array<Target> {
         settings: Settings.app
       ),
       // TODO: - Тесты пока не пишем
-//      Target(
-//        name: "\(Constants.appNameRelease)Tests",
-//        destinations: .iOS,
-//        product: .unitTests,
-//        bundleId: "\(Constants.bundleApp)",
-//        deploymentTargets: .defaultDeploymentTargets,
-//        sources: ["\(Constants.rootPath)/\(Constants.appPath)\(Constants.appNameRelease)Tests/**"],
-//        dependencies: [
-//          .target(name: "\(Constants.appNameRelease)")
-//        ]
-//      ),
+      Target(
+        name: "\(Constants.appNameRelease)Tests",
+        destinations: .iOS,
+        product: .unitTests,
+        bundleId: "\(Constants.bundleApp)",
+        deploymentTargets: .defaultDeploymentTargets,
+        sources: ["\(Constants.rootPath)/\(Constants.appPath)/Tests/**"],
+        dependencies: [
+          .target(name: "\(Constants.appNameRelease)")
+        ]
+      ),
 //      Target(
 //        name: "\(Constants.appNameRelease)UITests",
 //        destinations: .iOS,
