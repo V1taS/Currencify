@@ -29,6 +29,7 @@ final class MainScreenPresenter: ObservableObject {
   private let interactor: MainScreenInteractorInput
   private let factory: MainScreenFactoryInput
   private var rightBarSettingsButton: SKBarButtonItem?
+  private var rightBarShareButton: SKBarButtonItem?
   private var leftBarAddButton: SKBarButtonItem?
   
   // MARK: - Initialization
@@ -115,6 +116,15 @@ extension MainScreenPresenter: SceneViewModel {
   var rightBarButtonItems: [SKBarButtonItem] {
     [
       .init(
+        .share(
+          action: { [weak self] in
+            // TODO: -
+          }, buttonItem: { [weak self] buttonItem in
+            self?.rightBarShareButton = buttonItem
+          }
+        )
+      ),
+      .init(
         .settings(
           action: { [weak self] in
             self?.moduleOutput?.openSettinsScreen()
@@ -137,6 +147,7 @@ private extension MainScreenPresenter {
       guard let self else { return }
       isCurrencyListEmpty = Secrets.currencyRateList.isEmpty || currencyWidgets.isEmpty
       leftBarAddButton?.isEnabled = !Secrets.currencyRateList.isEmpty
+      rightBarShareButton?.isEnabled = !Secrets.currencyRateList.isEmpty
     }
   }
   
