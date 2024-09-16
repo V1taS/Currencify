@@ -164,7 +164,8 @@ private extension MainScreenFactory {
           }
         }
           .padding(.top, .s4)
-          .padding(.bottom, .s1)
+          .padding(.horizontal, -.s3)
+          .padding(.bottom, -.s2)
       )
     }
     
@@ -193,20 +194,28 @@ private extension MainScreenFactory {
       rightSide: .init(
         itemModel: .custom(
           item: AnyView(
-            Text(currencyValueRemoveExtraZeros)
-              .font(.fancy.constant.h2)
-              .foregroundStyle(
-                currencyRate.rate == .zero ? SKStyleAsset.constantSlate.swiftUIColor : SKStyleAsset.ghost.swiftUIColor
-              )
-              .lineLimit(1)
-              .minimumScaleFactor(0.7)
+            HStack(spacing: .zero) {
+              Spacer(minLength: .zero)
+              Text(currencyValueRemoveExtraZeros)
+                .multilineTextAlignment(.trailing)
+                .font(.fancy.constant.h2)
+                .foregroundStyle(
+                  currencyRate.rate == .zero ? SKStyleAsset.constantSlate.swiftUIColor : SKStyleAsset.ghost.swiftUIColor
+                )
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            }
           ),
-          size: .custom(width: nil, height: nil)
+          size: .custom(
+            width: UIScreen.main.bounds.width / 1.98,
+            height: nil
+          )
         )
       ),
       additionCenterContent: additionCenterContent,
       backgroundColor: nil,
-      action: { [weak self] in
+      action: {
+        [weak self] in
         
         Task { [weak self] in
           guard let self else { return }

@@ -37,7 +37,7 @@ public struct KeyboardView: View {
   // MARK: - Body
   
   public var body: some View {
-    VStack(spacing: .s2) {
+    VStack(spacing: .s1) {
       createNumberLine(numbers: Constants.firstLine)
       createNumberLine(numbers: Constants.secondLine)
       createNumberLine(numbers: Constants.thirdLine)
@@ -84,7 +84,7 @@ private extension KeyboardView {
   
   func createNumberLine(numbers: [String]) -> AnyView {
     AnyView(
-      HStack(spacing: .s2) {
+      HStack(spacing: .s1) {
         ForEach(Array(numbers.enumerated()), id: \.offset) { _, number in
           switch number {
           case Constants.spacer:
