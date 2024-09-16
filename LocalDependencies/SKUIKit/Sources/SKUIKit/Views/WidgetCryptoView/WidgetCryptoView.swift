@@ -47,7 +47,7 @@ private extension WidgetCryptoView {
         }
         
         VStack(spacing: .zero) {
-          HStack(alignment: .center, spacing: .s4) {
+          HStack(alignment: .center, spacing: model.horizontalSpacing) {
             createLeftSideImage(model: model)
             createLeftSideItem(model: model)
             
@@ -76,8 +76,9 @@ private extension WidgetCryptoView {
               .allowsHitTesting(false)
           }
         }
-        .padding(.horizontal, .s4)
-        .padding(.vertical, .s3)
+        .padding(.leading, model.leadingPadding)
+        .padding(.trailing, model.trailingPadding)
+        .padding(.vertical, model.verticalPadding)
       }
     )
   }
@@ -175,7 +176,7 @@ private extension WidgetCryptoView {
       HStack(alignment: .center, spacing: .s2) {
         if let titleModel = model.leftSide?.titleModel {
           Text(titleModel.textIsSecure ? Constants.secureText : titleModel.text)
-            .font(.fancy.text.regularMedium)
+            .font(titleModel.textFont)
             .foregroundColor(titleModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleModel.lineLimit)
@@ -185,7 +186,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionModel = model.leftSide?.titleAdditionModel {
           Text(titleAdditionModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionModel.textFont)
             .foregroundColor(titleAdditionModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionModel.lineLimit)
@@ -195,7 +196,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionRoundedModel = model.leftSide?.titleAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
-            .font(.fancy.text.small)
+            .font(titleAdditionRoundedModel.textFont)
             .foregroundColor(titleAdditionRoundedModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionRoundedModel.lineLimit)
@@ -208,7 +209,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionRoundedModel = model.rightSide?.titleAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
-            .font(.fancy.text.small)
+            .font(titleAdditionRoundedModel.textFont)
             .foregroundColor(titleAdditionRoundedModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionRoundedModel.lineLimit)
@@ -219,7 +220,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionModel = model.rightSide?.titleAdditionModel {
           Text(titleAdditionModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionModel.textFont)
             .foregroundColor(titleAdditionModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionModel.lineLimit)
@@ -229,7 +230,7 @@ private extension WidgetCryptoView {
         
         if let titleModel = model.rightSide?.titleModel {
           Text(titleModel.textIsSecure ? Constants.secureText : titleModel.text)
-            .font(.fancy.text.regularMedium)
+            .font(titleModel.textFont)
             .foregroundColor(titleModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleModel.lineLimit)
@@ -245,7 +246,7 @@ private extension WidgetCryptoView {
       HStack(alignment: .center, spacing: .s2) {
         if let titleModel = model.leftSide?.descriptionModel {
           Text(titleModel.textIsSecure ? Constants.secureText : titleModel.text)
-            .font(.fancy.text.regular)
+            .font(titleModel.textFont)
             .foregroundColor(titleModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleModel.lineLimit)
@@ -255,7 +256,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionModel = model.leftSide?.descriptionAdditionModel {
           Text(titleAdditionModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionModel.textFont)
             .foregroundColor(titleAdditionModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionModel.lineLimit)
@@ -265,7 +266,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionRoundedModel = model.leftSide?.descriptionAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionRoundedModel.textFont)
             .foregroundColor(titleAdditionRoundedModel.textStyle.color)
             .multilineTextAlignment(.leading)
             .lineLimit(titleAdditionRoundedModel.lineLimit)
@@ -278,7 +279,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionRoundedModel = model.rightSide?.descriptionAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionRoundedModel.textFont)
             .foregroundColor(titleAdditionRoundedModel.textStyle.color)
             .multilineTextAlignment(.trailing)
             .lineLimit(titleAdditionRoundedModel.lineLimit)
@@ -289,7 +290,7 @@ private extension WidgetCryptoView {
         
         if let titleAdditionModel = model.rightSide?.descriptionAdditionModel {
           Text(titleAdditionModel.text)
-            .font(.fancy.text.regular)
+            .font(titleAdditionModel.textFont)
             .foregroundColor(titleAdditionModel.textStyle.color)
             .multilineTextAlignment(.trailing)
             .lineLimit(titleAdditionModel.lineLimit)
@@ -299,7 +300,7 @@ private extension WidgetCryptoView {
         
         if let titleModel = model.rightSide?.descriptionModel {
           Text(titleModel.textIsSecure ? Constants.secureText : titleModel.text)
-            .font(.fancy.text.regular)
+            .font(titleModel.textFont)
             .foregroundColor(titleModel.textStyle.color)
             .multilineTextAlignment(.trailing)
             .lineLimit(titleModel.lineLimit)

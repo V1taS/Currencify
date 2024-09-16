@@ -164,8 +164,9 @@ private extension MainScreenFactory {
           }
         }
           .padding(.top, .s4)
-          .padding(.horizontal, -.s3)
-          .padding(.bottom, -.s2)
+          .padding(.horizontal, -.s1)
+          .padding(.bottom, .s1)
+          .offset(x: .s1 / 2)
       )
     }
     
@@ -175,18 +176,20 @@ private extension MainScreenFactory {
         itemModel: .custom(
           item: AnyView(
             Text(currencyRate.emojiFlag() ?? "")
-              .font(.system(size: 40, weight: .bold))
+              .font(.system(size: 50, weight: .bold))
               .lineLimit(1)
           ),
-          size: .large
+          size: .custom(width: .infinity, height: nil)
         ),
         titleModel: .init(
           text: currencyRate.currency.details.name,
+          textFont: .fancy.text.regularMedium,
           lineLimit: 1,
           textStyle: .standart
         ),
         descriptionModel: .init(
           text: currencyRate.currency.details.code.alpha,
+          textFont: .fancy.text.small,
           lineLimit: 1,
           textStyle: .netural
         )
@@ -214,6 +217,10 @@ private extension MainScreenFactory {
       ),
       additionCenterContent: additionCenterContent,
       backgroundColor: nil,
+      horizontalSpacing: .s2,
+      leadingPadding: .s2,
+      trailingPadding: .s3,
+      verticalPadding: .zero,
       action: {
         [weak self] in
         

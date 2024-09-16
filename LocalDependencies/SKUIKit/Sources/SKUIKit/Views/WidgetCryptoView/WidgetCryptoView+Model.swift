@@ -23,6 +23,10 @@ extension WidgetCryptoView {
     public var isSelectable: Bool
     public let backgroundColor: Color?
     public let action: (() -> Void)?
+    public let horizontalSpacing: CGFloat
+    public let leadingPadding: CGFloat
+    public let trailingPadding: CGFloat
+    public let verticalPadding: CGFloat
     
     // MARK: - Initialization
     
@@ -34,6 +38,10 @@ extension WidgetCryptoView {
     ///   - additionCenterContent: Дополнительный контент по центру
     ///   - isSelectable: Можно ли нажать на ячейку
     ///   - backgroundColor: Цвет фона виджета
+    ///   - horizontalSpacing: Горизонтальный внутренний отступ
+    ///   - leadingPadding: Левый внешний отступ
+    ///   - trailingPadding: Правый внешний отступ
+    ///   - verticalPadding: Вертикальный внешний отступ
     ///   - action: Замыкание, которое будет выполняться при нажатии на виджет
     public init(
       additionalID: String = UUID().uuidString,
@@ -43,6 +51,10 @@ extension WidgetCryptoView {
       additionCenterContent: AnyView? = nil,
       isSelectable: Bool = true,
       backgroundColor: Color? = nil,
+      horizontalSpacing: CGFloat = .s4,
+      leadingPadding: CGFloat = .s4,
+      trailingPadding: CGFloat = .s4,
+      verticalPadding: CGFloat = .s3,
       action: (() -> Void)? = nil
     ) {
       self.id = UUID().uuidString
@@ -53,6 +65,10 @@ extension WidgetCryptoView {
       self.additionCenterContent = additionCenterContent
       self.isSelectable = isSelectable
       self.backgroundColor = backgroundColor
+      self.horizontalSpacing = horizontalSpacing
+      self.leadingPadding = leadingPadding
+      self.trailingPadding = trailingPadding
+      self.verticalPadding = verticalPadding
       self.action = action
     }
   }
@@ -114,6 +130,7 @@ extension WidgetCryptoView {
   public struct TextModel: Equatable, Hashable {
     // MARK: - Public properties
     public let text: String
+    public let textFont: Font
     public let lineLimit: Int
     public let textStyle: TextStyle
     public let textIsSecure: Bool
@@ -123,16 +140,19 @@ extension WidgetCryptoView {
     /// Инициализатор для создания модельки
     /// - Parameters:
     ///   - text: Заголовок
+    ///   - textFont: Шрифт текста
     ///   - lineLimit: Количество строк
     ///   - textStyle: Стиль заголовка
     ///   - textIsSecure: Заголовок скрыт
     public init(
       text: String,
+      textFont: Font = .fancy.text.regular,
       lineLimit: Int = 1,
       textStyle: WidgetCryptoView.TextStyle = .standart,
       textIsSecure: Bool = false
     ) {
       self.text = text
+      self.textFont = textFont
       self.lineLimit = lineLimit
       self.textStyle = textStyle
       self.textIsSecure = textIsSecure
