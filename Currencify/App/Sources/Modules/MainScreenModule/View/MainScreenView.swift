@@ -17,7 +17,12 @@ struct MainScreenView: View {
   
   @StateObject
   var presenter: MainScreenPresenter
+  
+  // MARK: - Private properties
+  
   @State private var searchViewFrame: CGRect = .zero
+  @State private var widgetFrames: [String: CGRect] = [:]
+  @State private var navigationBarFrame: CGRect = .zero
   
   // MARK: - Body
   
@@ -37,6 +42,46 @@ struct MainScreenView: View {
       }
     }
     .environment(\.editMode, $presenter.isEditMode)
+    .background(
+      GeometryReader { geometry in
+        Color.clear
+          .onAppear {
+            // Захват фрейма навигационной панели
+            let navBarHeight = geometry.size.height
+            let window = UIApplication.shared.windows.first
+            let safeAreaTop = window?.safeAreaInsets.top ?? 0
+            navigationBarFrame = CGRect(x: 0, y: 0, width: geometry.size.width, height: navBarHeight + safeAreaTop)
+          }
+          .onChange(of: geometry.frame(in: .global)) { newFrame in
+            let navBarHeight = newFrame.size.height
+            let window = UIApplication.shared.windows.first
+            let safeAreaTop = window?.safeAreaInsets.top ?? 0
+            navigationBarFrame = CGRect(x: 0, y: 0, width: newFrame.size.width, height: navBarHeight + safeAreaTop)
+          }
+      }
+    )
+    .onReceive(NotificationCenter.default.publisher(for: .globalTouchEvent)) { notification in
+      guard let touch = notification.object as? UITouch else {
+        return
+      }
+      let touchPoint = touch.location(in: nil)
+      
+      // Проверка, находится ли касание вне области поиска
+      if !searchViewFrame.contains(touchPoint) {
+        presenter.isSearchViewVisible = false
+      }
+      
+      // Проверка, находится ли касание внутри любого из WidgetCryptoView
+      let isTouchInsideAnyWidget = widgetFrames.values.contains { $0.contains(touchPoint) }
+      
+      // Дополнительная проверка для навигационной панели
+      let isTouchInsideNavigationBar = navigationBarFrame.contains(touchPoint)
+      
+      // Если касание вне всех виджетов, вызываем handleTouchOutside один раз
+      if !isTouchInsideAnyWidget {
+        handleTouchOutside(isTouchInsideNavigationBar: isTouchInsideNavigationBar)
+      }
+    }
   }
 }
 
@@ -70,15 +115,6 @@ private extension MainScreenView {
       .padding(.top, .s4)
       .transition(.move(edge: .top))
       .animation(.easeInOut, value: presenter.isSearchViewVisible)
-      .onReceive(NotificationCenter.default.publisher(for: .globalTouchEvent)) { notification in
-        guard let touch = notification.object as? UITouch else {
-          return
-        }
-        let touchPoint = touch.location(in: nil)
-        if !searchViewFrame.contains(touchPoint) {
-          presenter.isSearchViewVisible = false
-        }
-      }
     }
   }
   
@@ -130,6 +166,17 @@ private extension MainScreenView {
                   )
               }
             )
+            .background(
+              GeometryReader { geometry in
+                Color.clear
+                  .onAppear {
+                    widgetFrames[model.additionalID] = geometry.frame(in: .global)
+                  }
+                  .onChange(of: geometry.frame(in: .global)) { newFrame in
+                    widgetFrames[model.additionalID] = newFrame
+                  }
+              }
+            )
         }
         .listRowBackground(SKStyleAsset.onyx.swiftUIColor)
         .listRowInsets(.init(top: 0.5, leading: .s4, bottom: .zero, trailing: .s4))
@@ -164,6 +211,36 @@ private extension MainScreenView {
       }
     }
     presenter.currencyWidgets.remove(atOffsets: offsets)
+  }
+  
+  // Действие при касании вне всех WidgetCryptoView и навигационной панели
+  func handleTouchOutside(isTouchInsideNavigationBar: Bool) {
+    // Если касание внутри навигационной панели, выполняем проверку состояний
+    if isTouchInsideNavigationBar {
+      // Если isUserInputVisible, игнорируем касание
+      if presenter.isUserInputVisible {
+        return
+      }
+      
+      // Если isSearchViewVisible, обрабатываем касание
+      if presenter.isSearchViewVisible {
+        presenter.isSearchViewVisible = false
+        return
+      }
+    }
+    
+    Task {
+      // Скрыть клавиатуру, если она видима
+      if presenter.isUserInputVisible {
+        presenter.isUserInputVisible = false
+        await presenter.recalculateCurrencyWidgets()
+      }
+    }
+    
+    // Скрыть панель поиска, если она видима
+    if presenter.isSearchViewVisible {
+      presenter.isSearchViewVisible = false
+    }
   }
 }
 

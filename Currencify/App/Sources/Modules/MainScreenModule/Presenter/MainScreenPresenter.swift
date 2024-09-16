@@ -105,6 +105,36 @@ final class MainScreenPresenter: ObservableObject {
     await interactor.removeAllCurrencyRates()
     await interactor.setSelectedCurrencyRates(selectedCurrencyRate)
   }
+  
+  @MainActor
+  func recalculateCurrencyWidgets() async {
+    let appSettingsModel = await interactor.getAppSettingsModel()
+    availableCurrencyRate = appSettingsModel.selectedCurrencyRate
+    enteredCurrencyAmount = appSettingsModel.enteredCurrencyAmount
+    activeCurrency = appSettingsModel.activeCurrency
+    
+    let calculationMode: RateCalculationMode
+    switch appSettingsModel.currencySource {
+    case .cbr:
+      calculationMode = .inverse
+    case .ecb:
+      calculationMode = .direct
+    }
+    
+    let availableRates = appSettingsModel.selectedCurrencyRate
+    let models = factory.createCurrencyWidgetModels(
+      forCurrency: activeCurrency,
+      amountEntered: enteredCurrencyAmount,
+      isUserInputActive: isUserInputVisible,
+      availableRates: availableRates,
+      rateCalculationMode: calculationMode,
+      decimalPlaces: appSettingsModel.currencyDecimalPlaces,
+      commaIsSet: commaIsSet,
+      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage
+    )
+    currencyWidgets = models
+    validateRatesData()
+  }
 }
 
 // MARK: - MainScreenModuleInput
@@ -197,36 +227,6 @@ private extension MainScreenPresenter {
       leftBarAddButton?.isEnabled = !Secrets.currencyRateList.isEmpty
       rightBarShareButton?.isEnabled = !Secrets.currencyRateList.isEmpty
     }
-  }
-  
-  @MainActor
-  func recalculateCurrencyWidgets() async {
-    let appSettingsModel = await interactor.getAppSettingsModel()
-    availableCurrencyRate = appSettingsModel.selectedCurrencyRate
-    enteredCurrencyAmount = appSettingsModel.enteredCurrencyAmount
-    activeCurrency = appSettingsModel.activeCurrency
-    
-    let calculationMode: RateCalculationMode
-    switch appSettingsModel.currencySource {
-    case .cbr:
-      calculationMode = .inverse
-    case .ecb:
-      calculationMode = .direct
-    }
-    
-    let availableRates = appSettingsModel.selectedCurrencyRate
-    let models = factory.createCurrencyWidgetModels(
-      forCurrency: activeCurrency,
-      amountEntered: enteredCurrencyAmount,
-      isUserInputActive: isUserInputVisible,
-      availableRates: availableRates,
-      rateCalculationMode: calculationMode,
-      decimalPlaces: appSettingsModel.currencyDecimalPlaces, 
-      commaIsSet: commaIsSet, 
-      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage
-    )
-    currencyWidgets = models
-    validateRatesData()
   }
 }
 
