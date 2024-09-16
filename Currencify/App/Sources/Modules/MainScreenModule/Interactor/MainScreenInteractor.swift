@@ -41,6 +41,14 @@ protocol MainScreenInteractorInput {
   /// - Parameters:
   ///   - value: Валюта, которая будет установлена как активная.
   func setActiveCurrency(_ value: CurrencyRate.Currency) async
+  
+  /// Создание снимка коллекции.
+  func createCollectionViewSnapshot() async -> UIImage?
+  
+  /// Запрос доступа к Галерее
+  /// - Parameter return: Булево значение, указывающее, было ли предоставлено разрешение
+  @discardableResult
+  func requestGallery() async -> Bool
 }
 
 /// Интерактор
@@ -54,6 +62,8 @@ final class MainScreenInteractor {
   
   private let currencyRatesService: ICurrencyRatesService
   private let appSettingsDataManager: IAppSettingsDataManager
+  private let uiService: IUIService
+  private let permissionService: IPermissionService
   
   // MARK: - Initialization
   
@@ -62,12 +72,26 @@ final class MainScreenInteractor {
   init(services: IApplicationServices) {
     currencyRatesService = services.dataManagementService.currencyRatesService
     appSettingsDataManager = services.appSettingsDataManager
+    uiService = services.userInterfaceAndExperienceService.uiService
+    permissionService = services.accessAndSecurityManagementService.permissionService
   }
 }
 
 // MARK: - MainScreenInteractorInput
 
 extension MainScreenInteractor: MainScreenInteractorInput {
+  func requestGallery() async -> Bool {
+    await permissionService.requestGallery()
+  }
+  
+  func createCollectionViewSnapshot() async -> UIImage? {
+    await withCheckedContinuation { continuation in
+      uiService.createCollectionViewSnapshot { image in
+        continuation.resume(returning: image)
+      }
+    }
+  }
+  
   func fetchCurrencyRates() async {
     await withCheckedContinuation { continuation in
       appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in

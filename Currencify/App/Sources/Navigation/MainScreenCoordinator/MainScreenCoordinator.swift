@@ -20,6 +20,7 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
   private var mainScreenModule: MainScreenModule?
   private var premiumScreenModule: PremiumScreenModule?
   private var premiumScreenNavigationController: UINavigationController?
+  private var imageViewerModule: ImageViewerModule?
   private var secureDataManagerService: ISecureDataManagerService {
     services.dataManagementService.getSecureDataManagerService(.configurationSecrets)
   }
@@ -70,6 +71,11 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
 // MARK: - MainScreenModuleOutput
 
 extension MainScreenCoordinator: MainScreenModuleOutput {
+  @MainActor
+  func openImageViewer(image: UIImage?) async {
+    openImageViewerSheet(image: image)
+  }
+  
   @MainActor
   func limitOfAddedCurrenciesHasBeenExceeded() async {
     UIViewController.topController?.showAlertWithTwoButtons(
@@ -130,6 +136,14 @@ extension MainScreenCoordinator: PremiumScreenModuleOutput {
   }
 }
 
+// MARK: - ImageViewerModuleOutput
+
+extension MainScreenCoordinator: ImageViewerModuleOutput {
+  func imageViewerModuleClosed() {
+    imageViewerModule?.viewController.dismiss(animated: true)
+  }
+}
+
 // MARK: - Open modules
 
 private extension MainScreenCoordinator {
@@ -166,6 +180,16 @@ private extension MainScreenCoordinator {
     self.premiumScreenNavigationController = premiumScreenNavigationController
     premiumScreenNavigationController.modalPresentationStyle = .fullScreen
     navigationController?.present(premiumScreenNavigationController, animated: true)
+  }
+  
+  func openImageViewerSheet(image: UIImage?) {
+    var imageViewerModule = ImageViewerAssembly().createModule(image: image, services: services)
+    self.imageViewerModule = imageViewerModule
+    imageViewerModule.input.moduleOutput = self
+    mainScreenModule?.viewController.presentBottomSheet(
+      imageViewerModule.viewController,
+      detents: [.medium(), .large()]
+    )
   }
 }
 

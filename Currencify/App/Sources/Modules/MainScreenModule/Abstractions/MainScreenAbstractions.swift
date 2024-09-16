@@ -14,6 +14,9 @@ public protocol MainScreenModuleOutput: AnyObject {
   
   /// Превышен лимит добавленных валют
   func limitOfAddedCurrenciesHasBeenExceeded() async
+  
+  /// Открыть просмоторщик картинок
+  func openImageViewer(image: UIImage?) async
 }
 
 /// События которые отправляем из `Coordinator` в `MainScreenModule`

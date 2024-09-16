@@ -1,0 +1,11 @@
+//
+//  ImageViewerLocalization.strings
+//  Currencify
+//
+//  Created by Vitalii Sosin on 16.09.2024.
+//
+
+// MARK: - ImageViewerLocalization
+
+"Notifications.Button.Title" = "Сохранить";
+"Notifications.Saved" = "Изображение сохранено в галерее";

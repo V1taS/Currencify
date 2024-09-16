@@ -201,15 +201,20 @@ extension MainScreenPresenter: SceneViewModel {
   
   var rightBarButtonItems: [SKBarButtonItem] {
     [
-      //      .init(
-      //        .share(
-      //          action: { [weak self] in
-      //            // TODO: -
-      //          }, buttonItem: { [weak self] buttonItem in
-      //            self?.rightBarShareButton = buttonItem
-      //          }
-      //        )
-      //      ),
+      .init(
+        .share(
+          action: { [weak self] in
+            Task { [weak self] in
+              guard let self else { return}
+              if await interactor.requestGallery() {
+                await createCollectionViewSnapshot()
+              }
+            }
+          }, buttonItem: { [weak self] buttonItem in
+            self?.rightBarShareButton = buttonItem
+          }
+        )
+      ),
       .init(
         .settings(
           action: { [weak self] in
@@ -235,6 +240,11 @@ private extension MainScreenPresenter {
       leftBarAddButton?.isEnabled = !Secrets.currencyRateList.isEmpty
       rightBarShareButton?.isEnabled = !Secrets.currencyRateList.isEmpty
     }
+  }
+  
+  func createCollectionViewSnapshot() async {
+    let finalImage = await interactor.createCollectionViewSnapshot()
+    await moduleOutput?.openImageViewer(image: finalImage)
   }
 }
 

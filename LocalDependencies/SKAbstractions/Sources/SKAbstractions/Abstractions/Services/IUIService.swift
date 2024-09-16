@@ -68,4 +68,8 @@ public protocol IUIService {
   ///   - url: URL изображения.
   ///   - completion: Замыкание, вызываемое с загруженным изображением или nil.
   func getImage(for url: URL?, completion: @escaping (UIImage?) -> Void)
+  
+  /// Создание снимка коллекции.
+  /// - Parameter completion: Замыкание, вызываемое с изображением снимка или nil.
+  func createCollectionViewSnapshot(completion: @escaping (UIImage?) -> Void)
 }

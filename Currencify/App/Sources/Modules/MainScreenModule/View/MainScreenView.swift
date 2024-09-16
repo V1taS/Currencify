@@ -48,13 +48,13 @@ struct MainScreenView: View {
           .onAppear {
             // Захват фрейма навигационной панели
             let navBarHeight = geometry.size.height
-            let window = UIApplication.shared.windows.first
+            let window = UIApplication.currentWindow
             let safeAreaTop = window?.safeAreaInsets.top ?? 0
             navigationBarFrame = CGRect(x: 0, y: 0, width: geometry.size.width, height: navBarHeight + safeAreaTop)
           }
           .onChange(of: geometry.frame(in: .global)) { newFrame in
             let navBarHeight = newFrame.size.height
-            let window = UIApplication.shared.windows.first
+            let window = UIApplication.currentWindow
             let safeAreaTop = window?.safeAreaInsets.top ?? 0
             navigationBarFrame = CGRect(x: 0, y: 0, width: newFrame.size.width, height: navBarHeight + safeAreaTop)
           }
@@ -179,7 +179,7 @@ private extension MainScreenView {
             )
         }
         .listRowBackground(SKStyleAsset.onyx.swiftUIColor)
-        .listRowInsets(.init(top: 0.5, leading: .s4, bottom: .zero, trailing: .s4))
+        .listRowInsets(.init(top: 0.5, leading: .s4, bottom: 0.5, trailing: .s4))
         .listRowSeparator(.hidden)
       }
       .onMove(perform: move)
