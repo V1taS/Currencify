@@ -146,7 +146,7 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       .AvailableInPremiumOnly.title
     let editRateDescription = CurrencifyStrings.SettingsScreenLocalization.EditRate.description
     let editRateDescriptionNonPremium = "\(editRateDescription) \n\n\(availableInPremiumOnly)"
-    let isPremium = true // appSettingsModel.isPremium
+    let isPremium = appSettingsModel.isPremium
     
     let premiumModel = createWidgetWithChevron(
       image: Image(systemName: "star.fill"),

@@ -70,6 +70,21 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
 // MARK: - MainScreenModuleOutput
 
 extension MainScreenCoordinator: MainScreenModuleOutput {
+  @MainActor
+  func limitOfAddedCurrenciesHasBeenExceeded() async {
+    UIViewController.topController?.showAlertWithTwoButtons(
+      title: CurrencifyStrings.Localization
+        .Alert.Premium.Offer.title,
+      cancelButtonText: CurrencifyStrings.Localization
+        .Alert.Premium.Cancel.Button.title,
+      customButtonText: CurrencifyStrings.Localization
+        .Alert.Premium.Offer.Button.title,
+      customButtonAction: { [weak self] in
+        self?.openPremiumSaleScreenModule()
+      }
+    )
+  }
+  
   func openSettinsScreen() {
     openSettingsScreenFlowCoordinator()
   }
@@ -98,7 +113,7 @@ extension MainScreenCoordinator: PremiumScreenModuleOutput {
     services.userInterfaceAndExperienceService
       .notificationService.showNotification(
         .positive(
-          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+          title: CurrencifyStrings.Localization
             .Notification.SomethingWentWrong.title
         )
       )
@@ -108,7 +123,7 @@ extension MainScreenCoordinator: PremiumScreenModuleOutput {
     services.userInterfaceAndExperienceService
       .notificationService.showNotification(
         .positive(
-          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+          title: CurrencifyStrings.Localization
             .Notification.PurchasesMissing.title
         )
       )
@@ -186,7 +201,7 @@ private extension MainScreenCoordinator {
         services.userInterfaceAndExperienceService
           .notificationService.showNotification(
             .positive(
-              title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+              title: CurrencifyStrings.Localization
                 .Notification.PremiumSuccess.title
             )
           )

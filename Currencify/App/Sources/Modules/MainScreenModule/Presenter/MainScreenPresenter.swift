@@ -72,8 +72,16 @@ final class MainScreenPresenter: ObservableObject {
   }
   
   func userAddCurrencyRate(newValue: CurrencyRate) async {
-    await interactor.setSelectedCurrencyRates([newValue.currency])
+    let appSettingsModel = await interactor.getAppSettingsModel()
     isSearchViewVisible = false
+    
+    if !appSettingsModel.isPremium,
+       appSettingsModel.selectedCurrencyRate.count >= 3 {
+      await moduleOutput?.limitOfAddedCurrenciesHasBeenExceeded()
+      return
+    }
+    
+    await interactor.setSelectedCurrencyRates([newValue.currency])
     await recalculateCurrencyWidgets()
   }
   

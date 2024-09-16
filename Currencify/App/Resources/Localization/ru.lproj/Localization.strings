@@ -1,5 +1,5 @@
 /* 
-  SettingsScreenFlowCoordinatorLocalization.strings
+  Localization.strings
   Currencify
 
   Created by Vitalii Sosin on 08.05.2024.
@@ -19,5 +19,6 @@
 "Notification.SomethingWentWrong.Title" = "Что-то пошло не так";
 "Notification.PremiumSuccess.Title" = "Премиум активирован";
 "Notification.PurchasesMissing.Title" = "Покупок не найдено";
-
-
+"Alert.Premium.Offer.Title" = "Оформите премиум, чтобы добавить больше валют";
+"Alert.Premium.Offer.Button.Title" = "Оформить";
+"Alert.Premium.Cancel.Button.Title" = "Отмена";

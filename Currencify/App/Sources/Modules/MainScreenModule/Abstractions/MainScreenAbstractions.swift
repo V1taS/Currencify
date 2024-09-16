@@ -11,6 +11,9 @@ import SwiftUI
 public protocol MainScreenModuleOutput: AnyObject {
   /// Открыть экран настроек
   func openSettinsScreen()
+  
+  /// Превышен лимит добавленных валют
+  func limitOfAddedCurrenciesHasBeenExceeded() async
 }
 
 /// События которые отправляем из `Coordinator` в `MainScreenModule`

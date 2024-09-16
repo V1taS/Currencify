@@ -9,7 +9,7 @@
 import SKAbstractions
 import UIKit
 
-final class SettingsScreenFlowCoordinator: Coordinator<Void, SettingsScreenFinishFlowType> {
+final class SettingsScreenFlowCoordinator: Coordinator<Void, Void> {
   
   // MARK: - Private variables
   
@@ -54,43 +54,17 @@ extension SettingsScreenFlowCoordinator: SettingsScreenModuleOutput {
     openMailModule()
   }
   
-  func userIntentionExit() {
-    Task { @MainActor [weak self] in
-      guard let self else { return }
-      finishSettingsScreenFlow(.lockCurrencify)
-    }
-  }
-  
-  func userIntentionDeleteAndExit() {
-    let title = CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
-      .Notification.IntentionDeleteAndExit.title
-    UIViewController.topController?.showAlertWithTwoButtons(
-      title: "\(title)?",
-      cancelButtonText: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
-        .LanguageSection.Alert.CancelButton.title,
-      customButtonText: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
-        .Notification.DeleteAndExit.title,
-      customButtonAction: { [weak self] in
-        Task { @MainActor [weak self] in
-          guard let self else { return }
-          await settingsScreenModule?.input.deleteAllData()
-          finishSettingsScreenFlow(.exit)
-        }
-      }
-    )
-  }
-  
   func openAppearanceSection() {
     openAppearanceAppScreenModule()
   }
   
   func openLanguageSection() {
     UIViewController.topController?.showAlertWithTwoButtons(
-      title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+      title: CurrencifyStrings.Localization
         .LanguageSection.Alert.title,
-      cancelButtonText: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+      cancelButtonText: CurrencifyStrings.Localization
         .LanguageSection.Alert.CancelButton.title,
-      customButtonText: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+      customButtonText: CurrencifyStrings.Localization
         .LanguageSection.Alert.CustomButton.title,
       customButtonAction: { [weak self] in
         Task { [weak self] in
@@ -125,7 +99,7 @@ extension SettingsScreenFlowCoordinator: PremiumScreenModuleOutput {
     services.userInterfaceAndExperienceService
       .notificationService.showNotification(
         .positive(
-          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+          title: CurrencifyStrings.Localization
             .Notification.SomethingWentWrong.title
         )
       )
@@ -135,7 +109,7 @@ extension SettingsScreenFlowCoordinator: PremiumScreenModuleOutput {
     services.userInterfaceAndExperienceService
       .notificationService.showNotification(
         .positive(
-          title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+          title: CurrencifyStrings.Localization
             .Notification.PurchasesMissing.title
         )
       )
@@ -172,7 +146,7 @@ private extension SettingsScreenFlowCoordinator {
       services.userInterfaceAndExperienceService
         .notificationService.showNotification(
           .negative(
-            title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+            title: CurrencifyStrings.Localization
               .Notification.MailClientNotFound.title
           )
         )
@@ -199,10 +173,10 @@ private extension SettingsScreenFlowCoordinator {
     guard let url = Constants.shareAppUrl else {
       return
     }
-
+    
     let objectsToShare = [url]
     let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
-
+    
     if UIDevice.current.userInterfaceIdiom == .pad {
       if let popup = activityVC.popoverPresentationController {
         popup.sourceView = settingsScreenModule?.viewController.view
@@ -214,7 +188,7 @@ private extension SettingsScreenFlowCoordinator {
         )
       }
     }
-
+    
     settingsScreenModule?.viewController.present(activityVC, animated: true, completion: nil)
   }
 }
@@ -222,12 +196,6 @@ private extension SettingsScreenFlowCoordinator {
 // MARK: - Private
 
 private extension SettingsScreenFlowCoordinator {
-  func finishSettingsScreenFlow(_ flowType: SettingsScreenFinishFlowType) {
-    settingsScreenModule = nil
-    appearanceAppScreenModule = nil
-    finishFlow?(flowType)
-  }
-  
   func setIsPremiumSuccess() {
     services.appSettingsDataManager.setIsPremiumEnabled(
       true,
@@ -236,7 +204,7 @@ private extension SettingsScreenFlowCoordinator {
         services.userInterfaceAndExperienceService
           .notificationService.showNotification(
             .positive(
-              title: CurrencifyStrings.SettingsScreenFlowCoordinatorLocalization
+              title: CurrencifyStrings.Localization
                 .Notification.PremiumSuccess.title
             )
           )
