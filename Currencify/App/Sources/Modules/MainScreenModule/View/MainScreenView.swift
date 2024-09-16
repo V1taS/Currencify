@@ -120,9 +120,19 @@ private extension MainScreenView {
         VStack(spacing: .zero) {
           WidgetCryptoView(model)
             .clipShape(RoundedRectangle(cornerRadius: .s3))
+            .if(
+              (CurrencyRate.Currency(rawValue: model.additionalID) ?? .USD == presenter.activeCurrency),
+              transform: { view in
+                view
+                  .overlay(
+                    RoundedRectangle(cornerRadius: .s3)
+                      .stroke(SKStyleAsset.constantAzure.swiftUIColor, lineWidth: 0.5)
+                  )
+              }
+            )
         }
         .listRowBackground(SKStyleAsset.onyx.swiftUIColor)
-        .listRowInsets(.init(top: .zero, leading: .s4, bottom: .zero, trailing: .s4))
+        .listRowInsets(.init(top: 0.5, leading: .s4, bottom: .zero, trailing: .s4))
         .listRowSeparator(.hidden)
       }
       .onMove(perform: move)

@@ -20,6 +20,7 @@ final class MainScreenPresenter: ObservableObject {
   @Published var isUserInputVisible = false
   @Published var isSearchViewVisible = false
   @Published var isEditMode: EditMode = .inactive
+  @Published var activeCurrency: CurrencyRate.Currency = .USD
   
   // MARK: - Internal properties
   
@@ -32,10 +33,8 @@ final class MainScreenPresenter: ObservableObject {
   private var rightBarSettingsButton: SKBarButtonItem?
   private var rightBarShareButton: SKBarButtonItem?
   private var leftBarAddButton: SKBarButtonItem?
-  private var leftBarEditButton: SKBarButtonItem?
   
   private var enteredCurrencyAmount: Double = .zero
-  private var activeCurrency: CurrencyRate.Currency = .USD
   private var commaIsSet = false
   
   // MARK: - Initialization
@@ -156,19 +155,6 @@ extension MainScreenPresenter: SceneViewModel {
             self?.isSearchViewVisible = true
           }, buttonItem: { [weak self] buttonItem in
             self?.leftBarAddButton = buttonItem
-          }
-        )
-      ),
-      .init(
-        .edit(
-          action: { [weak self] in
-            guard let self else { return }
-            isEditMode = isEditMode == .inactive ? .active : .inactive
-            let inactiveImage = UIImage(systemName: "arrow.up.arrow.down")
-            let activeImage = UIImage(systemName: "checkmark")
-            leftBarEditButton?.image = isEditMode == .inactive ? inactiveImage : activeImage
-          }, buttonItem: { [weak self] buttonItem in
-            self?.leftBarEditButton = buttonItem
           }
         )
       )
