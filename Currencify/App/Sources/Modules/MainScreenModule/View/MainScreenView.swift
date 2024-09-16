@@ -124,18 +124,9 @@ private extension MainScreenView {
         .listRowBackground(SKStyleAsset.onyx.swiftUIColor)
         .listRowInsets(.init(top: .zero, leading: .s4, bottom: .zero, trailing: .s4))
         .listRowSeparator(.hidden)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-          Button {
-            Task {
-              await presenter.userRemoveCurrencyRate(currencyAlpha: model.additionalID)
-            }
-          } label: {
-            Text(CurrencifyStrings.MainScreenLocalization.currencyDelete)
-          }
-          .tint(SKStyleAsset.constantRuby.swiftUIColor)
-        }
       }
       .onMove(perform: move)
+      .onDelete(perform: deleteItems)
     }
     .background(Color.clear)
     .listStyle(PlainListStyle())
@@ -147,6 +138,22 @@ private extension MainScreenView {
     Task {
       await presenter.moveCurrencyRates(from: source, to: destination)
     }
+  }
+  
+  func deleteItems(at offsets: IndexSet) {
+    for index in offsets {
+      let model = presenter.currencyWidgets[index]
+      Task {
+        // Выполняем задержку без блокировки потока
+        try? await withCheckedThrowingContinuation { continuation in
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            continuation.resume()
+          }
+        }
+        await presenter.userRemoveCurrencyRate(currencyAlpha: model.additionalID)
+      }
+    }
+    presenter.currencyWidgets.remove(atOffsets: offsets)
   }
 }
 

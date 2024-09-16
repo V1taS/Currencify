@@ -78,9 +78,10 @@ private extension CurrencyRatesService {
     task.resume()
   }
   
-  // Парсинг данных от Центробанка России
+  // Парсинг данных от Центробанка России с учётом номинала
   func parseCBRData(_ data: Data) throws -> [CurrencyRate] {
     let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
     let cbrResponse = try decoder.decode(CBCurrencyRates.CBRResponse.self, from: data)
     let currencies = Array(cbrResponse.valute.values)
     
@@ -88,18 +89,20 @@ private extension CurrencyRatesService {
       guard let currency = CurrencyRate.Currency(rawValue: $0.charCode) else {
         return nil
       }
+      // Нормализуем курс, деля Value на Nominal
+      let normalizedRate = $0.value / Double($0.nominal)
       return CurrencyRate(
         currency: currency,
-        rate: $0.value,
+        rate: normalizedRate,
         lastUpdated: cbrResponse.date
       )
     }
     
-    // Добавить рубль с рассчитанным направлением изменения курса
+    // Добавить рубль с курсом 1
     currencyModels.append(
       .init(
         currency: .RUB,
-        rate: 1,
+        rate: 1.0,
         lastUpdated: cbrResponse.date
       )
     )
