@@ -25,4 +25,29 @@ if [ -z "$CI_PULL_REQUEST_NUMBER" ] && [ -z "$CI_PULL_REQUEST_SOURCE_BRANCH" ]; 
     
     # Пуш тегов
     git push --tags
+
+    # Отправка уведомления в Telegram для мастер ветки
+    python3 /Volumes/workspace/repository/Scripts/send_telegram.py "💸💸💸 Релиз Currencify iOS $MARKETING_VERSION 💸💸💸
+Сборка №: $CI_BUILD_NUMBER
+URL сборки: $CI_BUILD_URL
+Продукт: $CI_PRODUCT
+Версия: $MARKETING_VERSION/$CURRENT_PROJECT_VERSION
+Проект: https://github.com/V1taS/Currencify
+
+Для тестирования релизных сборок отправьте свой Apple ID (example@iCloud.com) пользователю @V1taS
+"
+else
+    # Отправка уведомления в Telegram для не мастер веток
+    python3 /Volumes/workspace/repository/Scripts/send_telegram.py "💸 Новый Pull Request для Currencify! 💸
+Сборка №: $CI_BUILD_NUMBER
+URL сборки: $CI_BUILD_URL
+Продукт: $CI_PRODUCT
+Проект: https://github.com/V1taS/Currencify
+PR ссылка: $CI_PULL_REQUEST_HTML_URL
+Номер PR: $CI_PULL_REQUEST_NUMBER
+Исходная ветка PR: $CI_PULL_REQUEST_SOURCE_BRANCH
+Целевая ветка PR: $CI_PULL_REQUEST_TARGET_BRANCH
+
+Для тестирования релизных сборок отправьте свой Apple ID (example@iCloud.com) пользователю @V1taS
+"
 fi
