@@ -29,7 +29,8 @@ protocol MainScreenFactoryInput {
     rateCalculationMode: RateCalculationMode,
     decimalPlaces: CurrencyDecimalPlaces,
     commaIsSet: Bool,
-    rateCorrectionPercentage: Double
+    rateCorrectionPercentage: Double,
+    allCurrencyRate: [CurrencyRate]
   ) -> [WidgetCryptoView.Model]
 }
 
@@ -64,13 +65,15 @@ extension MainScreenFactory: MainScreenFactoryInput {
     rateCalculationMode: RateCalculationMode,
     decimalPlaces: CurrencyDecimalPlaces,
     commaIsSet: Bool,
-    rateCorrectionPercentage: Double
+    rateCorrectionPercentage: Double,
+    allCurrencyRate: [CurrencyRate]
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
     let allCurrencyRates: [CurrencyRate] = CurrencyRate.calculateCurrencyRates(
       from: selectedCurrency,
       amount: amountEntered,
-      calculationMode: rateCalculationMode
+      calculationMode: rateCalculationMode,
+      allCurrencyRate: allCurrencyRate
     )
     let filteredCurrencyRates = allCurrencyRates.filter { currencyRate in
       availableRates.contains { selectedCurrency in

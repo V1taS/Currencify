@@ -86,7 +86,7 @@ extension MainScreenCoordinator: MainScreenModuleOutput {
       customButtonText: CurrencifyStrings.Localization
         .Alert.Premium.Offer.Button.title,
       customButtonAction: { [weak self] in
-        self?.openPremiumSaleScreenModule()
+        self?.openPremiumScreenModule(isSale: false)
       }
     )
   }
@@ -169,12 +169,12 @@ private extension MainScreenCoordinator {
     settingsScreenFlowCoordinator.start()
   }
   
-  func openPremiumSaleScreenModule() {
+  func openPremiumScreenModule(isSale: Bool) {
     let premiumScreenModule = PremiumScreenAssembly().createModule(services: services)
     self.premiumScreenModule = premiumScreenModule
     self.premiumScreenModule?.moduleOutput = self
     premiumScreenModule.selectIsModalPresentationStyle(true)
-    premiumScreenModule.setLifetimeSale(true)
+    premiumScreenModule.setLifetimeSale(isSale)
     
     let premiumScreenNavigationController = UINavigationController(rootViewController: premiumScreenModule)
     self.premiumScreenNavigationController = premiumScreenNavigationController
@@ -188,7 +188,7 @@ private extension MainScreenCoordinator {
     imageViewerModule.input.moduleOutput = self
     mainScreenModule?.viewController.presentBottomSheet(
       imageViewerModule.viewController,
-      detents: [.medium(), .large()]
+      detents: [.medium()]
     )
   }
 }
@@ -212,7 +212,7 @@ private extension MainScreenCoordinator {
     services.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
       guard let self, !appSettingsModel.isPremium, count.isMultiple(of: 10) else { return }
       DispatchQueue.main.async { [weak self] in
-        self?.openPremiumSaleScreenModule()
+        self?.openPremiumScreenModule(isSale: true)
       }
     }
   }

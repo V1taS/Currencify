@@ -98,14 +98,24 @@ extension MainScreenInteractor: MainScreenInteractorInput {
         guard let self else { return }
         switch appSettingsModel.currencySource {
         case .cbr:
-          currencyRatesService.fetchCBCurrencyRates { models in
-            Secrets.currencyRateList = models
-            continuation.resume()
+          currencyRatesService.fetchCBCurrencyRates { [weak self] models in
+            if !models.isEmpty {
+              self?.appSettingsDataManager.setAllCurrencyRate(models) {
+                continuation.resume()
+              }
+            } else {
+              continuation.resume()
+            }
           }
         case .ecb:
-          currencyRatesService.fetchECBCurrencyRates {  models in
-            Secrets.currencyRateList = models
-            continuation.resume()
+          currencyRatesService.fetchECBCurrencyRates { [weak self] models in
+            if !models.isEmpty {
+              self?.appSettingsDataManager.setAllCurrencyRate(models) {
+                continuation.resume()
+              }
+            } else {
+              continuation.resume()
+            }
           }
         }
       }

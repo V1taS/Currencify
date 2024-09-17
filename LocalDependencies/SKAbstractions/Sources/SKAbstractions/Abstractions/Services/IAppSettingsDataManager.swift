@@ -35,25 +35,23 @@ public protocol IAppSettingsDataManager {
   /// - Parameters:
   ///   - currencyRates: Массив валют для добавления.
   ///   - completion: Замыкание, которое будет вызвано после завершения операции.
-  func setSelectedCurrencyRates(
-    _ currencyRates: [CurrencyRate.Currency],
-    completion: @escaping () -> Void
-  )
+  func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void)
+  
+  /// Добавляет все валюты в список
+  /// - Parameters:
+  ///   - currencyRates: Массив валют для добавления.
+  ///   - completion: Замыкание, которое будет вызвано после завершения операции.
+  func setAllCurrencyRate(_ currencyRates: [CurrencyRate], completion: @escaping () -> Void)
   
   /// Удаляет указанные валюты из списка выбранных.
   /// - Parameters:
   ///   - currencyRates: Массив валют для удаления.
   ///   - completion: Замыкание, которое будет вызвано после завершения операции.
-  func removeCurrencyRates(
-    _ currencyRates: [CurrencyRate.Currency],
-    completion: @escaping () -> Void
-  )
+  func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void)
   
   /// Удаляет все выбранные валюты из списка.
   /// - Parameter completion: Замыкание, которое будет вызвано после завершения операции.
-  func removeAllCurrencyRates(
-    completion: @escaping () -> Void
-  )
+  func removeAllCurrencyRates(completion: @escaping () -> Void)
   
   /// Устанавливает источник валютных данных.
   /// - Параметры:
@@ -84,4 +82,10 @@ public protocol IAppSettingsDataManager {
   ///   - value: Валюта, которая будет установлена как активная.
   ///   - completion: Замыкание, которое вызывается после завершения операции.
   func setActiveCurrency(_ value: CurrencyRate.Currency, completion: @escaping () -> Void)
+  
+  /// Устанавливает список с премиум клиентами
+  /// - Parameters:
+  ///   - premiumList: Список премиум клиентов
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setPremiumList(_ premiumList: [PremiumModel], completion: @escaping () -> Void)
 }

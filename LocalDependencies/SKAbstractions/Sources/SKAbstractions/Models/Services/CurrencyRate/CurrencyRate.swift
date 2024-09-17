@@ -547,13 +547,15 @@ extension CurrencyRate {
   ///   - valueCurrency: Валюта, относительно которой будет выполняться расчет.
   ///   - amount: Количество исходной валюты для конвертации.
   ///   - calculationMode: Режим расчета, определяющий, как производить пересчет (прямой или обратный).
+  ///   - allCurrencyRate: Список всех валют
   /// - Returns: Массив валют с пересчитанными курсами, либо пустой массив, если исходная валюта не найдена.
   public static func calculateCurrencyRates(
     from valueCurrency: CurrencyRate.Currency,
     amount: Double,
-    calculationMode: RateCalculationMode
+    calculationMode: RateCalculationMode,
+    allCurrencyRate: [CurrencyRate]
   ) -> [CurrencyRate] {
-    let allCurrency = Secrets.currencyRateList
+    let allCurrency = allCurrencyRate
     guard let targetCurrency = allCurrency.first(where: { $0.currency == valueCurrency }) else {
       return []
     }

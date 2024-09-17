@@ -17,6 +17,8 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+  public func setPremiumList(_ premiumList: [PremiumModel], completion: @escaping () -> Void) {}
+  public func setAllCurrencyRate(_ currencyRates: [CurrencyRate], completion: @escaping () -> Void) {}
   public func createCollectionViewSnapshot(completion: @escaping (UIImage?) -> Void) {}
   public func countCharactersAfterComma(in string: String) -> Int? { nil }
   public func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void) {}

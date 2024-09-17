@@ -92,7 +92,7 @@ private extension MainScreenView {
     VStack {
       SearchCurrencyRateView(
         placeholder: CurrencifyStrings.MainScreenLocalization.SearchCurrency.placeholder,
-        currencyRates: Secrets.currencyRateList,
+        currencyRates: presenter.allCurrencyRate,
         availableCurrencyRate: presenter.availableCurrencyRate,
         action: { newValue in
           Task {

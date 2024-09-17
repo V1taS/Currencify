@@ -32,13 +32,23 @@ struct CurrencyRatesConfigurator: Configurator {
       switch appSettingsModel.currencySource {
       case .cbr:
         services.dataManagementService.currencyRatesService.fetchCBCurrencyRates { models in
-          Secrets.currencyRateList = models
-          semaphore.signal()
+          if !models.isEmpty {
+            services.appSettingsDataManager.setAllCurrencyRate(models) {
+              semaphore.signal()
+            }
+          } else {
+            semaphore.signal()
+          }
         }
       case .ecb:
         services.dataManagementService.currencyRatesService.fetchECBCurrencyRates { models in
-          Secrets.currencyRateList = models
-          semaphore.signal()
+          if !models.isEmpty {
+            services.appSettingsDataManager.setAllCurrencyRate(models) {
+              semaphore.signal()
+            }
+          } else {
+            semaphore.signal()
+          }
         }
       }
     }

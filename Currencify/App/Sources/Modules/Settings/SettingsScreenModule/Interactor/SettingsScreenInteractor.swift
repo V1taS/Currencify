@@ -97,14 +97,24 @@ extension SettingsScreenInteractor: SettingsScreenInteractorInput {
     await withCheckedContinuation { continuation in
       switch currencySource {
       case .cbr:
-        dataManagementService.currencyRatesService.fetchCBCurrencyRates { models in
-          Secrets.currencyRateList = models
-          continuation.resume()
+        dataManagementService.currencyRatesService.fetchCBCurrencyRates { [weak self] models in
+          if !models.isEmpty {
+            self?.appSettingsDataManager.setAllCurrencyRate(models) {
+              continuation.resume()
+            }
+          } else {
+            continuation.resume()
+          }
         }
       case .ecb:
-        dataManagementService.currencyRatesService.fetchECBCurrencyRates { models in
-          Secrets.currencyRateList = models
-          continuation.resume()
+        dataManagementService.currencyRatesService.fetchECBCurrencyRates { [weak self] models in
+          if !models.isEmpty {
+            self?.appSettingsDataManager.setAllCurrencyRate(models) {
+              continuation.resume()
+            }
+          } else {
+            continuation.resume()
+          }
         }
       }
     }

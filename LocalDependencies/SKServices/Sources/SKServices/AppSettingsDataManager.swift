@@ -102,6 +102,28 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
+  public func setPremiumList(
+    _ premiumList: [PremiumModel],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.premiumList = premiumList
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func setAllCurrencyRate(
+    _ currencyRates: [CurrencyRate],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.allCurrencyRate = currencyRates
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
   public func setSelectedCurrencyRates(
     _ currencyRates: [CurrencyRate.Currency],
     completion: @escaping () -> Void

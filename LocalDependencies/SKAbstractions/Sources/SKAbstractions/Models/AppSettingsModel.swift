@@ -12,6 +12,9 @@ public struct AppSettingsModel {
   /// Премиум режим
   public var isPremium: Bool
   
+  /// Все валюты
+  public var allCurrencyRate: [CurrencyRate]
+  
   /// Выбранные валюты
   public var selectedCurrencyRate: [CurrencyRate.Currency]
   
@@ -30,31 +33,40 @@ public struct AppSettingsModel {
   /// Валюта последнего значения что расчитывал пользователь
   public var activeCurrency: CurrencyRate.Currency
   
+  /// Список премиум пользователей
+  public var premiumList: [PremiumModel]
+  
   /// Инициализирует новый экземпляр `AppSettingsModel`
   /// - Parameters:
   ///   - isPremium: Премиум режим
+  ///   - allCurrencyRate: Все валюты
   ///   - selectedCurrencyRate: Выбранные валюты
   ///   - currencySource: Источник курсов валют
   ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений
   ///   - rateCorrectionPercentage: Корекция текущего курса в процентах
   ///   - enteredCurrencyAmount: Последнее значение которое ввел пользователь
   ///   - activeCurrency: Валюта последнего значения что расчитывал пользователь
+  ///   - premiumList: Список премиум пользователей
   public init(
     isPremium: Bool,
+    allCurrencyRate: [CurrencyRate],
     selectedCurrencyRate: [CurrencyRate.Currency],
     currencySource: CurrencySource,
     currencyDecimalPlaces: CurrencyDecimalPlaces,
     rateCorrectionPercentage: Double,
     enteredCurrencyAmount: Double,
-    activeCurrency: CurrencyRate.Currency
+    activeCurrency: CurrencyRate.Currency,
+    premiumList: [PremiumModel]
   ) {
     self.isPremium = isPremium
+    self.allCurrencyRate = allCurrencyRate
     self.selectedCurrencyRate = selectedCurrencyRate
     self.currencySource = currencySource
     self.currencyDecimalPlaces = currencyDecimalPlaces
     self.rateCorrectionPercentage = rateCorrectionPercentage
     self.enteredCurrencyAmount = enteredCurrencyAmount
     self.activeCurrency = activeCurrency
+    self.premiumList = premiumList
   }
 }
 
@@ -64,6 +76,7 @@ extension AppSettingsModel {
   public static func setDefaultValues() -> Self {
     return .init(
       isPremium: true,
+      allCurrencyRate: [],
       selectedCurrencyRate: [
         .USD,
         .EUR,
@@ -73,7 +86,8 @@ extension AppSettingsModel {
       currencyDecimalPlaces: .two, 
       rateCorrectionPercentage: .zero,
       enteredCurrencyAmount: .zero,
-      activeCurrency: .USD
+      activeCurrency: .USD, 
+      premiumList: []
     )
   }
 }

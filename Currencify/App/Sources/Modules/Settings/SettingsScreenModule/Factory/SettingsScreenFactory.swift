@@ -141,7 +141,8 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     premiumState: String
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
-    let lastUpdated = Secrets.currencyRateList.first?.lastUpdated ?? Date()
+    
+    let lastUpdated = appSettingsModel.allCurrencyRate.first?.lastUpdated ?? Date()
     let availableInPremiumOnly = CurrencifyStrings.SettingsScreenLocalization
       .AvailableInPremiumOnly.title
     let editRateDescription = CurrencifyStrings.SettingsScreenLocalization.EditRate.description

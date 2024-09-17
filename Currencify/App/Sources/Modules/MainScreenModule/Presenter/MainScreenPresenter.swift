@@ -21,6 +21,7 @@ final class MainScreenPresenter: ObservableObject {
   @Published var isSearchViewVisible = false
   @Published var isEditMode: EditMode = .inactive
   @Published var activeCurrency: CurrencyRate.Currency = .USD
+  @Published var allCurrencyRate: [CurrencyRate] = []
   
   // MARK: - Internal properties
   
@@ -138,10 +139,12 @@ final class MainScreenPresenter: ObservableObject {
       rateCalculationMode: calculationMode,
       decimalPlaces: appSettingsModel.currencyDecimalPlaces,
       commaIsSet: commaIsSet,
-      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage
+      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage, 
+      allCurrencyRate: appSettingsModel.allCurrencyRate
     )
     currencyWidgets = models
-    validateRatesData()
+    allCurrencyRate = appSettingsModel.allCurrencyRate
+    await validateRatesData()
   }
 }
 
@@ -233,13 +236,12 @@ extension MainScreenPresenter: SceneViewModel {
 private extension MainScreenPresenter {
   func setupInitialState() async {}
   
-  func validateRatesData() {
-    DispatchQueue.main.async { [weak self] in
-      guard let self else { return }
-      isCurrencyListEmpty = Secrets.currencyRateList.isEmpty || currencyWidgets.isEmpty
-      leftBarAddButton?.isEnabled = !Secrets.currencyRateList.isEmpty
-      rightBarShareButton?.isEnabled = !Secrets.currencyRateList.isEmpty
-    }
+  @MainActor
+  func validateRatesData() async {
+    let appSettingsModel = await interactor.getAppSettingsModel()
+    isCurrencyListEmpty = appSettingsModel.allCurrencyRate.isEmpty || currencyWidgets.isEmpty
+    leftBarAddButton?.isEnabled = !appSettingsModel.allCurrencyRate.isEmpty
+    rightBarShareButton?.isEnabled = !appSettingsModel.allCurrencyRate.isEmpty
   }
   
   func createCollectionViewSnapshot() async {
