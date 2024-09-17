@@ -98,8 +98,6 @@ private extension OnboardingContainerView {
     titleLabel.numberOfLines = 1
     titleLabel.font = .fancy.text.largeTitle
     titleLabel.textColor = SKStyleAsset.ghost.color
-    titleLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
-    titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     titleLabel.adjustsFontSizeToFitWidth = true
     titleLabel.minimumScaleFactor = 0.9
     
