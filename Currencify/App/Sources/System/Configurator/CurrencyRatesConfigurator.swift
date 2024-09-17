@@ -26,7 +26,7 @@ struct CurrencyRatesConfigurator: Configurator {
   // MARK: - Internal func
   
   func configure() {
-    let semaphore = DispatchSemaphore(value: .zero)
+    let semaphore = DispatchSemaphore(value: 0)
     
     services.appSettingsDataManager.getAppSettingsModel { appSettingsModel in
       switch appSettingsModel.currencySource {
@@ -52,7 +52,9 @@ struct CurrencyRatesConfigurator: Configurator {
         }
       }
     }
-    semaphore.wait()
+    
+    // Устанавливаем таймаут в 10 секунд и продолжаем выполнение независимо от результата
+    _ = semaphore.wait(timeout: .now() + 10)
   }
 }
 
