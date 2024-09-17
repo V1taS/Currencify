@@ -40,7 +40,7 @@ and generates three files:
 - GeneratedImageAssets.swift - contains references to images.
 - GeneratedBundleAccessor.swift - provides access to the bundle.
 
-To use: save this script and run it in the terminal with the command `swift CreateLocalizedStrings.swift`.
+To use: save this script and run it in the terminal with the command `swift CreateLocalizedStrings.swift`
 
 ![Tuist badge](https://img.shields.io/badge/Powered%20by-Tuist-blue)
 
