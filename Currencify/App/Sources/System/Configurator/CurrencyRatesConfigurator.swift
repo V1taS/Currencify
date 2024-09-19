@@ -54,7 +54,7 @@ struct CurrencyRatesConfigurator: Configurator {
     }
     
     // Устанавливаем таймаут в 10 секунд и продолжаем выполнение независимо от результата
-    _ = semaphore.wait(timeout: .now() + 10)
+    _ = semaphore.wait(timeout: .now() + 5)
   }
 }
 
