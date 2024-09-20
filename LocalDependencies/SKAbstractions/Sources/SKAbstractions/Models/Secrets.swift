@@ -10,5 +10,6 @@ import Foundation
 public enum Secrets {
   public static var supportMail = ""
   public static var apiKeyApphud = ""
+  public static var isPremiumMode = true
   public static var premiumList: [PremiumModel] = []
 }

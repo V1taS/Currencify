@@ -141,7 +141,6 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     premiumState: String
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
-    
     let lastUpdated = appSettingsModel.allCurrencyRate.first?.lastUpdated ?? Date()
     let availableInPremiumOnly = CurrencifyStrings.SettingsScreenLocalization
       .AvailableInPremiumOnly.title
@@ -149,69 +148,71 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
     let editRateDescriptionNonPremium = "\(editRateDescription) \n\n\(availableInPremiumOnly)"
     let isPremium = appSettingsModel.isPremium
     
-    let premiumModel = createWidgetWithChevron(
-      image: Image(systemName: "star.fill"),
-      backgroundColor: #colorLiteral(red: 0.8638121486, green: 0.2361198068, blue: 0.8861094117, alpha: 1),
-      title: CurrencifyStrings.SettingsScreenLocalization.Premium.title,
-      additionRightTitle: premiumState,
-      action: { [weak self] in
-        self?.output?.userSelectPremium()
-      }
-    )
-    models.append(premiumModel)
-    
-    let editRateModel = createEditRateModel(
-      title: CurrencifyStrings.SettingsScreenLocalization.EditRate.title,
-      description: isPremium ? editRateDescription : editRateDescriptionNonPremium,
-      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
-      isPremium: isPremium,
-      actionSlider: { [weak self] newValue in
-        Task { [weak self] in
-          await self?.output?.didChangeRateCorrectionPercentage(newValue)
+    if Secrets.isPremiumMode {
+      let premiumModel = createWidgetWithChevron(
+        image: Image(systemName: "star.fill"),
+        backgroundColor: #colorLiteral(red: 0.8638121486, green: 0.2361198068, blue: 0.8861094117, alpha: 1),
+        title: CurrencifyStrings.SettingsScreenLocalization.Premium.title,
+        additionRightTitle: premiumState,
+        action: { [weak self] in
+          self?.output?.userSelectPremium()
         }
-      },
-      action: { [weak self] in
-        self?.output?.userSelectPremium()
-      }
-    )
-    models.append(editRateModel)
-    
-    let maxFractionModel = createSegmentedPickerModel(
-      title: CurrencifyStrings.SettingsScreenLocalization
-        .MaxFraction.title,
-      description: isPremium ? nil : availableInPremiumOnly,
-      selectedSegment: appSettingsModel.currencyDecimalPlaces.rawValue,
-      segments: CurrencyDecimalPlaces.allCases.compactMap({ $0.rawValue }),
-      isPremium: isPremium, 
-      actionSegmented: { [weak self] newValue in
-        Task { [weak self] in
-          await self?.output?.userSelectMaxFraction(newValue)
+      )
+      models.append(premiumModel)
+      
+      let editRateModel = createEditRateModel(
+        title: CurrencifyStrings.SettingsScreenLocalization.EditRate.title,
+        description: isPremium ? editRateDescription : editRateDescriptionNonPremium,
+        rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
+        isPremium: isPremium,
+        actionSlider: { [weak self] newValue in
+          Task { [weak self] in
+            await self?.output?.didChangeRateCorrectionPercentage(newValue)
+          }
+        },
+        action: { [weak self] in
+          self?.output?.userSelectPremium()
         }
-      },
-      action: { [weak self] in
-        self?.output?.userSelectPremium()
-      }
-    )
-    models.append(maxFractionModel)
-    
-    let currencyRateSourceModel = createSegmentedPickerModel(
-      title: CurrencifyStrings.SettingsScreenLocalization
-        .CurrencyRateSource.title,
-      description: isPremium ? CurrencifyStrings.SettingsScreenLocalization
-        .LastUpdated.title("\(formatDate(lastUpdated))") : availableInPremiumOnly,
-      selectedSegment: appSettingsModel.currencySource.rawValue,
-      segments: CurrencySource.allCases.compactMap({ $0.description }),
-      isPremium: isPremium, 
-      actionSegmented: { [weak self] newValue in
-        Task { [weak self] in
-          await self?.output?.userSelectCurrencyRateSource(newValue)
+      )
+      models.append(editRateModel)
+      
+      let maxFractionModel = createSegmentedPickerModel(
+        title: CurrencifyStrings.SettingsScreenLocalization
+          .MaxFraction.title,
+        description: isPremium ? nil : availableInPremiumOnly,
+        selectedSegment: appSettingsModel.currencyDecimalPlaces.rawValue,
+        segments: CurrencyDecimalPlaces.allCases.compactMap({ $0.rawValue }),
+        isPremium: isPremium,
+        actionSegmented: { [weak self] newValue in
+          Task { [weak self] in
+            await self?.output?.userSelectMaxFraction(newValue)
+          }
+        },
+        action: { [weak self] in
+          self?.output?.userSelectPremium()
         }
-      },
-      action: { [weak self] in
-        self?.output?.userSelectPremium()
-      }
-    )
-    models.append(currencyRateSourceModel)
+      )
+      models.append(maxFractionModel)
+      
+      let currencyRateSourceModel = createSegmentedPickerModel(
+        title: CurrencifyStrings.SettingsScreenLocalization
+          .CurrencyRateSource.title,
+        description: isPremium ? CurrencifyStrings.SettingsScreenLocalization
+          .LastUpdated.title("\(formatDate(lastUpdated))") : availableInPremiumOnly,
+        selectedSegment: appSettingsModel.currencySource.rawValue,
+        segments: CurrencySource.allCases.compactMap({ $0.description }),
+        isPremium: isPremium,
+        actionSegmented: { [weak self] newValue in
+          Task { [weak self] in
+            await self?.output?.userSelectCurrencyRateSource(newValue)
+          }
+        },
+        action: { [weak self] in
+          self?.output?.userSelectPremium()
+        }
+      )
+      models.append(currencyRateSourceModel)
+    }
     
     return models
   }

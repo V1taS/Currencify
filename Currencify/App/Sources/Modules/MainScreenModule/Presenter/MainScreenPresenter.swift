@@ -77,7 +77,8 @@ final class MainScreenPresenter: ObservableObject {
     isSearchViewVisible = false
     
     if !appSettingsModel.isPremium,
-       appSettingsModel.selectedCurrencyRate.count >= 3 {
+       appSettingsModel.selectedCurrencyRate.count >= 3,
+       Secrets.isPremiumMode {
       await moduleOutput?.limitOfAddedCurrenciesHasBeenExceeded()
       return
     }

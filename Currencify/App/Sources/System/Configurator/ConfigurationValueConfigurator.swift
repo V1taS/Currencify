@@ -33,12 +33,19 @@ struct ConfigurationValueConfigurator: Configurator {
     getApiKeyApphud()
     getSupportOChatMail()
     getPremiumList()
+    getIsPremiumMode()
   }
 }
 
 // MARK: - Private
 
 private extension ConfigurationValueConfigurator {
+  func getIsPremiumMode() {
+    if let value = getConfigurationValue(forKey: Constants.isPremiumMode) {
+      Secrets.isPremiumMode = Bool(value) ?? true
+    }
+  }
+  
   func getApiKeyApphud() {
     if let value = getConfigurationValue(forKey: Constants.apiKeyApphud) {
       Secrets.apiKeyApphud = value
@@ -115,6 +122,7 @@ private enum Constants {
   static let supportOChatMail = "SupportOChatMail"
   static let premiumList = "PremiumList"
   static let apiKeyApphud = "ApiKeyApphud"
+  static let isPremiumMode = "isPremiumMode"
   
   static let oneDayPassKey = "OneDayPassKey"
 }
