@@ -9,17 +9,13 @@
 import UIKit
 import SKAbstractions
 
-struct ConfigurationValueConfigurator: Configurator {
+final class ConfigurationValueConfigurator: Configurator {
   
   // MARK: - Private properties
   
   private let services: IApplicationServices
-  private var cloudKitService: ICloudKitService {
-    services.dataManagementService.cloudKitService
-  }
-  private var secureDataManagerService: ISecureDataManagerService {
-    services.dataManagementService.getSecureDataManagerService(.configurationSecrets)
-  }
+  private lazy var cloudKitService: ICloudKitService = services.dataManagementService.cloudKitService
+  private lazy var secureDataManagerService = services.dataManagementService.getSecureDataManagerService(.configurationSecrets)
   
   // MARK: - Init
   
@@ -76,10 +72,10 @@ private extension ConfigurationValueConfigurator {
     let semaphore = DispatchSemaphore(value: .zero)
     var retrievedValue: String?
     
-    cloudKitService.getConfigurationValue(from: key) { (result: Result<String?, Error>) in
+    cloudKitService.getConfigurationValue(from: key) { [weak self] (result: Result<String?, Error>) in
       if case let .success(value) = result, let value {
         retrievedValue = value
-        secureDataManagerService.saveString(value, key: key)
+        self?.secureDataManagerService.saveString(value, key: key)
       }
       semaphore.signal()
     }
