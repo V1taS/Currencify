@@ -30,7 +30,8 @@ protocol MainScreenFactoryInput {
     decimalPlaces: CurrencyDecimalPlaces,
     commaIsSet: Bool,
     rateCorrectionPercentage: Double,
-    allCurrencyRate: [CurrencyRate]
+    allCurrencyRate: [CurrencyRate],
+    currencyTypes: [CurrencyRate.CurrencyType]
   ) -> [WidgetCryptoView.Model]
 }
 
@@ -66,7 +67,8 @@ extension MainScreenFactory: MainScreenFactoryInput {
     decimalPlaces: CurrencyDecimalPlaces,
     commaIsSet: Bool,
     rateCorrectionPercentage: Double,
-    allCurrencyRate: [CurrencyRate]
+    allCurrencyRate: [CurrencyRate],
+    currencyTypes: [CurrencyRate.CurrencyType]
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
     let allCurrencyRates: [CurrencyRate] = CurrencyRate.calculateCurrencyRates(
@@ -77,7 +79,8 @@ extension MainScreenFactory: MainScreenFactoryInput {
     )
     let filteredCurrencyRates = allCurrencyRates.filter { currencyRate in
       availableRates.contains { selectedCurrency in
-        currencyRate.currency == selectedCurrency
+        currencyRate.currency == selectedCurrency &&
+        currencyTypes.contains(currencyRate.currency.details.source)
       }
     }
     
@@ -118,6 +121,7 @@ private extension MainScreenFactory {
   ) -> WidgetCryptoView.Model {
     var additionCenterContent: AnyView?
     var currencyRateRate = currencyRate.rate
+    var leftSideImage = AnyView(EmptyView())
 
     if rateCorrectionPercentage != .zero, currencyRate.currency != selectedCurrency {
       let correctedCurrencyRates = applyRateCorrection(
@@ -173,15 +177,31 @@ private extension MainScreenFactory {
       )
     }
     
+    if currencyRate.currency.details.source == .currency {
+      leftSideImage = AnyView(
+        Text(currencyRate.emojiFlag() ?? "")
+          .font(.system(size: 50, weight: .bold))
+          .lineLimit(1)
+      )
+    } else {
+      leftSideImage = AnyView(
+        AsyncNetworkImageView(
+          .init(
+            imageUrl: URL(string: currencyRate.imageURL ?? ""),
+            size: .init(width: 40, height: 40),
+            cornerRadiusType: .squircle
+          )
+        )
+        .frame(width: 50, height: 50)
+        .padding(.vertical, .s1)
+      )
+    }
+    
     return WidgetCryptoView.Model(
       additionalID: currencyRate.currency.rawValue,
       leftSide: .init(
         itemModel: .custom(
-          item: AnyView(
-            Text(currencyRate.emojiFlag() ?? "")
-              .font(.system(size: 50, weight: .bold))
-              .lineLimit(1)
-          ),
+          item: leftSideImage,
           size: .custom(width: .infinity, height: nil)
         ),
         titleModel: .init(

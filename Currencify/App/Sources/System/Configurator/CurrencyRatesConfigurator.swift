@@ -27,34 +27,12 @@ struct CurrencyRatesConfigurator: Configurator {
   
   func configure() {
     let semaphore = DispatchSemaphore(value: 0)
-    
-    services.appSettingsDataManager.getAppSettingsModel { appSettingsModel in
-      switch appSettingsModel.currencySource {
-      case .cbr:
-        services.dataManagementService.currencyRatesService.fetchCBCurrencyRates { models in
-          if !models.isEmpty {
-            services.appSettingsDataManager.setAllCurrencyRate(models) {
-              semaphore.signal()
-            }
-          } else {
-            semaphore.signal()
-          }
-        }
-      case .ecb:
-        services.dataManagementService.currencyRatesService.fetchECBCurrencyRates { models in
-          if !models.isEmpty {
-            services.appSettingsDataManager.setAllCurrencyRate(models) {
-              semaphore.signal()
-            }
-          } else {
-            semaphore.signal()
-          }
-        }
-      }
+    services.dataManagementService.currencyRatesService.fetchCurrencyRates {
+      semaphore.signal()
     }
     
     // Устанавливаем таймаут в 10 секунд и продолжаем выполнение независимо от результата
-    _ = semaphore.wait(timeout: .now() + 5)
+    _ = semaphore.wait(timeout: .now() + 10)
   }
 }
 

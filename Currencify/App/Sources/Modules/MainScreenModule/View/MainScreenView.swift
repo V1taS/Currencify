@@ -94,6 +94,7 @@ private extension MainScreenView {
         placeholder: CurrencifyStrings.MainScreenLocalization.SearchCurrency.placeholder,
         currencyRates: presenter.allCurrencyRate,
         availableCurrencyRate: presenter.availableCurrencyRate,
+        currencyTypes: presenter.currencyTypes,
         action: { newValue in
           Task {
             await presenter.userAddCurrencyRate(newValue: newValue)

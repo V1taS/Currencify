@@ -70,14 +70,6 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
-  public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {
-    getAppSettingsModel { [weak self] model in
-      var updatedModel = model
-      updatedModel.currencySource = value
-      self?.saveAppSettingsModel(updatedModel, completion: completion)
-    }
-  }
-  
   public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {
     getAppSettingsModel { [weak self] model in
       var updatedModel = model
@@ -120,6 +112,44 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     getAppSettingsModel { [weak self] model in
       var updatedModel = model
       updatedModel.allCurrencyRate = currencyRates
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func setCurrencyTypes(
+    _ currencyTypes: [CurrencyRate.CurrencyType],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      var currencyTypesUpdated: Set<CurrencyRate.CurrencyType> = Set(model.currencyTypes)
+      currencyTypesUpdated.formUnion(currencyTypes)
+      
+      // Проверяем, содержит ли currencyTypesUpdated значение .currency, если нет - добавляем
+      if !currencyTypesUpdated.contains(.currency) {
+        currencyTypesUpdated.insert(.currency)
+      }
+      
+      updatedModel.currencyTypes = Array(currencyTypesUpdated)
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
+  public func removeCurrencyTypes(
+    _ currencyTypes: [CurrencyRate.CurrencyType],
+    completion: @escaping () -> Void
+  ) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      var currencyTypesUpdated: Set<CurrencyRate.CurrencyType> = Set(model.currencyTypes)
+      currencyTypesUpdated.subtract(currencyTypes)
+      
+      // Проверяем, содержит ли currencyTypesUpdated значение .currency, если нет - добавляем
+      if !currencyTypesUpdated.contains(.currency) {
+        currencyTypesUpdated.insert(.currency)
+      }
+      
+      updatedModel.currencyTypes = Array(currencyTypesUpdated)
       self?.saveAppSettingsModel(updatedModel, completion: completion)
     }
   }

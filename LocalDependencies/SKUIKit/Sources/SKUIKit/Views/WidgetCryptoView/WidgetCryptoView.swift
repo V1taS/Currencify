@@ -324,6 +324,8 @@ private extension WidgetCryptoView {
       return AnyView(
         SwitcherView(isOn: initNewValue, isEnabled: isEnabled, action: action)
           .allowsHitTesting(true)
+          .frame(width: 60, alignment: .trailing)
+          .padding(.leading, .s2)
       )
     case let .radioButtons(initNewValue, isChangeValue, action):
       return AnyView(

@@ -75,18 +75,21 @@ extension SettingsScreenPresenter: SettingsScreenInteractorOutput {}
 // MARK: - SettingsScreenFactoryOutput
 
 extension SettingsScreenPresenter: SettingsScreenFactoryOutput {
+  func didChangeCryptoCurrency(_ isEnabled: Bool) async {
+    if isEnabled {
+      await interactor.setCurrencyTypes([.crypto])
+    } else {
+      await interactor.removeCurrencyTypes([.crypto])
+    }
+    await updateContent()
+  }
+  
   func shareButtonSelected() {
     moduleOutput?.shareButtonSelected()
   }
   
   func didChangeRateCorrectionPercentage(_ value: Double) async {
     await interactor.setRateCorrectionPercentage(value)
-  }
-  
-  func userSelectCurrencyRateSource(_ rateSource: Int) async {
-    await interactor.fetchurrencyRates(CurrencySource(rawValue: rateSource) ?? .cbr)
-    await interactor.setCurrencySource(CurrencySource(rawValue: rateSource) ?? .cbr)
-    await updateContent()
   }
   
   @MainActor
@@ -140,7 +143,8 @@ private extension SettingsScreenPresenter {
     )
     stateBottomWidgetModels = factory.createBottomWidgetModels(
       appSettingsModel,
-      premiumState: premiumState
+      premiumState: premiumState,
+      isEnabledCryptoCurrency: appSettingsModel.currencyTypes.contains(.crypto)
     )
   }
   

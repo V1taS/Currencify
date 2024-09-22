@@ -16,6 +16,7 @@ final class MainScreenPresenter: ObservableObject {
   
   @Published var currencyWidgets: [WidgetCryptoView.Model] = []
   @Published var availableCurrencyRate: [CurrencyRate.Currency] = []
+  @Published var currencyTypes: [CurrencyRate.CurrencyType] = []
   @Published var isCurrencyListEmpty = false
   @Published var isUserInputVisible = false
   @Published var isSearchViewVisible = false
@@ -120,16 +121,9 @@ final class MainScreenPresenter: ObservableObject {
   func recalculateCurrencyWidgets() async {
     let appSettingsModel = await interactor.getAppSettingsModel()
     availableCurrencyRate = appSettingsModel.selectedCurrencyRate
+    currencyTypes = appSettingsModel.currencyTypes
     enteredCurrencyAmount = appSettingsModel.enteredCurrencyAmount
     activeCurrency = appSettingsModel.activeCurrency
-    
-    let calculationMode: RateCalculationMode
-    switch appSettingsModel.currencySource {
-    case .cbr:
-      calculationMode = .inverse
-    case .ecb:
-      calculationMode = .direct
-    }
     
     let availableRates = appSettingsModel.selectedCurrencyRate
     let models = factory.createCurrencyWidgetModels(
@@ -137,11 +131,12 @@ final class MainScreenPresenter: ObservableObject {
       amountEntered: enteredCurrencyAmount,
       isUserInputActive: isUserInputVisible,
       availableRates: availableRates,
-      rateCalculationMode: calculationMode,
+      rateCalculationMode: .inverse,
       decimalPlaces: appSettingsModel.currencyDecimalPlaces,
       commaIsSet: commaIsSet,
       rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage, 
-      allCurrencyRate: appSettingsModel.allCurrencyRate
+      allCurrencyRate: appSettingsModel.allCurrencyRate,
+      currencyTypes: appSettingsModel.currencyTypes
     )
     currencyWidgets = models
     allCurrencyRate = appSettingsModel.allCurrencyRate

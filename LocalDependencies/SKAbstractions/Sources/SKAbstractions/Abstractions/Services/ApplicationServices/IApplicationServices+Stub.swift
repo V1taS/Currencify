@@ -17,6 +17,10 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+  public func fetchCurrencyRates(_ completion: (() -> Void)?) {}
+  public func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void) {}
+  public func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void) {}
+  public func fetchTopCryptoCurrencyRates(baseCurrency: CurrencyRate.Currency, completion: @escaping ([CurrencyRate]) -> Void) {}
   public func setPremiumList(_ premiumList: [PremiumModel], completion: @escaping () -> Void) {}
   public func setAllCurrencyRate(_ currencyRates: [CurrencyRate], completion: @escaping () -> Void) {}
   public func createCollectionViewSnapshot(completion: @escaping (UIImage?) -> Void) {}
@@ -32,7 +36,6 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
   public var textFormatterService: any ITextFormatterService { self }
   public func setRateCorrectionPercentage(_ value: Double, completion: @escaping () -> Void) {}
   public func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces, completion: @escaping () -> Void) {}
-  public func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void) {}
   public func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {}
   public func setSelectedCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {}
   public func removeCurrencyRates(_ currencyRates: [CurrencyRate.Currency], completion: @escaping () -> Void) {}

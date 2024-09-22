@@ -53,12 +53,6 @@ public protocol IAppSettingsDataManager {
   /// - Parameter completion: Замыкание, которое будет вызвано после завершения операции.
   func removeAllCurrencyRates(completion: @escaping () -> Void)
   
-  /// Устанавливает источник валютных данных.
-  /// - Параметры:
-  ///   - value: Источник валюты, который необходимо установить.
-  ///   - completion: Блок, который будет вызван после успешной установки источника.
-  func setCurrencySource(_ value: CurrencySource, completion: @escaping () -> Void)
-  
   /// Устанавливает количество знаков после запятой для отображения валютных значений.
   /// - Parameters:
   ///   - value: Значение из перечисления `CurrencyDecimalPlaces`, определяющее количество знаков после запятой (от 0 до 5).
@@ -88,4 +82,16 @@ public protocol IAppSettingsDataManager {
   ///   - premiumList: Список премиум клиентов
   ///   - completion: Замыкание, которое вызывается после завершения операции.
   func setPremiumList(_ premiumList: [PremiumModel], completion: @escaping () -> Void)
+  
+  /// Устанавливает типы валют.
+  /// - Parameters:
+  ///   - currencyTypes: Массив типов валют, которые будут установлены.
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void)
+  
+  /// Удаляет типы валют.
+  /// - Parameters:
+  ///   - currencyTypes: Массив типов валют, которые будут удалены.
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void)
 }

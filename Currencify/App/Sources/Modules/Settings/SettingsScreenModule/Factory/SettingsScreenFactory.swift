@@ -30,11 +30,11 @@ protocol SettingsScreenFactoryOutput: AnyObject {
   /// Пользователь выбрал Премиум
   func userSelectMaxFraction(_ fraction: Int) async
   
-  /// Пользователь выбрал Источник загрузки курсов валют
-  func userSelectCurrencyRateSource(_ rateSource: Int) async
-  
   /// Была сделана корекция текущего курса
   func didChangeRateCorrectionPercentage(_ value: Double) async
+  
+  /// Были включены криптовалюты
+  func didChangeCryptoCurrency(_ isEnabled: Bool) async
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
@@ -51,7 +51,8 @@ protocol SettingsScreenFactoryInput {
   /// Создать верхнюю секцию
   func createBottomWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    premiumState: String
+    premiumState: String,
+    isEnabledCryptoCurrency: Bool
   ) -> [WidgetCryptoView.Model]
   
   /// Создаем заголовок, какой язык выбран в приложении Русский или Английский
@@ -138,10 +139,10 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
   
   func createBottomWidgetModels(
     _ appSettingsModel: AppSettingsModel,
-    premiumState: String
+    premiumState: String,
+    isEnabledCryptoCurrency: Bool
   ) -> [WidgetCryptoView.Model] {
     var models: [WidgetCryptoView.Model] = []
-    let lastUpdated = appSettingsModel.allCurrencyRate.first?.lastUpdated ?? Date()
     let availableInPremiumOnly = CurrencifyStrings.SettingsScreenLocalization
       .AvailableInPremiumOnly.title
     let editRateDescription = CurrencifyStrings.SettingsScreenLocalization.EditRate.description
@@ -160,21 +161,26 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       )
       models.append(premiumModel)
       
-      let editRateModel = createEditRateModel(
-        title: CurrencifyStrings.SettingsScreenLocalization.EditRate.title,
-        description: isPremium ? editRateDescription : editRateDescriptionNonPremium,
-        rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
+      let cryptoCurrencyTypeDescription = CurrencifyStrings.SettingsScreenLocalization
+        .CryptoCurrencyType.description
+      let cryptoCurrencyTypeDescriptionResult = isPremium ? cryptoCurrencyTypeDescription : availableInPremiumOnly
+      let cryptoCurrencyTypeModel = createWidgetSwitcherModel(
+        title: CurrencifyStrings.SettingsScreenLocalization
+          .CryptoCurrencyType.title,
+        description: cryptoCurrencyTypeDescriptionResult,
+        initialState: isEnabledCryptoCurrency,
         isPremium: isPremium,
-        actionSlider: { [weak self] newValue in
-          Task { [weak self] in
-            await self?.output?.didChangeRateCorrectionPercentage(newValue)
+        action: { [weak self] newValue in
+          if isPremium {
+            Task { [weak self] in
+              await self?.output?.didChangeCryptoCurrency(newValue)
+            }
+          } else {
+            self?.output?.userSelectPremium()
           }
-        },
-        action: { [weak self] in
-          self?.output?.userSelectPremium()
         }
       )
-      models.append(editRateModel)
+      models.append(cryptoCurrencyTypeModel)
       
       let maxFractionModel = createSegmentedPickerModel(
         title: CurrencifyStrings.SettingsScreenLocalization
@@ -194,26 +200,22 @@ extension SettingsScreenFactory: SettingsScreenFactoryInput {
       )
       models.append(maxFractionModel)
       
-      let currencyRateSourceModel = createSegmentedPickerModel(
-        title: CurrencifyStrings.SettingsScreenLocalization
-          .CurrencyRateSource.title,
-        description: isPremium ? CurrencifyStrings.SettingsScreenLocalization
-          .LastUpdated.title("\(formatDate(lastUpdated))") : availableInPremiumOnly,
-        selectedSegment: appSettingsModel.currencySource.rawValue,
-        segments: CurrencySource.allCases.compactMap({ $0.description }),
+      let editRateModel = createEditRateModel(
+        title: CurrencifyStrings.SettingsScreenLocalization.EditRate.title,
+        description: isPremium ? editRateDescription : editRateDescriptionNonPremium,
+        rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
         isPremium: isPremium,
-        actionSegmented: { [weak self] newValue in
+        actionSlider: { [weak self] newValue in
           Task { [weak self] in
-            await self?.output?.userSelectCurrencyRateSource(newValue)
+            await self?.output?.didChangeRateCorrectionPercentage(newValue)
           }
         },
         action: { [weak self] in
           self?.output?.userSelectPremium()
         }
       )
-      models.append(currencyRateSourceModel)
+      models.append(editRateModel)
     }
-    
     return models
   }
 }
@@ -358,6 +360,38 @@ private extension SettingsScreenFactory {
       ),
       action: action
     )
+  }
+  
+  func createWidgetSwitcherModel(
+    title: String,
+    description: String,
+    initialState: Bool,
+    isPremium: Bool,
+    action: ((Bool) -> Void)?
+  ) -> WidgetCryptoView.Model {
+    return .init(
+      leftSide: .init(
+        titleModel: .init(
+          text: title,
+          lineLimit: 1,
+          textStyle: .standart
+        ),
+        descriptionModel: .init(
+          text: description,
+          lineLimit: .max,
+          textStyle: .netural
+        )
+      ),
+      rightSide: .init(
+        itemModel: .switcher(
+          initNewValue: initialState,
+          isEnabled: isPremium,
+          action: action
+        )
+      ),
+      isSelectable: !isPremium) {
+        action?(true)
+      }
   }
   
   func formatDate(_ date: Date) -> String {

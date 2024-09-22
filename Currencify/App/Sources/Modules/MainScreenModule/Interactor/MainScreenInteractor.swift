@@ -94,30 +94,8 @@ extension MainScreenInteractor: MainScreenInteractorInput {
   
   func fetchCurrencyRates() async {
     await withCheckedContinuation { continuation in
-      appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
-        guard let self else { return }
-        switch appSettingsModel.currencySource {
-        case .cbr:
-          currencyRatesService.fetchCBCurrencyRates { [weak self] models in
-            if !models.isEmpty {
-              self?.appSettingsDataManager.setAllCurrencyRate(models) {
-                continuation.resume()
-              }
-            } else {
-              continuation.resume()
-            }
-          }
-        case .ecb:
-          currencyRatesService.fetchECBCurrencyRates { [weak self] models in
-            if !models.isEmpty {
-              self?.appSettingsDataManager.setAllCurrencyRate(models) {
-                continuation.resume()
-              }
-            } else {
-              continuation.resume()
-            }
-          }
-        }
+      currencyRatesService.fetchCurrencyRates {
+        continuation.resume()
       }
     }
   }

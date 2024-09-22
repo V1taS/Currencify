@@ -18,8 +18,8 @@ public struct AppSettingsModel {
   /// Выбранные валюты
   public var selectedCurrencyRate: [CurrencyRate.Currency]
   
-  /// Источник курсов валют
-  public var currencySource: CurrencySource
+  /// Типы валют
+  public var currencyTypes: [CurrencyRate.CurrencyType]
   
   /// Количество знаков после запятой для отображения валютных значений.
   public var currencyDecimalPlaces: CurrencyDecimalPlaces
@@ -41,7 +41,7 @@ public struct AppSettingsModel {
   ///   - isPremium: Премиум режим
   ///   - allCurrencyRate: Все валюты
   ///   - selectedCurrencyRate: Выбранные валюты
-  ///   - currencySource: Источник курсов валют
+  ///   - currencyTypes: Типы валют
   ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений
   ///   - rateCorrectionPercentage: Корекция текущего курса в процентах
   ///   - enteredCurrencyAmount: Последнее значение которое ввел пользователь
@@ -51,7 +51,7 @@ public struct AppSettingsModel {
     isPremium: Bool,
     allCurrencyRate: [CurrencyRate],
     selectedCurrencyRate: [CurrencyRate.Currency],
-    currencySource: CurrencySource,
+    currencyTypes: [CurrencyRate.CurrencyType],
     currencyDecimalPlaces: CurrencyDecimalPlaces,
     rateCorrectionPercentage: Double,
     enteredCurrencyAmount: Double,
@@ -61,7 +61,7 @@ public struct AppSettingsModel {
     self.isPremium = isPremium
     self.allCurrencyRate = allCurrencyRate
     self.selectedCurrencyRate = selectedCurrencyRate
-    self.currencySource = currencySource
+    self.currencyTypes = currencyTypes
     self.currencyDecimalPlaces = currencyDecimalPlaces
     self.rateCorrectionPercentage = rateCorrectionPercentage
     self.enteredCurrencyAmount = enteredCurrencyAmount
@@ -82,8 +82,8 @@ extension AppSettingsModel {
         .EUR,
         .RUB
       ],
-      currencySource: .cbr, 
-      currencyDecimalPlaces: .two, 
+      currencyTypes: [.currency],
+      currencyDecimalPlaces: .two,
       rateCorrectionPercentage: .zero,
       enteredCurrencyAmount: .zero,
       activeCurrency: .USD, 

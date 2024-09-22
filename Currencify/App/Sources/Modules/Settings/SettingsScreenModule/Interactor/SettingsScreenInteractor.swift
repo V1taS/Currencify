@@ -41,19 +41,22 @@ protocol SettingsScreenInteractorInput {
   /// Получить статус премиума
   func getIsPremiumState() async -> Bool
   
-  /// Устанавливает источник валютных данных.
-  func setCurrencySource(_ value: CurrencySource) async
-  
   /// Устанавливает количество знаков после запятой для отображения валютных значений.
   func setCurrencyDecimalPlaces(_ value: CurrencyDecimalPlaces) async
   
   /// Загрузить курсы из нового источника
-  func fetchurrencyRates(_ currencySource: CurrencySource) async
+  func fetchurrencyRates() async
   
   /// Устанавливает корекцию текущего курса в процентах
   /// - Parameters:
   ///   - value: Значение корректировки в проценте
   func setRateCorrectionPercentage(_ value: Double) async
+  
+  /// Устанавливает типы валют.
+  func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType]) async
+  
+  /// Удаляет типы валют.
+  func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType]) async
 }
 
 /// Интерактор
@@ -85,6 +88,22 @@ final class SettingsScreenInteractor {
 // MARK: - SettingsScreenInteractorInput
 
 extension SettingsScreenInteractor: SettingsScreenInteractorInput {
+  func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType]) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setCurrencyTypes(currencyTypes) {
+        continuation.resume()
+      }
+    }
+  }
+  
+  func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType]) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.removeCurrencyTypes(currencyTypes) {
+        continuation.resume()
+      }
+    }
+  }
+  
   func setRateCorrectionPercentage(_ value: Double) async {
     await withCheckedContinuation { continuation in
       appSettingsDataManager.setRateCorrectionPercentage(value) {
@@ -93,36 +112,9 @@ extension SettingsScreenInteractor: SettingsScreenInteractorInput {
     }
   }
   
-  func fetchurrencyRates(_ currencySource: CurrencySource) async {
+  func fetchurrencyRates() async {
     await withCheckedContinuation { continuation in
-      switch currencySource {
-      case .cbr:
-        dataManagementService.currencyRatesService.fetchCBCurrencyRates { [weak self] models in
-          if !models.isEmpty {
-            self?.appSettingsDataManager.setAllCurrencyRate(models) {
-              continuation.resume()
-            }
-          } else {
-            continuation.resume()
-          }
-        }
-      case .ecb:
-        dataManagementService.currencyRatesService.fetchECBCurrencyRates { [weak self] models in
-          if !models.isEmpty {
-            self?.appSettingsDataManager.setAllCurrencyRate(models) {
-              continuation.resume()
-            }
-          } else {
-            continuation.resume()
-          }
-        }
-      }
-    }
-  }
-  
-  func setCurrencySource(_ value: CurrencySource) async {
-    await withCheckedContinuation { continuation in
-      appSettingsDataManager.setCurrencySource(value) {
+      dataManagementService.currencyRatesService.fetchCurrencyRates {
         continuation.resume()
       }
     }

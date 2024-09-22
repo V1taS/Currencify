@@ -32,3 +32,5 @@
 "LastUpdated.Title" = "Last updated on %@";
 "EditRate.Description" = "Increase or decrease the value of all currencies by a percentage of your choice";
 "share" = "Share";
+"CryptoCurrencyType.Title" = "Enable cryptocurrencies";
+"CryptoCurrencyType.Description" = "Activate to add cryptocurrencies to the list of available currencies";

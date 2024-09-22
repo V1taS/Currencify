@@ -23,6 +23,7 @@ public struct SearchCurrencyRateView: View {
   private var currencyRates: [CurrencyRate] = []
   private var availableCurrencyRate: [CurrencyRate.Currency] = []
   private let placeholder: String
+  private var currencyTypes: [CurrencyRate.CurrencyType]
   
   // MARK: - Initialization
   
@@ -32,18 +33,21 @@ public struct SearchCurrencyRateView: View {
   ///   - currencyRates: Список курсов валют
   ///   - availableCurrencyRate: Уже выбранные валюты
   ///   - isEnabled: Свитчер включен
+  ///   - currencyTypes: Типы валют
   ///   - action: Действие по нажатию
   public init(
     placeholder: String,
     currencyRates: [CurrencyRate],
     availableCurrencyRate: [CurrencyRate.Currency],
     isEnabled: Bool = true,
+    currencyTypes: [CurrencyRate.CurrencyType],
     action: ((_ newValue: CurrencyRate) -> Void)?
   ) {
     self.placeholder = placeholder
     self.currencyRates = currencyRates
     self.availableCurrencyRate = availableCurrencyRate
     self.isEnabled = isEnabled
+    self.currencyTypes = currencyTypes
     self.action = action
   }
   
@@ -72,11 +76,7 @@ public struct SearchCurrencyRateView: View {
               .init(
                 leftSide: .init(
                   itemModel: .custom(
-                    item: AnyView(
-                      Text(currencyRate.emojiFlag() ?? "")
-                        .font(.system(size: 40, weight: .bold))
-                        .lineLimit(1)
-                    )
+                    item: getleftImageView(currencyRate: currencyRate)
                   ),
                   titleModel: .init(
                     text: currencyRate.currency.details.name,
@@ -158,9 +158,10 @@ private extension SearchCurrencyRateView {
     
     let textLowercased = searchText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     
-    // Исключаем уже выбранные валюты
+    // Исключаем уже выбранные валюты и фильтруем по типу валюты
     let filteredCurrencyRates = currencyRates.filter { rate in
-      !availableCurrencyRate.contains(where: { $0 == rate.currency })
+      !availableCurrencyRate.contains(where: { $0 == rate.currency }) &&
+      currencyTypes.contains(rate.currency.details.source)
     }
     
     // Рассчитываем оценку для каждой оставшейся валюты
@@ -214,6 +215,28 @@ private extension SearchCurrencyRateView {
     
     return topThreeRates
   }
+  
+  func getleftImageView(currencyRate: CurrencyRate) -> AnyView {
+    if currencyRate.currency.details.source == .currency {
+      return AnyView(
+        Text(currencyRate.emojiFlag() ?? "")
+          .font(.system(size: 40, weight: .bold))
+          .lineLimit(1)
+      )
+    } else {
+      return AnyView(
+        AsyncNetworkImageView(
+          .init(
+            imageUrl: URL(string: currencyRate.imageURL ?? ""),
+            size: .init(width: 30, height: 30),
+            cornerRadiusType: .squircle
+          )
+        )
+        .frame(width: 40, height: 40)
+        .padding(.vertical, .s1)
+      )
+    }
+  }
 }
 
 // MARK: - Constants
@@ -237,6 +260,7 @@ struct SearchCurrencyRateView_Previews: PreviewProvider {
             .init(currency: .AED, rate: 1.0, lastUpdated: Date())
           ],
           availableCurrencyRate: [.RUB],
+          currencyTypes: [],
           action: { _ in }
         )
         Spacer()
