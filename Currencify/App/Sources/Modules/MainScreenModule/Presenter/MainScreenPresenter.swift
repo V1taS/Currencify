@@ -60,10 +60,7 @@ final class MainScreenPresenter: ObservableObject {
   }
   
   lazy var viewWillAppear: (() -> Void)? = { [weak self] in
-    Task { [weak self] in
-      guard let self else { return }
-      await recalculateCurrencyWidgets()
-    }
+    self?.moduleOutput?.viewWillAppear()
   }
   
   // MARK: - Internal func

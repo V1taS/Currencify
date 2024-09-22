@@ -17,10 +17,17 @@ public protocol MainScreenModuleOutput: AnyObject {
   
   /// Открыть просмоторщик картинок
   func openImageViewer(image: UIImage?) async
+  
+  /// Экран сейчас покажется
+  func viewWillAppear()
 }
 
 /// События которые отправляем из `Coordinator` в `MainScreenModule`
 public protocol MainScreenModuleInput {
+  
+  /// Обновить экран
+  @MainActor
+  func recalculateCurrencyWidgets() async
 
   /// События которые отправляем из `MainScreenModule` в `Coordinator`
   var moduleOutput: MainScreenModuleOutput? { get set }

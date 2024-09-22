@@ -12,7 +12,7 @@ import UIKit
 import SKStyle
 import SwiftUI
 
-struct PremiumConfigurator: Configurator {
+final class PremiumConfigurator: Configurator {
   
   // MARK: - Private properties
   
