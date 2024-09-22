@@ -81,6 +81,7 @@ extension SettingsScreenPresenter: SettingsScreenFactoryOutput {
     } else {
       await interactor.removeCurrencyTypes([.crypto])
     }
+    await interactor.fetchurrencyRates()
     await updateContent()
   }
   
