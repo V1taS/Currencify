@@ -118,7 +118,7 @@ private enum Constants {
   static let supportOChatMail = "SupportOChatMail"
   static let premiumList = "PremiumList"
   static let apiKeyApphud = "ApiKeyApphud"
-  static let isPremiumMode = "isPremiumModeV2"
+  static let isPremiumMode = "isPremiumMode"
   
   static let oneDayPassKey = "OneDayPassKey"
 }
