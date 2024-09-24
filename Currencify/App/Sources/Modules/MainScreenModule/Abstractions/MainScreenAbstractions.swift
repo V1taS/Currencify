@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SKAbstractions
 
 /// События которые отправляем из `MainScreenModule` в `Coordinator`
 public protocol MainScreenModuleOutput: AnyObject {
@@ -18,8 +19,8 @@ public protocol MainScreenModuleOutput: AnyObject {
   /// Открыть просмоторщик картинок
   func openImageViewer(image: UIImage?) async
   
-  /// Экран сейчас покажется
-  func viewWillAppear()
+  /// Проверить премиум у пользователя
+  func premiumModeCheck(appSettingsModel: AppSettingsModel) async
 }
 
 /// События которые отправляем из `Coordinator` в `MainScreenModule`

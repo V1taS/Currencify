@@ -71,14 +71,9 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
 // MARK: - MainScreenModuleOutput
 
 extension MainScreenCoordinator: MainScreenModuleOutput {
-  func viewWillAppear() {
-    premiumModeCheck { [weak self] in
-      guard let self else { return }
-      Task { [weak self] in
-        guard let self else { return }
-        await mainScreenModule?.input.recalculateCurrencyWidgets()
-      }
-    }
+  func premiumModeCheck(appSettingsModel: AppSettingsModel) async {
+    await checkForPremiumOptionsEnabled(with: appSettingsModel)
+    await mainScreenModule?.input.recalculateCurrencyWidgets()
   }
   
   @MainActor
@@ -243,9 +238,8 @@ private extension MainScreenCoordinator {
     )
   }
   
-  func premiumModeCheck(completion: @escaping () -> Void) {
-    services.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
-      guard let self else { return completion() }
+  func checkForPremiumOptionsEnabled(with appSettingsModel: AppSettingsModel) async {
+    await withCheckedContinuation { continuation in
       let isPremium = appSettingsModel.isPremium
       let isCrypto = appSettingsModel.currencyTypes.contains(.crypto)
       let isCurrencyDecimalPlacesDefault = appSettingsModel.currencyDecimalPlaces == .two
@@ -256,26 +250,27 @@ private extension MainScreenCoordinator {
         }).prefix(3)
       )
       
-      guard !isPremium, isCrypto ||
+      guard !isPremium,
+            isCrypto ||
               !isCurrencyDecimalPlacesDefault ||
               !rateCorrectionPercentageDefault else {
-        completion()
+        continuation.resume()
         return
       }
       
       services.appSettingsDataManager.removeCurrencyTypes([.crypto]) { [weak self] in
-        guard let self else { return completion() }
+        guard let self else { return continuation.resume() }
         services.appSettingsDataManager.setCurrencyDecimalPlaces(.two) { [weak self] in
-          guard let self else { return completion() }
+          guard let self else { return continuation.resume() }
           services.appSettingsDataManager.setRateCorrectionPercentage(.zero) { [weak self] in
-            guard let self else { return completion() }
+            guard let self else { return continuation.resume() }
             
             services.appSettingsDataManager.removeAllCurrencyRates { [weak self] in
-              guard let self else { return completion() }
+              guard let self else { return continuation.resume() }
               services.appSettingsDataManager.setSelectedCurrencyRates(firstThreeElements) { [weak self] in
-                guard let self else { return completion() }
+                guard let self else { return continuation.resume() }
                 services.dataManagementService.currencyRatesService.fetchCurrencyRates {
-                  completion()
+                  continuation.resume()
                 }
               }
             }

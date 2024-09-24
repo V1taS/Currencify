@@ -52,15 +52,14 @@ final class MainScreenPresenter: ObservableObject {
   
   // MARK: - The lifecycle of a UIViewController
   
-  lazy var viewDidLoad: (() -> Void)? = { [weak self] in
-    Task { [weak self] in
-      guard let self else { return }
-      await setupInitialState()
-    }
-  }
+  lazy var viewDidLoad: (() -> Void)? = {}
   
   lazy var viewWillAppear: (() -> Void)? = { [weak self] in
-    self?.moduleOutput?.viewWillAppear()
+    Task { [weak self] in
+      guard let self else { return }
+      let appSettingsModel = await interactor.getAppSettingsModel()
+      await moduleOutput?.premiumModeCheck(appSettingsModel: appSettingsModel)
+    }
   }
   
   // MARK: - Internal func
@@ -227,8 +226,6 @@ extension MainScreenPresenter: SceneViewModel {
 // MARK: - Private
 
 private extension MainScreenPresenter {
-  func setupInitialState() async {}
-  
   @MainActor
   func validateRatesData() async {
     let appSettingsModel = await interactor.getAppSettingsModel()
