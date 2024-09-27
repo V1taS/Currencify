@@ -77,8 +77,6 @@ private extension WidgetCryptoView {
                 .padding(.top, .s4)
                 .allowsHitTesting(false)
             }
-            
-//            createKeyboardModel(model)
           }
           .padding(.leading, model.leadingPadding)
           .padding(.trailing, model.trailingPadding)

@@ -124,6 +124,7 @@ final class MainScreenPresenter: ObservableObject {
     )
     self.currencyRateIdentifiable = currencyRateIdentifiable
     await validateRatesData()
+    await setCurrencyRateText()
   }
   
   @MainActor
@@ -198,12 +199,10 @@ extension MainScreenPresenter: MainScreenFactoryOutput {
     
     self.commaIsSet = lastCharacterIsComma
     await recalculateCurrencyWidgets()
-    await setCurrencyRateText()
   }
   
   func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) async {
     let appSettingsModel = await getAppSettingsModel()
-    await interactor.setEnteredCurrencyAmount(rate)
     
     if appSettingsModel.activeCurrency == currency && appSettingsModel.isUserInputVisible {
       await setKeyboardIsShown(false, currency)
