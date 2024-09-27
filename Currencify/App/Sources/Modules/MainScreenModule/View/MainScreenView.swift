@@ -225,12 +225,6 @@ private extension MainScreenView {
         if appSettingsModel.isUserInputVisible {
           return
         }
-        
-        // Если isSearchViewVisible, обрабатываем касание
-        if presenter.isSearchViewVisible {
-          presenter.isSearchViewVisible = false
-          return
-        }
       }
       
       Task {
@@ -238,11 +232,6 @@ private extension MainScreenView {
         if appSettingsModel.isUserInputVisible {
           await presenter.setKeyboardIsShown(false, appSettingsModel.activeCurrency)
         }
-      }
-      
-      // Скрыть панель поиска, если она видима
-      if presenter.isSearchViewVisible {
-        presenter.isSearchViewVisible = false
       }
     }
   }
