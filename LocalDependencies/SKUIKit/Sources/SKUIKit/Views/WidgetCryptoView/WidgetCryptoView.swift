@@ -170,9 +170,9 @@ private extension WidgetCryptoView {
     return AnyView(EmptyView())
   }
   
-  func createKeyboardModel(_ model: WidgetCryptoView.Model) -> AnyView {
-    if let keyboardModel = model.keyboardModel, keyboardModel.isKeyboardShown {
-      return AnyView(
+  func createKeyboardModel(_ model: WidgetCryptoView.Model) -> some View {
+    Group {
+      if let keyboardModel = model.keyboardModel, keyboardModel.isKeyboardShown {
         VStack {
           Spacer()
             .background(SKStyleAsset.navy.swiftUIColor)
@@ -186,9 +186,8 @@ private extension WidgetCryptoView {
         }
         .padding(.horizontal, .s1)
         .padding(.bottom, .s1)
-      )
+      }
     }
-    return AnyView(EmptyView())
   }
   
   func createRightLargeText(model: WidgetCryptoView.Model) -> AnyView {
