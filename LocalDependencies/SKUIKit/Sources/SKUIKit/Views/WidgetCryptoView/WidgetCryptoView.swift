@@ -42,7 +42,11 @@ private extension WidgetCryptoView {
           TapGestureView(
             style: .flash,
             isSelectable: model.isSelectable,
-            touchesEnded: { model.action?() }
+            touchesEnded: {
+              DispatchQueue.main.async {
+                model.action?()
+              }
+            }
           ) {
             model.backgroundColor ?? SKStyleAsset.navy.swiftUIColor
           }
@@ -208,6 +212,7 @@ private extension WidgetCryptoView {
             height: .infinity
           )
           .layoutPriority(2)
+          .allowsHitTesting(false)
       )
     }
     return AnyView(EmptyView())
