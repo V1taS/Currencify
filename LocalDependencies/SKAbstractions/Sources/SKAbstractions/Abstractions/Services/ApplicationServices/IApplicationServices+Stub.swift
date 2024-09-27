@@ -17,6 +17,12 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+  public func setEnteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) {}
+  public func enteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) { }
+  public func removeLeadingZeroIfNoComma(in string: String) -> String { "" }
+  public func replaceDoubleZeroWithZero(in string: String) -> String { "" }
+  public func formatNumberWithThousands(_ input: String) -> String { "" }
+  public func getStringAfterComma(in string: String) -> String? { nil }
   public func setUserInputIsVisible(_ value: Bool, completion: @escaping () -> Void) {}
   public func fetchCurrencyRates(_ completion: (() -> Void)?) {}
   public func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void) {}

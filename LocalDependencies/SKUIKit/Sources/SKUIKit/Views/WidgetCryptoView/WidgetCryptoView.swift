@@ -195,7 +195,7 @@ private extension WidgetCryptoView {
       return AnyView(
         HStack(spacing: .zero) {
           Spacer(minLength: .zero)
-          Text(rightSideLargeText.text)
+          Text(rightSideLargeText.text.isEmpty ? "0" : rightSideLargeText.text)
             .foregroundColor(rightSideLargeText.textStyle.color)
             .lineLimit(rightSideLargeText.lineLimit)
             .font(.fancy.constant.h2)

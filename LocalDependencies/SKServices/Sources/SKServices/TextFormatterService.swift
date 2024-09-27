@@ -103,4 +103,87 @@ public final class TextFormatterService: ITextFormatterService {
     // Возвращаем количество символов в подстроке
     return substringAfterComma.count
   }
+  
+  public func getStringAfterComma(in string: String) -> String? {
+    // Находим индекс запятой
+    guard let commaIndex = string.firstIndex(of: ",") else {
+      return nil // Если запятая не найдена, возвращаем nil
+    }
+    
+    // Получаем индекс следующего символа после запятой
+    let nextIndex = string.index(after: commaIndex)
+    
+    // Извлекаем подстроку после запятой
+    let substringAfterComma = String(string[nextIndex...])
+    
+    // Возвращаем подстроку
+    return substringAfterComma.isEmpty ? nil : substringAfterComma
+  }
+  
+  public func formatNumberWithThousands(_ input: String) -> String {
+    if input.contains(",") {
+      // Разделяем строку на целую и дробную части по первой запятой
+      let components = input.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
+      let integerPart = String(components.first ?? "")
+      let fractionalPart = components.count > 1 ? String(components[1]) : ""
+      
+      // Форматируем целую часть, добавляя пробелы для разделения разрядов
+      let formattedInteger = formatIntegerWithThousands(integerPart)
+      
+      // Собираем окончательный результат
+      if components.count > 1 {
+        // Если была запятая, добавляем ее и дробную часть (может быть пустой)
+        return "\(formattedInteger),\(fractionalPart)"
+      } else {
+        // На случай, если input содержит запятую, но split не разделил на части
+        return formattedInteger
+      }
+    } else {
+      // Если запятой нет, форматируем всю строку
+      return formatIntegerWithThousands(input)
+    }
+  }
+  
+  public func removeLeadingZeroIfNoComma(in string: String) -> String {
+    // Проверяем, содержит ли строка запятую
+    if !string.contains(",") {
+      // Проверяем, если первый символ равен '0'
+      if let first = string.first, first == "0" {
+        // Удаляем первый символ
+        return String(string.dropFirst())
+      }
+    }
+    // Возвращаем исходную строку, если изменений нет
+    return string
+  }
+  
+  public func replaceDoubleZeroWithZero(in string: String) -> String {
+    // Проверяем, начинаются ли первые два символа строки с "00"
+    if string.hasPrefix("00") {
+      return "0"
+    }
+    // Если строка не начинается с "00", возвращаем исходную строку
+    return string
+  }
+}
+
+// MARK: - Private
+
+private extension TextFormatterService {
+  /// Вспомогательный метод для форматирования целой части числа с пробелами.
+  /// - Parameter integerPart: Целая часть числа как строка.
+  /// - Returns: Отформатированная целая часть.
+  func formatIntegerWithThousands(_ integerPart: String) -> String {
+    var formatted = ""
+    let reversed = integerPart.reversed()
+    
+    for (index, char) in reversed.enumerated() {
+      if index != 0 && index % 3 == 0 {
+        formatted.append(" ")
+      }
+      formatted.append(char)
+    }
+    
+    return String(formatted.reversed())
+  }
 }

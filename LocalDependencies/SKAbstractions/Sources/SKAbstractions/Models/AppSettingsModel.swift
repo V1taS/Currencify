@@ -28,7 +28,7 @@ public struct AppSettingsModel {
   public var rateCorrectionPercentage: Double
   
   /// Последнее значение которое ввел пользователь
-  public var enteredCurrencyAmount: Double
+  public var enteredCurrencyAmountRaw: String
   
   /// Валюта последнего значения что расчитывал пользователь
   public var activeCurrency: CurrencyRate.Currency
@@ -47,7 +47,7 @@ public struct AppSettingsModel {
   ///   - currencyTypes: Типы валют
   ///   - currencyDecimalPlaces: Количество знаков после запятой для отображения валютных значений
   ///   - rateCorrectionPercentage: Корекция текущего курса в процентах
-  ///   - enteredCurrencyAmount: Последнее значение которое ввел пользователь
+  ///   - enteredCurrencyAmountRaw: Последнее значение которое ввел пользователь
   ///   - activeCurrency: Валюта последнего значения что расчитывал пользователь
   ///   - premiumList: Список премиум пользователей
   ///   - isUserInputVisible: Видна ли клавиатура
@@ -58,7 +58,7 @@ public struct AppSettingsModel {
     currencyTypes: [CurrencyRate.CurrencyType],
     currencyDecimalPlaces: CurrencyDecimalPlaces,
     rateCorrectionPercentage: Double,
-    enteredCurrencyAmount: Double,
+    enteredCurrencyAmountRaw: String,
     activeCurrency: CurrencyRate.Currency,
     premiumList: [PremiumModel],
     isUserInputVisible: Bool
@@ -69,7 +69,7 @@ public struct AppSettingsModel {
     self.currencyTypes = currencyTypes
     self.currencyDecimalPlaces = currencyDecimalPlaces
     self.rateCorrectionPercentage = rateCorrectionPercentage
-    self.enteredCurrencyAmount = enteredCurrencyAmount
+    self.enteredCurrencyAmountRaw = enteredCurrencyAmountRaw
     self.activeCurrency = activeCurrency
     self.premiumList = premiumList
     self.isUserInputVisible = isUserInputVisible
@@ -91,8 +91,8 @@ extension AppSettingsModel {
       currencyTypes: [.currency],
       currencyDecimalPlaces: .two,
       rateCorrectionPercentage: .zero,
-      enteredCurrencyAmount: .zero,
-      activeCurrency: .USD, 
+      enteredCurrencyAmountRaw: "0",
+      activeCurrency: .USD,
       premiumList: [],
       isUserInputVisible: false
     )

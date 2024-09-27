@@ -78,10 +78,10 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
-  public func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void) {
+  public func setEnteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) {
     getAppSettingsModel { [weak self] model in
       var updatedModel = model
-      updatedModel.enteredCurrencyAmount = value
+      updatedModel.enteredCurrencyAmountRaw = value
       self?.saveAppSettingsModel(updatedModel, completion: completion)
     }
   }

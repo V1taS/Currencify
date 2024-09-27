@@ -69,7 +69,7 @@ public protocol IAppSettingsDataManager {
   /// - Parameters:
   ///   - value: Строка, представляющая введённую сумму валюты.
   ///   - completion: Замыкание, которое вызывается после завершения операции.
-  func setEnteredCurrencyAmount(_ value: Double, completion: @escaping () -> Void)
+  func setEnteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void)
   
   /// Устанавливает активную валюту для отображения курсов.
   /// - Parameters:

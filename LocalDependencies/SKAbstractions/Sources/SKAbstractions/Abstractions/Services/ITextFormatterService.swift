@@ -45,4 +45,25 @@ public protocol ITextFormatterService {
   /// - Parameter string: Строка, в которой производится поиск запятой.
   /// - Returns: Количество символов после запятой или `nil`, если запятая не найдена.
   func countCharactersAfterComma(in string: String) -> Int?
+  
+  /// Возвращает подстроку после запятой.
+  /// - Parameter string: Строка, в которой производится поиск запятой.
+  /// - Returns: Подстрока после запятой или `nil`, если запятая не найдена.
+  func getStringAfterComma(in string: String) -> String?
+  
+  /// Форматирует числовую строку, добавляя пробелы для разделения разрядов в целой части.
+  /// Если строка содержит запятую, она разделяется на целую и дробную части.
+  /// - Parameter input: Исходная строка числа.
+  /// - Returns: Отформатированная строка.
+  func formatNumberWithThousands(_ input: String) -> String
+  
+  /// Удаляет ведущий ноль, если в строке нет запятой.
+  /// - Parameter string: Исходная строка.
+  /// - Returns: Строка без ведущего нуля или исходная строка, если запятая присутствует или первый символ не равен нулю.
+  func removeLeadingZeroIfNoComma(in string: String) -> String
+  
+  /// Заменяет всю строку на "0", если она содержит подстроку "00".
+  /// - Parameter string: Исходная строка.
+  /// - Returns: "0", если строка содержит "00", иначе исходная строка.
+  func replaceDoubleZeroWithZero(in string: String) -> String
 }

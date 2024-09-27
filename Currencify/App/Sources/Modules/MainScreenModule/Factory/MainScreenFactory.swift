@@ -13,7 +13,7 @@ import SKStyle
 /// Cобытия которые отправляем из Factory в Presenter
 protocol MainScreenFactoryOutput: AnyObject {
   /// Пользователь нажал на валюту
-  func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) async
+  func userDidSelectCurrency(_ currency: CurrencyRate.Currency) async
   
   /// Пользователь вводит сумму
   func userDidEnterAmount(_ newValue: String) async
@@ -127,10 +127,7 @@ private extension MainScreenFactory {
       action: { [weak self] in
         Task { [weak self] in
           guard let self else { return }
-          await output?.userDidSelectCurrency(
-            currencyRateIdentifiable.currency,
-            withRate: currencyRateIdentifiable.rateDouble
-          )
+          await output?.userDidSelectCurrency(currencyRateIdentifiable.currency)
         }
       }
     )

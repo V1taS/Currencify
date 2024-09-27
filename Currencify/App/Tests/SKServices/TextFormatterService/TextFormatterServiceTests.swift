@@ -211,4 +211,74 @@ final class TextFormatterServiceTests: XCTestCase {
     XCTAssertEqual(service.countCharactersAfterComma(in: "NoCommaHere"), nil)
     XCTAssertEqual(service.countCharactersAfterComma(in: "StartsWithComma,"), 0)
   }
+  
+  // MARK: - formatNumberWithThousands
+  
+  func testFormatNumberWithThousands() {
+    // Стандартные случаи
+    XCTAssertEqual(service.formatNumberWithThousands("1234,0021"), "1 234,0021")
+    XCTAssertEqual(service.formatNumberWithThousands("56789,12345"), "56 789,12345")
+    XCTAssertEqual(service.formatNumberWithThousands("1000,00"), "1 000,00")
+    XCTAssertEqual(service.formatNumberWithThousands("0,123"), "0,123")
+    XCTAssertEqual(service.formatNumberWithThousands("999"), "999")
+    XCTAssertEqual(service.formatNumberWithThousands("1234567,89"), "1 234 567,89")
+    
+    // Случаи без запятой
+    XCTAssertEqual(service.formatNumberWithThousands("1234"), "1 234")
+    XCTAssertEqual(service.formatNumberWithThousands("56789"), "56 789")
+    XCTAssertEqual(service.formatNumberWithThousands("1000"), "1 000")
+    XCTAssertEqual(service.formatNumberWithThousands("0"), "0")
+    XCTAssertEqual(service.formatNumberWithThousands("999999"), "999 999")
+    XCTAssertEqual(service.formatNumberWithThousands("1234567890"), "1 234 567 890")
+    XCTAssertEqual(service.formatNumberWithThousands(""), "")
+    
+    // Крайние случаи
+    XCTAssertEqual(service.formatNumberWithThousands("1,1"), "1,1")
+    XCTAssertEqual(service.formatNumberWithThousands("12,34"), "12,34")
+    XCTAssertEqual(service.formatNumberWithThousands("123,456"), "123,456")
+    XCTAssertEqual(service.formatNumberWithThousands("1234,5"), "1 234,5")
+    XCTAssertEqual(service.formatNumberWithThousands("12345,6789"), "12 345,6789")
+    XCTAssertEqual(service.formatNumberWithThousands("123456,78901"), "123 456,78901")
+    
+    // Сложные случаи
+    XCTAssertEqual(service.formatNumberWithThousands("0001234,00021"), "0 001 234,00021")
+    XCTAssertEqual(service.formatNumberWithThousands(",1234"), ",1234")
+    XCTAssertEqual(service.formatNumberWithThousands("0,0"), "0,0")
+    XCTAssertEqual(service.formatNumberWithThousands("1000000,0001"), "1 000 000,0001")
+    XCTAssertEqual(service.formatNumberWithThousands("0000"), "0 000")
+    XCTAssertEqual(service.formatNumberWithThousands("0000,0000"), "0 000,0000")
+    XCTAssertEqual(service.formatNumberWithThousands("122255,"), "122 255,")
+  }
+  
+  /// Тесты для функции `removeLeadingZeroIfNoComma(in:)`
+  func testRemoveLeadingZeroIfNoComma() {
+    // Стандартные случаи
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "01234"), "1234", "Ожидалось удаление ведущего нуля.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "1234"), "1234", "Ожидалось, что строка останется без изменений.")
+    
+    // Случаи с запятой
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0,1234"), "0,1234", "Ожидалось, что строка останется без изменений из-за наличия запятой.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "1,234"), "1,234", "Ожидалось, что строка останется без изменений.")
+    
+    // Крайние случаи
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: ""), "", "Ожидалось, что пустая строка останется без изменений.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0"), "", "Ожидалось, что одиночный '0' будет удален.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0,"), "0,", "Ожидалось, что строка останется без изменений из-за запятой.")
+    
+    // Случаи с несколькими ведущими нулями
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0001234"), "001234", "Ожидалось удаление только первого ведущего нуля.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0000"), "000", "Ожидалось удаление только первого ведущего нуля.")
+    XCTAssertEqual(service.removeLeadingZeroIfNoComma(in: "0000,1234"), "0000,1234", "Ожидалось, что строка останется без изменений из-за наличия запятой.")
+  }
+  
+  // MARK: - replaceDoubleZeroWithZero
+  
+  /// Тесты для функции `replaceDoubleZeroWithZero(in:)`
+  func testReplaceDoubleZeroWithZero() {
+    // Крайние случаи
+    XCTAssertEqual(service.replaceDoubleZeroWithZero(in: ""), "", "Ожидалось, что пустая строка останется без изменений.")
+    XCTAssertEqual(service.replaceDoubleZeroWithZero(in: "0"), "0", "Ожидалось, что одиночный '0' останется без изменений.")
+    XCTAssertEqual(service.replaceDoubleZeroWithZero(in: "00"), "0", "Ожидалось, что '00' будет заменено на '0'.")
+    XCTAssertEqual(service.replaceDoubleZeroWithZero(in: "000"), "0", "Ожидалось, что '000' будет заменено на '0'.")
+  }
 }

@@ -44,6 +44,9 @@ public struct KeyboardView: View {
       createNumberLine(numbers: Constants.thirdLine)
       createNumberLine(numbers: Constants.fourthLine)
     }
+    .onChange(of: keyboardModel.value) { newValue in
+      print("✅ \(newValue)")
+    }
   }
 }
 
@@ -64,7 +67,15 @@ private extension KeyboardView {
       TapGestureView(
         style: .flash,
         isSelectable: isEnabled,
-        touchesEnded: action
+        touchesEnded: {
+          if [",", "."].contains(title) {
+            if !(keyboardModel.value.contains(",") || keyboardModel.value.contains(".")) {
+              action()
+            }
+          } else {
+            action()
+          }
+        }
       ) {
         ZStack {
           SKStyleAsset.constantSlate.swiftUIColor.opacity(0.05)

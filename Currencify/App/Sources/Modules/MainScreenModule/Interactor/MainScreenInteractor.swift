@@ -35,7 +35,7 @@ protocol MainScreenInteractorInput {
   /// Устанавливает введённую сумму валюты.
   /// - Parameters:
   ///   - value: Строка, представляющая введённую сумму валюты.
-  func setEnteredCurrencyAmount(_ value: Double) async
+  func setEnteredCurrencyAmountRaw(_ value: String) async
   
   /// Устанавливает активную валюту для отображения курсов.
   /// - Parameters:
@@ -53,7 +53,7 @@ protocol MainScreenInteractorInput {
   /// Делаем расчет всех валют
   func recalculateCurrencyRates(
     appSettingsModel: AppSettingsModel,
-    commaIsSet: Bool
+    rawCurrencyRate: String
   ) async -> [CurrencyRateIdentifiable]
   
   /// Установить значение показана ли клавиатура
@@ -96,14 +96,14 @@ final class MainScreenInteractor {
 extension MainScreenInteractor: MainScreenInteractorInput {
   func recalculateCurrencyRates(
     appSettingsModel: AppSettingsModel,
-    commaIsSet: Bool
+    rawCurrencyRate: String
   ) async -> [CurrencyRateIdentifiable] {
     let availableRates = appSettingsModel.selectedCurrencyRate
     let currencyTypes = appSettingsModel.currencyTypes
     
     let allCurrencyRates: [CurrencyRate] = CurrencyRate.calculateCurrencyRates(
       from: appSettingsModel.activeCurrency,
-      amount: appSettingsModel.enteredCurrencyAmount,
+      amount: Double(appSettingsModel.enteredCurrencyAmountRaw) ?? .zero,
       calculationMode: .inverse,
       allCurrencyRate: appSettingsModel.allCurrencyRate
     )
@@ -127,7 +127,7 @@ extension MainScreenInteractor: MainScreenInteractorInput {
       selectedCurrency: appSettingsModel.activeCurrency,
       rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
       currencyDecimalPlaces: appSettingsModel.currencyDecimalPlaces,
-      commaIsSet: commaIsSet
+      rawCurrencyRate: rawCurrencyRate
     )
     
     return currencyTextRates
@@ -193,9 +193,9 @@ extension MainScreenInteractor: MainScreenInteractorInput {
     }
   }
   
-  func setEnteredCurrencyAmount(_ value: Double) async {
+  func setEnteredCurrencyAmountRaw(_ value: String) async {
     await withCheckedContinuation { continuation in
-      appSettingsDataManager.setEnteredCurrencyAmount(value) {
+      appSettingsDataManager.setEnteredCurrencyAmountRaw(value) {
         continuation.resume()
       }
     }
@@ -227,7 +227,7 @@ private extension MainScreenInteractor {
     selectedCurrency: CurrencyRate.Currency,
     rateCorrectionPercentage: Double,
     currencyDecimalPlaces: CurrencyDecimalPlaces,
-    commaIsSet: Bool
+    rawCurrencyRate: String
   ) async -> [CurrencyRateIdentifiable] {
     var models: [CurrencyRateIdentifiable] = []
     for currencyRate in currencyRates {
@@ -250,9 +250,10 @@ private extension MainScreenInteractor {
         from: currencyValueReplaceDotsWithCommas
       )
       
-      if commaIsSet, currencyRate.currency == selectedCurrency {
-        currencyValueRemoveExtraZeros += ","
+      if currencyRate.currency == selectedCurrency {
+        currencyValueRemoveExtraZeros = rawCurrencyRate
       }
+      
       models.append(
         .init(
           currency: currencyRate.currency,

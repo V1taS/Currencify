@@ -31,7 +31,7 @@ final class MainScreenPresenter: ObservableObject {
   private var rightBarSettingsButton: SKBarButtonItem?
   private var rightBarShareButton: SKBarButtonItem?
   private var leftBarAddButton: SKBarButtonItem?
-  private var commaIsSet = false
+  private var rawCurrencyRate: String = "0"
   private var currencyRateIdentifiable: [CurrencyRateIdentifiable] = []
   
   // MARK: - Initialization
@@ -87,7 +87,7 @@ final class MainScreenPresenter: ObservableObject {
     
     if appSettingsModel.activeCurrency == currency {
       await interactor.setUserInputIsVisible(false)
-      await interactor.setEnteredCurrencyAmount(.zero)
+      await interactor.setEnteredCurrencyAmountRaw("0")
       await interactor.setActiveCurrency(appSettingsModel.activeCurrency)
     }
     
@@ -120,7 +120,7 @@ final class MainScreenPresenter: ObservableObject {
     
     let currencyRateIdentifiable = await interactor.recalculateCurrencyRates(
       appSettingsModel: appSettingsModel,
-      commaIsSet: commaIsSet
+      rawCurrencyRate: rawCurrencyRate
     )
     self.currencyRateIdentifiable = currencyRateIdentifiable
     await validateRatesData()
@@ -130,6 +130,8 @@ final class MainScreenPresenter: ObservableObject {
   @MainActor
   func createCurrencyWidget() async {
     let appSettingsModel = await getAppSettingsModel()
+    
+    rawCurrencyRate = await getEnteredCurrencyAmountRaw(appSettingsModel)
     await recalculateCurrencyWidgets()
     let models = factory.createCurrencyWidgetModels(
       decimalPlaces: appSettingsModel.currencyDecimalPlaces,
@@ -165,6 +167,7 @@ final class MainScreenPresenter: ObservableObject {
       let keyboardModelUpdate = currencyWidgetsModel.keyboardModel
       keyboardModelUpdate?.isKeyboardShown = value
       keyboardModelUpdate?.value = currencyRateIdentifiableModel.rateText
+      rawCurrencyRate = currencyRateIdentifiableModel.rateText
       currencyWidgetsModel.keyboardModel = keyboardModelUpdate
     }
   }
@@ -182,36 +185,38 @@ extension MainScreenPresenter: MainScreenInteractorOutput {}
 
 extension MainScreenPresenter: MainScreenFactoryOutput {
   func userDidEnterAmount(_ newValue: String) async {
+    let newValue = modifyAmount(newValue)
     let appSettingsModel = await getAppSettingsModel()
     
-    let clearedTextFromSpaces = interactor.textFormatterService.removeAllSpaces(from: newValue)
-    let textReplaceCommasWithDots = interactor.textFormatterService.replaceCommasWithDots(
-      in: clearedTextFromSpaces
-    )
-    let textToDouble = Double(textReplaceCommasWithDots) ?? .zero
-    let lastCharacterIsComma = newValue.last == ","
-    await interactor.setEnteredCurrencyAmount(textToDouble)
+    await setRawCurrencyRate(newValue: newValue)
     
     let countCharactersAfterComma = interactor.textFormatterService.countCharactersAfterComma(in: newValue)
     if let countCharactersAfterComma, countCharactersAfterComma > appSettingsModel.currencyDecimalPlaces.rawValue {
       triggerHapticFeedback(.error)
     }
-    
-    self.commaIsSet = lastCharacterIsComma
     await recalculateCurrencyWidgets()
   }
   
-  func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) async {
+  func userDidSelectCurrency(_ currency: CurrencyRate.Currency) async {
     let appSettingsModel = await getAppSettingsModel()
     
     if appSettingsModel.activeCurrency == currency && appSettingsModel.isUserInputVisible {
-      await setKeyboardIsShown(false, currency)
       await interactor.setActiveCurrency(currency)
+      await setKeyboardIsShown(false, currency)
       await recalculateCurrencyWidgets()
       return
     }
     
     await interactor.setActiveCurrency(currency)
+    if let currencyRateIdentifiableModel = currencyRateIdentifiable.first(
+        where: {
+          $0.currency.rawValue == currency.rawValue
+        }
+       ) {
+      rawCurrencyRate = currencyRateIdentifiableModel.rateText
+    }
+    
+    await saveEnteredCurrencyAmountRaw()
     await setKeyboardIsShown(true, currency)
     await recalculateCurrencyWidgets()
   }
@@ -228,7 +233,9 @@ extension MainScreenPresenter: SceneViewModel {
       .init(
         .add(
           action: { [weak self] in
-            self?.isSearchViewVisible = true
+            DispatchQueue.main.async { [weak self] in
+              self?.isSearchViewVisible = true
+            }
           }, buttonItem: { [weak self] buttonItem in
             self?.leftBarAddButton = buttonItem
           }
@@ -256,7 +263,9 @@ extension MainScreenPresenter: SceneViewModel {
       .init(
         .settings(
           action: { [weak self] in
-            self?.moduleOutput?.openSettinsScreen()
+            DispatchQueue.main.async { [weak self] in
+              self?.moduleOutput?.openSettinsScreen()
+            }
           }, buttonItem: { [weak self] buttonItem in
             self?.rightBarSettingsButton = buttonItem
           }
@@ -294,7 +303,8 @@ private extension MainScreenPresenter {
       if let currencyRateIdentifiableModel = currencyRateIdentifiable.first(
         where: {
           $0.currency.rawValue == currencyWidgetsModel.additionalID
-        }) {
+        }
+      ) {
         let rightSideLargeTextModel = currencyWidgetsModel.rightSideLargeTextModel
         rightSideLargeTextModel?.text = currencyRateIdentifiableModel.rateText
         rightSideLargeTextModel?.textStyle = currencyRateIdentifiableModel.rateDouble == .zero ? .netural : .standart
@@ -309,19 +319,51 @@ private extension MainScreenPresenter {
     if let currencyWidgetsModel = currencyWidgets.first(
       where: {
         $0.additionalID == appSettingsModel.activeCurrency.rawValue
-      }),
+      }
+    ),
        let currencyRateIdentifiableModel = currencyRateIdentifiable.first(
         where: {
           $0.currency.rawValue == appSettingsModel.activeCurrency.rawValue
-        }) {
+        }
+       ) {
       let keyboardModelUpdate = currencyWidgetsModel.keyboardModel
       let countCharactersAfterComma = interactor.textFormatterService.countCharactersAfterComma(
         in: currencyRateIdentifiableModel.rateText
       ) ?? .zero
       keyboardModelUpdate?.keyboardIsBlock = countCharactersAfterComma >= appSettingsModel.currencyDecimalPlaces.rawValue
-      keyboardModelUpdate?.value = currencyRateIdentifiableModel.rateText
       currencyWidgetsModel.keyboardModel = keyboardModelUpdate
     }
+  }
+  
+  func modifyAmount(_ newValue: String) -> String {
+    let onlyCommaValue = newValue == "," ? "0," : newValue
+    let newValueEmpty = onlyCommaValue.isEmpty ? "0" : onlyCommaValue
+    return newValueEmpty
+  }
+  
+  func setRawCurrencyRate(newValue: String) async {
+    let newValueReplaceDoubleZeroWithZero = interactor.textFormatterService.replaceDoubleZeroWithZero(in: newValue)
+    let newValueRemoveLeadingZeroIfNoComma = interactor.textFormatterService.removeLeadingZeroIfNoComma(
+      in: newValueReplaceDoubleZeroWithZero
+    )
+    
+    let rawClearedTextCurrencyRate = interactor.textFormatterService.removeAllSpaces(from: newValueRemoveLeadingZeroIfNoComma)
+    let rawThousandsCurrencyRate = interactor.textFormatterService.formatNumberWithThousands(rawClearedTextCurrencyRate)
+    rawCurrencyRate = rawThousandsCurrencyRate
+    await saveEnteredCurrencyAmountRaw()
+  }
+  
+  func saveEnteredCurrencyAmountRaw() async {
+    let newValueRemoveAllSpaces = interactor.textFormatterService.removeAllSpaces(from: rawCurrencyRate)
+    let testReplaceCommasWithDots = interactor.textFormatterService.replaceCommasWithDots(in: newValueRemoveAllSpaces)
+    await interactor.setEnteredCurrencyAmountRaw(testReplaceCommasWithDots)
+  }
+  
+  func getEnteredCurrencyAmountRaw(_ appSettingsModel: AppSettingsModel) async -> String {
+    let enteredCurrencyAmountRaw = appSettingsModel.enteredCurrencyAmountRaw
+    let rawReplaceDotsWithCommas = interactor.textFormatterService.replaceDotsWithCommas(in: enteredCurrencyAmountRaw)
+    let rawThousandsCurrencyRate = interactor.textFormatterService.formatNumberWithThousands(rawReplaceDotsWithCommas)
+    return rawThousandsCurrencyRate
   }
 }
 
