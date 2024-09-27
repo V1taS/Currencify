@@ -1445,9 +1445,9 @@ extension CurrencyRate {
 
 // MARK: - CalculateRatesRelativeTo
 
-extension CurrencyRate {
+extension CurrencyRate.Currency {
   public func emojiFlag() -> String? {
-    let trimmedCountryCode = String(currency.details.code.alpha.prefix(2))
+    let trimmedCountryCode = String(details.code.alpha.prefix(2))
     guard trimmedCountryCode.count == 2 else {
       return nil
     }

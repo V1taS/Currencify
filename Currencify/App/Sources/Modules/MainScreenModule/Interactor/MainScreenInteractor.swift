@@ -49,6 +49,18 @@ protocol MainScreenInteractorInput {
   /// - Parameter return: Булево значение, указывающее, было ли предоставлено разрешение
   @discardableResult
   func requestGallery() async -> Bool
+  
+  /// Делаем расчет всех валют
+  func recalculateCurrencyRates(
+    appSettingsModel: AppSettingsModel,
+    commaIsSet: Bool
+  ) async -> [CurrencyRateIdentifiable]
+  
+  /// Установить значение показана ли клавиатура
+  func setUserInputIsVisible(_ value: Bool) async
+  
+  /// Сервис по форматированию текста
+  var textFormatterService: ITextFormatterService { get set }
 }
 
 /// Интерактор
@@ -57,6 +69,7 @@ final class MainScreenInteractor {
   // MARK: - Internal properties
   
   weak var output: MainScreenInteractorOutput?
+  var textFormatterService: ITextFormatterService
   
   // MARK: - Private properties
   
@@ -74,12 +87,52 @@ final class MainScreenInteractor {
     appSettingsDataManager = services.appSettingsDataManager
     uiService = services.userInterfaceAndExperienceService.uiService
     permissionService = services.accessAndSecurityManagementService.permissionService
+    textFormatterService = services.textFormatterService
   }
 }
 
 // MARK: - MainScreenInteractorInput
 
 extension MainScreenInteractor: MainScreenInteractorInput {
+  func recalculateCurrencyRates(
+    appSettingsModel: AppSettingsModel,
+    commaIsSet: Bool
+  ) async -> [CurrencyRateIdentifiable] {
+    let availableRates = appSettingsModel.selectedCurrencyRate
+    let currencyTypes = appSettingsModel.currencyTypes
+    
+    let allCurrencyRates: [CurrencyRate] = CurrencyRate.calculateCurrencyRates(
+      from: appSettingsModel.activeCurrency,
+      amount: appSettingsModel.enteredCurrencyAmount,
+      calculationMode: .inverse,
+      allCurrencyRate: appSettingsModel.allCurrencyRate
+    )
+    let filteredCurrencyRates = allCurrencyRates.filter { currencyRate in
+      availableRates.contains { selectedCurrency in
+        currencyRate.currency == selectedCurrency &&
+        currencyTypes.contains(currencyRate.currency.details.source)
+      }
+    }
+    
+    let sortedCurrencyRates = filteredCurrencyRates.sorted { first, second in
+      guard let firstIndex = availableRates.firstIndex(of: first.currency),
+            let secondIndex = availableRates.firstIndex(of: second.currency) else {
+        return false
+      }
+      return firstIndex < secondIndex
+    }
+    
+    let currencyTextRates = await getTextCurrencyRates(
+      currencyRates: sortedCurrencyRates,
+      selectedCurrency: appSettingsModel.activeCurrency,
+      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage,
+      currencyDecimalPlaces: appSettingsModel.currencyDecimalPlaces,
+      commaIsSet: commaIsSet
+    )
+    
+    return currencyTextRates
+  }
+  
   func requestGallery() async -> Bool {
     await permissionService.requestGallery()
   }
@@ -104,6 +157,14 @@ extension MainScreenInteractor: MainScreenInteractorInput {
     await withCheckedContinuation { continuation in
       appSettingsDataManager.getAppSettingsModel { appSettingsModel in
         continuation.resume(returning: appSettingsModel)
+      }
+    }
+  }
+  
+  func setUserInputIsVisible(_ value: Bool) async {
+    await withCheckedContinuation { continuation in
+      appSettingsDataManager.setUserInputIsVisible(value) {
+        continuation.resume()
       }
     }
   }
@@ -151,7 +212,60 @@ extension MainScreenInteractor: MainScreenInteractorInput {
 
 // MARK: - Private
 
-private extension MainScreenInteractor {}
+private extension MainScreenInteractor {
+  func applyRateCorrection(to currencyRate: CurrencyRate, correctionPercentage: Double) -> CurrencyRate {
+    let correctedRate = currencyRate.rate * (1 + correctionPercentage / 100)
+    return CurrencyRate(
+      currency: currencyRate.currency,
+      rate: correctedRate,
+      lastUpdated: currencyRate.lastUpdated
+    )
+  }
+  
+  func getTextCurrencyRates(
+    currencyRates: [CurrencyRate],
+    selectedCurrency: CurrencyRate.Currency,
+    rateCorrectionPercentage: Double,
+    currencyDecimalPlaces: CurrencyDecimalPlaces,
+    commaIsSet: Bool
+  ) async -> [CurrencyRateIdentifiable] {
+    var models: [CurrencyRateIdentifiable] = []
+    for currencyRate in currencyRates {
+      var rate = currencyRate.rate
+
+      if rateCorrectionPercentage != .zero, currencyRate.currency != selectedCurrency {
+        let correctedCurrencyRates = applyRateCorrection(
+          to: currencyRate,
+          correctionPercentage: rateCorrectionPercentage
+        )
+        rate = correctedCurrencyRates.rate
+      }
+      
+      let currencyValue = textFormatterService.formatDouble(
+        rate,
+        decimalPlaces: currencyDecimalPlaces.rawValue
+      )
+      let currencyValueReplaceDotsWithCommas = textFormatterService.replaceDotsWithCommas(in: currencyValue)
+      var currencyValueRemoveExtraZeros = textFormatterService.removeExtraZeros(
+        from: currencyValueReplaceDotsWithCommas
+      )
+      
+      if commaIsSet, currencyRate.currency == selectedCurrency {
+        currencyValueRemoveExtraZeros += ","
+      }
+      models.append(
+        .init(
+          currency: currencyRate.currency,
+          imageURL: URL(string: currencyRate.imageURL ?? ""),
+          rateText: currencyValueRemoveExtraZeros,
+          rateDouble: currencyRate.rate
+        )
+      )
+    }
+    
+    return models
+  }
+}
 
 // MARK: - Constants
 

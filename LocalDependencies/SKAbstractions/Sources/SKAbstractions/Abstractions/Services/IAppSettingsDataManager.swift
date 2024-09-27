@@ -94,4 +94,10 @@ public protocol IAppSettingsDataManager {
   ///   - currencyTypes: Массив типов валют, которые будут удалены.
   ///   - completion: Замыкание, которое вызывается после завершения операции.
   func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void)
+  
+  /// Устанавливает видимость пользовательского ввода.
+  /// - Parameters:
+  ///   - value: Логическое значение, определяющее видимость.
+  ///   - completion: Замыкание, которое вызывается после завершения операции.
+  func setUserInputIsVisible(_ value: Bool, completion: @escaping () -> Void)
 }

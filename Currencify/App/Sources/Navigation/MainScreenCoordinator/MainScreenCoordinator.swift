@@ -71,9 +71,18 @@ final class MainScreenCoordinator: Coordinator<Void, Void> {
 // MARK: - MainScreenModuleOutput
 
 extension MainScreenCoordinator: MainScreenModuleOutput {
-  func premiumModeCheck(appSettingsModel: AppSettingsModel) async {
-    await checkForPremiumOptionsEnabled(with: appSettingsModel)
-    await mainScreenModule?.input.recalculateCurrencyWidgets()
+  func premiumModeCheck() async {
+    await withCheckedContinuation { continuation in
+      services.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
+        guard let self else { return }
+        Task { [weak self] in
+          guard let self else { return }
+          await checkForPremiumOptionsEnabled(with: appSettingsModel)
+          await mainScreenModule?.input.createCurrencyWidget()
+          continuation.resume()
+        }
+      }
+    }
   }
   
   @MainActor

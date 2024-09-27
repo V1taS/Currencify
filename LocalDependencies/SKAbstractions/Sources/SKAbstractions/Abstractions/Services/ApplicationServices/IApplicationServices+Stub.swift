@@ -17,6 +17,7 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+  public func setUserInputIsVisible(_ value: Bool, completion: @escaping () -> Void) {}
   public func fetchCurrencyRates(_ completion: (() -> Void)?) {}
   public func setCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void) {}
   public func removeCurrencyTypes(_ currencyTypes: [CurrencyRate.CurrencyType], completion: @escaping () -> Void) {}

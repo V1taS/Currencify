@@ -12,30 +12,37 @@ import SKStyle
 
 @available(iOS 16.0, *)
 extension WidgetCryptoView {
-  public struct Model: Identifiable, Hashable {
+  public class Model: ObservableObject, Identifiable, Hashable {
+    
     // MARK: - Public properties
-    public let id: String
-    public let additionalID: String
-    public let leftSide: ContentModel?
-    public let rightSide: ContentModel?
-    public let additionCenterTextModel: TextModel?
-    public let additionCenterContent: AnyView?
-    public var isSelectable: Bool
-    public let backgroundColor: Color?
-    public let action: (() -> Void)?
-    public let horizontalSpacing: CGFloat
-    public let leadingPadding: CGFloat
-    public let trailingPadding: CGFloat
-    public let verticalPadding: CGFloat
+    
+    @Published public var id: String
+    @Published public var additionalID: String
+    @Published public var leftSide: ContentModel?
+    @Published public var rightSide: ContentModel?
+    @Published public var rightSideLargeTextModel: TextModel?
+    @Published public var additionCenterTextModel: TextModel?
+    @Published public var additionCenterContent: AnyView?
+    @Published public var keyboardModel: KeyboardModel?
+    @Published public var isSelectable: Bool
+    @Published public var backgroundColor: Color?
+    @Published public var action: (() -> Void)?
+    @Published public var horizontalSpacing: CGFloat
+    @Published public var leadingPadding: CGFloat
+    @Published public var trailingPadding: CGFloat
+    @Published public var verticalPadding: CGFloat
     
     // MARK: - Initialization
     
     /// Инициализатор для создания модельки для виджета
     /// - Parameters:
+    ///   - additionalID: Дополнительный идентификатор
     ///   - leftSide: Левая сторона виджета
     ///   - rightSide: Правая сторона виджета
+    ///   - rightSideLargeTextModel: Большой текст справой стороны
     ///   - additionCenterTextModel: Дополнительный текст по центру
     ///   - additionCenterContent: Дополнительный контент по центру
+    ///   - keyboardModel: Клавиатура
     ///   - isSelectable: Можно ли нажать на ячейку
     ///   - backgroundColor: Цвет фона виджета
     ///   - horizontalSpacing: Горизонтальный внутренний отступ
@@ -45,10 +52,12 @@ extension WidgetCryptoView {
     ///   - action: Замыкание, которое будет выполняться при нажатии на виджет
     public init(
       additionalID: String = UUID().uuidString,
-      leftSide: WidgetCryptoView.ContentModel?,
-      rightSide: WidgetCryptoView.ContentModel? = nil,
+      leftSide: ContentModel?,
+      rightSide: ContentModel? = nil,
+      rightSideLargeTextModel: TextModel? = nil,
       additionCenterTextModel: TextModel? = nil,
       additionCenterContent: AnyView? = nil,
+      keyboardModel: KeyboardModel? = nil,
       isSelectable: Bool = true,
       backgroundColor: Color? = nil,
       horizontalSpacing: CGFloat = .s4,
@@ -61,8 +70,10 @@ extension WidgetCryptoView {
       self.additionalID = additionalID
       self.leftSide = leftSide
       self.rightSide = rightSide
+      self.rightSideLargeTextModel = rightSideLargeTextModel
       self.additionCenterTextModel = additionCenterTextModel
       self.additionCenterContent = additionCenterContent
+      self.keyboardModel = keyboardModel
       self.isSelectable = isSelectable
       self.backgroundColor = backgroundColor
       self.horizontalSpacing = horizontalSpacing
@@ -78,16 +89,16 @@ extension WidgetCryptoView {
 
 @available(iOS 16.0, *)
 extension WidgetCryptoView {
-  public struct ContentModel: Equatable, Hashable {
+  public class ContentModel: ObservableObject, Equatable, Hashable {
     // MARK: - Public properties
-    public let imageModel: ImageModel?
-    public let itemModel: ItemModel?
-    public let titleModel: TextModel?
-    public let titleAdditionModel: TextModel?
-    public let titleAdditionRoundedModel: TextModel?
-    public let descriptionModel: TextModel?
-    public let descriptionAdditionModel: TextModel?
-    public let descriptionAdditionRoundedModel: TextModel?
+    @Published public var imageModel: ImageModel?
+    @Published public var itemModel: ItemModel?
+    @Published public var titleModel: TextModel?
+    @Published public var titleAdditionModel: TextModel?
+    @Published public var titleAdditionRoundedModel: TextModel?
+    @Published public var descriptionModel: TextModel?
+    @Published public var descriptionAdditionModel: TextModel?
+    @Published public var descriptionAdditionRoundedModel: TextModel?
     
     // MARK: - Initialization
     
@@ -102,13 +113,13 @@ extension WidgetCryptoView {
     ///   - descriptionAdditionModel: Дополнительное описание
     ///   - descriptionAdditionRoundedModel: Дополнительное описание скругленного текста
     public init(
-      imageModel: WidgetCryptoView.ImageModel? = nil,
+      imageModel: ImageModel? = nil,
       itemModel: ItemModel? = nil,
-      titleModel: WidgetCryptoView.TextModel? = nil,
-      titleAdditionModel: WidgetCryptoView.TextModel? = nil,
-      titleAdditionRoundedModel: WidgetCryptoView.TextModel? = nil,
-      descriptionModel: WidgetCryptoView.TextModel? = nil,
-      descriptionAdditionModel: WidgetCryptoView.TextModel? = nil,
+      titleModel: TextModel? = nil,
+      titleAdditionModel: TextModel? = nil,
+      titleAdditionRoundedModel: TextModel? = nil,
+      descriptionModel: TextModel? = nil,
+      descriptionAdditionModel: TextModel? = nil,
       descriptionAdditionRoundedModel: TextModel? = nil
     ) {
       self.imageModel = imageModel
@@ -120,6 +131,61 @@ extension WidgetCryptoView {
       self.descriptionAdditionModel = descriptionAdditionModel
       self.descriptionAdditionRoundedModel = descriptionAdditionRoundedModel
     }
+    
+    // Реализация Equatable и Hashable
+    public static func == (lhs: ContentModel, rhs: ContentModel) -> Bool {
+      return lhs.imageModel == rhs.imageModel &&
+      lhs.itemModel == rhs.itemModel &&
+      lhs.titleModel == rhs.titleModel &&
+      lhs.titleAdditionModel == rhs.titleAdditionModel &&
+      lhs.titleAdditionRoundedModel == rhs.titleAdditionRoundedModel &&
+      lhs.descriptionModel == rhs.descriptionModel &&
+      lhs.descriptionAdditionModel == rhs.descriptionAdditionModel &&
+      lhs.descriptionAdditionRoundedModel == rhs.descriptionAdditionRoundedModel
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(imageModel)
+      hasher.combine(itemModel)
+      hasher.combine(titleModel)
+      hasher.combine(titleAdditionModel)
+      hasher.combine(titleAdditionRoundedModel)
+      hasher.combine(descriptionModel)
+      hasher.combine(descriptionAdditionModel)
+      hasher.combine(descriptionAdditionRoundedModel)
+    }
+  }
+}
+
+// MARK: - KeyboardModel
+
+@available(iOS 16.0, *)
+extension WidgetCryptoView {
+  public class KeyboardModel: ObservableObject {
+    @Published public var value: String
+    @Published public var isKeyboardShown: Bool
+    @Published public var keyboardIsBlock: Bool
+    @Published public var onChange: ((_ newValue: String) -> Void)?
+    
+    // MARK: - Initialization
+    
+    /// Инициализатор
+    /// - Parameters:
+    ///   - value: Пин код
+    ///   - isKeyboardShown: Клавиатура показана
+    ///   - keyboardIsBlock: Установить блокировку клавишь
+    ///   - onChange: Акшен на каждый ввод с клавиатуры
+    public init(
+      value: String = "",
+      isKeyboardShown: Bool = false,
+      keyboardIsBlock: Bool = false,
+      onChange: ((_ newValue: String) -> Void)? = nil
+    ) {
+      self.value = value
+      self.isKeyboardShown = isKeyboardShown
+      self.keyboardIsBlock = keyboardIsBlock
+      self.onChange = onChange
+    }
   }
 }
 
@@ -127,13 +193,13 @@ extension WidgetCryptoView {
 
 @available(iOS 16.0, *)
 extension WidgetCryptoView {
-  public struct TextModel: Equatable, Hashable {
+  public class TextModel: ObservableObject, Equatable, Hashable {
     // MARK: - Public properties
-    public let text: String
-    public let textFont: Font
-    public let lineLimit: Int
-    public let textStyle: TextStyle
-    public let textIsSecure: Bool
+    @Published public var text: String
+    @Published public var textFont: Font
+    @Published public var lineLimit: Int
+    @Published public var textStyle: TextStyle
+    @Published public var textIsSecure: Bool
     
     // MARK: - Initialization
     
@@ -148,7 +214,7 @@ extension WidgetCryptoView {
       text: String,
       textFont: Font = .fancy.text.regular,
       lineLimit: Int = 1,
-      textStyle: WidgetCryptoView.TextStyle = .standart,
+      textStyle: TextStyle = .standart,
       textIsSecure: Bool = false
     ) {
       self.text = text
@@ -156,6 +222,23 @@ extension WidgetCryptoView {
       self.lineLimit = lineLimit
       self.textStyle = textStyle
       self.textIsSecure = textIsSecure
+    }
+    
+    // Реализация Equatable и Hashable
+    public static func == (lhs: TextModel, rhs: TextModel) -> Bool {
+      return lhs.text == rhs.text &&
+      lhs.textFont == rhs.textFont &&
+      lhs.lineLimit == rhs.lineLimit &&
+      lhs.textStyle == rhs.textStyle &&
+      lhs.textIsSecure == rhs.textIsSecure
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(text)
+      hasher.combine(textFont)
+      hasher.combine(lineLimit)
+      hasher.combine(textStyle)
+      hasher.combine(textIsSecure)
     }
   }
 }
@@ -200,6 +283,7 @@ extension WidgetCryptoView {
 @available(iOS 16.0, *)
 extension WidgetCryptoView {
   public enum ItemModel: Equatable, Hashable {
+    // Реализация Equatable
     public static func == (lhs: WidgetCryptoView.ItemModel, rhs: WidgetCryptoView.ItemModel) -> Bool {
       return lhs.size == rhs.size
     }
@@ -406,5 +490,23 @@ extension WidgetCryptoView.ImageModel {
     case .chevron:
       hasher.combine("chevron")
     }
+  }
+}
+
+// MARK: - Equatable and Hashable Conformance
+
+@available(iOS 16.0, *)
+extension WidgetCryptoView.KeyboardModel: Equatable, Hashable {
+  public static func == (lhs: WidgetCryptoView.KeyboardModel,
+                         rhs: WidgetCryptoView.KeyboardModel) -> Bool {
+    return lhs.value == rhs.value &&
+    lhs.isKeyboardShown == rhs.isKeyboardShown &&
+    lhs.keyboardIsBlock == rhs.keyboardIsBlock
+  }
+  
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(value)
+    hasher.combine(isKeyboardShown)
+    hasher.combine(keyboardIsBlock)
   }
 }

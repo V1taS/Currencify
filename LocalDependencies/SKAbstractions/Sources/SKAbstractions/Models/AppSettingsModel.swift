@@ -36,6 +36,9 @@ public struct AppSettingsModel {
   /// Список премиум пользователей
   public var premiumList: [PremiumModel]
   
+  /// Видна ли клавиатура
+  public var isUserInputVisible: Bool
+  
   /// Инициализирует новый экземпляр `AppSettingsModel`
   /// - Parameters:
   ///   - isPremium: Премиум режим
@@ -47,6 +50,7 @@ public struct AppSettingsModel {
   ///   - enteredCurrencyAmount: Последнее значение которое ввел пользователь
   ///   - activeCurrency: Валюта последнего значения что расчитывал пользователь
   ///   - premiumList: Список премиум пользователей
+  ///   - isUserInputVisible: Видна ли клавиатура
   public init(
     isPremium: Bool,
     allCurrencyRate: [CurrencyRate],
@@ -56,7 +60,8 @@ public struct AppSettingsModel {
     rateCorrectionPercentage: Double,
     enteredCurrencyAmount: Double,
     activeCurrency: CurrencyRate.Currency,
-    premiumList: [PremiumModel]
+    premiumList: [PremiumModel],
+    isUserInputVisible: Bool
   ) {
     self.isPremium = isPremium
     self.allCurrencyRate = allCurrencyRate
@@ -67,6 +72,7 @@ public struct AppSettingsModel {
     self.enteredCurrencyAmount = enteredCurrencyAmount
     self.activeCurrency = activeCurrency
     self.premiumList = premiumList
+    self.isUserInputVisible = isUserInputVisible
   }
 }
 
@@ -87,7 +93,8 @@ extension AppSettingsModel {
       rateCorrectionPercentage: .zero,
       enteredCurrencyAmount: .zero,
       activeCurrency: .USD, 
-      premiumList: []
+      premiumList: [],
+      isUserInputVisible: false
     )
   }
 }

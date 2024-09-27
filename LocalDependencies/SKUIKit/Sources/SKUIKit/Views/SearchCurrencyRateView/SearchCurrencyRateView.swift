@@ -219,7 +219,7 @@ private extension SearchCurrencyRateView {
   func getleftImageView(currencyRate: CurrencyRate) -> AnyView {
     if currencyRate.currency.details.source == .currency {
       return AnyView(
-        Text(currencyRate.emojiFlag() ?? "")
+        Text(currencyRate.currency.emojiFlag() ?? "")
           .font(.system(size: 40, weight: .bold))
           .lineLimit(1)
       )

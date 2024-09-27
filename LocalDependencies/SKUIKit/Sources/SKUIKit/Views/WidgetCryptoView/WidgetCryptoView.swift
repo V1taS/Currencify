@@ -13,7 +13,7 @@ public struct WidgetCryptoView: View {
   
   // MARK: - Private properties
   
-  private var model: WidgetCryptoView.Model
+  @ObservedObject private var model: WidgetCryptoView.Model
   
   // MARK: - Initialization
   
@@ -37,48 +37,56 @@ public struct WidgetCryptoView: View {
 private extension WidgetCryptoView {
   func createWidgetCrypto(model: WidgetCryptoView.Model) -> AnyView {
     AnyView(
-      ZStack {
-        TapGestureView(
-          style: .flash,
-          isSelectable: model.isSelectable,
-          touchesEnded: { model.action?() }
-        ) {
-          model.backgroundColor ?? SKStyleAsset.navy.swiftUIColor
+      VStack {
+        ZStack {
+          TapGestureView(
+            style: .flash,
+            isSelectable: model.isSelectable,
+            touchesEnded: { model.action?() }
+          ) {
+            model.backgroundColor ?? SKStyleAsset.navy.swiftUIColor
+          }
+          
+          VStack(spacing: .zero) {
+            HStack(alignment: .center, spacing: model.horizontalSpacing) {
+              createLeftSideImage(model: model)
+              createLeftSideItem(model: model)
+              
+              VStack(spacing: .s1) {
+                createFirstLineContent(model: model)
+                createSecondLineContent(model: model)
+              }
+              .layoutPriority(2)
+              
+              createRightSideImage(model: model)
+              createRightSideItem(model: model)
+              createRightLargeText(model: model)
+            }
+            
+            if let additionContent = model.additionCenterContent {
+              additionContent
+            }
+            
+            if let additionTextModel = model.additionCenterTextModel {
+              Text(additionTextModel.textIsSecure ? Constants.secureText : additionTextModel.text)
+                .font(.fancy.text.regular)
+                .foregroundColor(additionTextModel.textStyle.color)
+                .multilineTextAlignment(.center)
+                .lineLimit(.max)
+                .roundedEdge(backgroundColor: additionTextModel.textStyle.color.opacity(0.07))
+                .padding(.top, .s4)
+                .allowsHitTesting(false)
+            }
+            
+//            createKeyboardModel(model)
+          }
+          .padding(.leading, model.leadingPadding)
+          .padding(.trailing, model.trailingPadding)
+          .padding(.vertical, model.verticalPadding)
         }
         
-        VStack(spacing: .zero) {
-          HStack(alignment: .center, spacing: model.horizontalSpacing) {
-            createLeftSideImage(model: model)
-            createLeftSideItem(model: model)
-            
-            VStack(spacing: .s1) {
-              createFirstLineContent(model: model)
-              createSecondLineContent(model: model)
-            }
-            .layoutPriority(2)
-            
-            createRightSideImage(model: model)
-            createRightSideItem(model: model)
-          }
-          
-          if let additionContent = model.additionCenterContent {
-            additionContent
-          }
-          
-          if let additionTextModel = model.additionCenterTextModel {
-            Text(additionTextModel.textIsSecure ? Constants.secureText : additionTextModel.text)
-              .font(.fancy.text.regular)
-              .foregroundColor(additionTextModel.textStyle.color)
-              .multilineTextAlignment(.center)
-              .lineLimit(.max)
-              .roundedEdge(backgroundColor: additionTextModel.textStyle.color.opacity(0.07))
-              .padding(.top, .s4)
-              .allowsHitTesting(false)
-          }
-        }
-        .padding(.leading, model.leadingPadding)
-        .padding(.trailing, model.trailingPadding)
-        .padding(.vertical, model.verticalPadding)
+        createKeyboardModel(model)
+          .background(SKStyleAsset.navy.swiftUIColor)
       }
     )
   }
@@ -160,6 +168,50 @@ private extension WidgetCryptoView {
   func createRightSideItem(model: WidgetCryptoView.Model) -> AnyView {
     if let itemModel = model.rightSide?.itemModel {
       return createItem(itemModel: itemModel)
+    }
+    return AnyView(EmptyView())
+  }
+  
+  func createKeyboardModel(_ model: WidgetCryptoView.Model) -> AnyView {
+    if let keyboardModel = model.keyboardModel, keyboardModel.isKeyboardShown {
+      return AnyView(
+        VStack {
+          Spacer()
+            .background(SKStyleAsset.navy.swiftUIColor)
+            .frame(height: .s4)
+          
+          KeyboardView(
+            isEnabled: true,
+            keyboardModel: keyboardModel,
+            onChange: keyboardModel.onChange
+          )
+        }
+        .padding(.horizontal, .s1)
+        .padding(.bottom, .s1)
+      )
+    }
+    return AnyView(EmptyView())
+  }
+  
+  func createRightLargeText(model: WidgetCryptoView.Model) -> AnyView {
+    if let rightSideLargeText = model.rightSideLargeTextModel {
+      return AnyView(
+        HStack(spacing: .zero) {
+          Spacer(minLength: .zero)
+          Text(rightSideLargeText.text)
+            .foregroundColor(rightSideLargeText.textStyle.color)
+            .lineLimit(rightSideLargeText.lineLimit)
+            .font(.fancy.constant.h2)
+            .foregroundColor(rightSideLargeText.textStyle.color)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+        }
+          .frame(
+            width: UIScreen.main.bounds.width / 1.98,
+            height: .infinity
+          )
+          .layoutPriority(2)
+      )
     }
     return AnyView(EmptyView())
   }

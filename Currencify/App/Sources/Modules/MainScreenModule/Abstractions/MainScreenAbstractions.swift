@@ -20,15 +20,15 @@ public protocol MainScreenModuleOutput: AnyObject {
   func openImageViewer(image: UIImage?) async
   
   /// Проверить премиум у пользователя
-  func premiumModeCheck(appSettingsModel: AppSettingsModel) async
+  func premiumModeCheck() async
 }
 
 /// События которые отправляем из `Coordinator` в `MainScreenModule`
 public protocol MainScreenModuleInput {
   
-  /// Обновить экран
+  /// Создать новые виджеты
   @MainActor
-  func recalculateCurrencyWidgets() async
+  func createCurrencyWidget() async
 
   /// События которые отправляем из `MainScreenModule` в `Coordinator`
   var moduleOutput: MainScreenModuleOutput? { get set }

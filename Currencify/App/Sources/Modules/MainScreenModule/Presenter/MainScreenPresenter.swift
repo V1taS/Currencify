@@ -15,14 +15,10 @@ final class MainScreenPresenter: ObservableObject {
   // MARK: - View state
   
   @Published var currencyWidgets: [WidgetCryptoView.Model] = []
-  @Published var availableCurrencyRate: [CurrencyRate.Currency] = []
-  @Published var currencyTypes: [CurrencyRate.CurrencyType] = []
   @Published var isCurrencyListEmpty = false
-  @Published var isUserInputVisible = false
   @Published var isSearchViewVisible = false
   @Published var isEditMode: EditMode = .inactive
-  @Published var activeCurrency: CurrencyRate.Currency = .USD
-  @Published var allCurrencyRate: [CurrencyRate] = []
+  @Published var appSettingsModel: AppSettingsModel = .setDefaultValues()
   
   // MARK: - Internal properties
   
@@ -35,9 +31,8 @@ final class MainScreenPresenter: ObservableObject {
   private var rightBarSettingsButton: SKBarButtonItem?
   private var rightBarShareButton: SKBarButtonItem?
   private var leftBarAddButton: SKBarButtonItem?
-  
-  private var enteredCurrencyAmount: Double = .zero
   private var commaIsSet = false
+  private var currencyRateIdentifiable: [CurrencyRateIdentifiable] = []
   
   // MARK: - Initialization
   
@@ -57,8 +52,7 @@ final class MainScreenPresenter: ObservableObject {
   lazy var viewWillAppear: (() -> Void)? = { [weak self] in
     Task { [weak self] in
       guard let self else { return }
-      let appSettingsModel = await interactor.getAppSettingsModel()
-      await moduleOutput?.premiumModeCheck(appSettingsModel: appSettingsModel)
+      await moduleOutput?.premiumModeCheck()
     }
   }
   
@@ -66,11 +60,11 @@ final class MainScreenPresenter: ObservableObject {
   
   func refreshCurrencyData() async {
     await interactor.fetchCurrencyRates()
-    await recalculateCurrencyWidgets()
+    await createCurrencyWidget()
   }
   
   func userAddCurrencyRate(newValue: CurrencyRate) async {
-    let appSettingsModel = await interactor.getAppSettingsModel()
+    let appSettingsModel = await getAppSettingsModel()
     isSearchViewVisible = false
     
     if !appSettingsModel.isPremium,
@@ -80,63 +74,98 @@ final class MainScreenPresenter: ObservableObject {
       return
     }
     
-    await interactor.setSelectedCurrencyRates([newValue.currency])
-    await recalculateCurrencyWidgets()
+    let newValueArray = [newValue.currency]
+    await interactor.setSelectedCurrencyRates(newValueArray)
+    await createCurrencyWidget()
   }
   
   func userRemoveCurrencyRate(currencyAlpha: String) async {
+    let appSettingsModel = await getAppSettingsModel()
     guard let currency = CurrencyRate.Currency(rawValue: currencyAlpha) else {
       return
     }
     
-    if activeCurrency == currency {
-      isUserInputVisible = false
-      enteredCurrencyAmount = .zero
+    if appSettingsModel.activeCurrency == currency {
+      await interactor.setUserInputIsVisible(false)
       await interactor.setEnteredCurrencyAmount(.zero)
-      let appSettingsModel = await interactor.getAppSettingsModel()
-      let filteredCurrencies = appSettingsModel.selectedCurrencyRate.filter { $0 != currency }
-      activeCurrency = filteredCurrencies.first ?? .USD
-      await interactor.setActiveCurrency(activeCurrency)
+      await interactor.setActiveCurrency(appSettingsModel.activeCurrency)
     }
     
     await interactor.removeCurrencyRates([currency])
-    await recalculateCurrencyWidgets()
+    await createCurrencyWidget()
   }
   
   @MainActor
   func moveCurrencyRates(from source: IndexSet, to destination: Int) async {
+    let appSettingsModel = await getAppSettingsModel()
+    
     currencyWidgets.move(fromOffsets: source, toOffset: destination)
-    let appSettingsModel = await interactor.getAppSettingsModel()
     var selectedCurrencyRate = appSettingsModel.selectedCurrencyRate
     selectedCurrencyRate.move(fromOffsets: source, toOffset: destination)
+    
     await interactor.removeAllCurrencyRates()
     await interactor.setSelectedCurrencyRates(selectedCurrencyRate)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+      Task { [weak self] in
+        guard let self else { return }
+        await createCurrencyWidget()
+      }
+    }
   }
   
   @MainActor
   func recalculateCurrencyWidgets() async {
-    let appSettingsModel = await interactor.getAppSettingsModel()
-    availableCurrencyRate = appSettingsModel.selectedCurrencyRate
-    currencyTypes = appSettingsModel.currencyTypes
-    enteredCurrencyAmount = appSettingsModel.enteredCurrencyAmount
-    activeCurrency = appSettingsModel.activeCurrency
+    let appSettingsModel = await getAppSettingsModel()
     
-    let availableRates = appSettingsModel.selectedCurrencyRate
+    let currencyRateIdentifiable = await interactor.recalculateCurrencyRates(
+      appSettingsModel: appSettingsModel,
+      commaIsSet: commaIsSet
+    )
+    self.currencyRateIdentifiable = currencyRateIdentifiable
+    await validateRatesData()
+  }
+  
+  @MainActor
+  func createCurrencyWidget() async {
+    let appSettingsModel = await getAppSettingsModel()
+    await recalculateCurrencyWidgets()
     let models = factory.createCurrencyWidgetModels(
-      forCurrency: activeCurrency,
-      amountEntered: enteredCurrencyAmount,
-      isUserInputActive: isUserInputVisible,
-      availableRates: availableRates,
-      rateCalculationMode: .inverse,
       decimalPlaces: appSettingsModel.currencyDecimalPlaces,
-      commaIsSet: commaIsSet,
-      rateCorrectionPercentage: appSettingsModel.rateCorrectionPercentage, 
-      allCurrencyRate: appSettingsModel.allCurrencyRate,
-      currencyTypes: appSettingsModel.currencyTypes
+      currencyRateIdentifiables: currencyRateIdentifiable
     )
     currencyWidgets = models
-    allCurrencyRate = appSettingsModel.allCurrencyRate
-    await validateRatesData()
+    await setCurrencyRateText()
+    await setKeyboardIsShown(appSettingsModel.isUserInputVisible, appSettingsModel.activeCurrency)
+  }
+  
+  @MainActor
+  func getAppSettingsModel() async -> AppSettingsModel {
+    let appSettingsModel = await interactor.getAppSettingsModel()
+    self.appSettingsModel = appSettingsModel
+    return appSettingsModel
+  }
+  
+  func setUserInputIsVisible(_ value: Bool) async {
+    await interactor.setUserInputIsVisible(value)
+  }
+  
+  func setKeyboardIsShown(_ value: Bool, _ currency: CurrencyRate.Currency) async {
+    await interactor.setUserInputIsVisible(value)
+    
+    currencyWidgets.forEach { model in
+      let keyboardModelUpdate = model.keyboardModel
+      keyboardModelUpdate?.isKeyboardShown = false
+      model.keyboardModel = keyboardModelUpdate
+    }
+    
+    if let currencyWidgetsModel = currencyWidgets.first(where: { $0.additionalID == currency.rawValue }),
+       let currencyRateIdentifiableModel = currencyRateIdentifiable.first(where: { $0.currency.rawValue == currency.rawValue }) {
+      let keyboardModelUpdate = currencyWidgetsModel.keyboardModel
+      keyboardModelUpdate?.isKeyboardShown = value
+      keyboardModelUpdate?.value = currencyRateIdentifiableModel.rateText
+      currencyWidgetsModel.keyboardModel = keyboardModelUpdate
+    }
   }
 }
 
@@ -151,25 +180,40 @@ extension MainScreenPresenter: MainScreenInteractorOutput {}
 // MARK: - MainScreenFactoryOutput
 
 extension MainScreenPresenter: MainScreenFactoryOutput {
-  func userDidEnterAmount(_ amount: Double, commaIsSet: Bool) async {
-    self.commaIsSet = commaIsSet
-    enteredCurrencyAmount = amount
-    await interactor.setEnteredCurrencyAmount(amount)
+  func userDidEnterAmount(_ newValue: String) async {
+    let appSettingsModel = await getAppSettingsModel()
+    
+    let clearedTextFromSpaces = interactor.textFormatterService.removeAllSpaces(from: newValue)
+    let textReplaceCommasWithDots = interactor.textFormatterService.replaceCommasWithDots(
+      in: clearedTextFromSpaces
+    )
+    let textToDouble = Double(textReplaceCommasWithDots) ?? .zero
+    let lastCharacterIsComma = newValue.last == ","
+    await interactor.setEnteredCurrencyAmount(textToDouble)
+    
+    let countCharactersAfterComma = interactor.textFormatterService.countCharactersAfterComma(in: newValue)
+    if let countCharactersAfterComma, countCharactersAfterComma > appSettingsModel.currencyDecimalPlaces.rawValue {
+      triggerHapticFeedback(.error)
+    }
+    
+    self.commaIsSet = lastCharacterIsComma
     await recalculateCurrencyWidgets()
+    await setCurrencyRateText()
   }
   
   func userDidSelectCurrency(_ currency: CurrencyRate.Currency, withRate rate: Double) async {
-    enteredCurrencyAmount = rate
+    let appSettingsModel = await getAppSettingsModel()
     await interactor.setEnteredCurrencyAmount(rate)
-    if activeCurrency == currency && isUserInputVisible {
-      isUserInputVisible = false
+    
+    if appSettingsModel.activeCurrency == currency && appSettingsModel.isUserInputVisible {
+      await setKeyboardIsShown(false, currency)
       await interactor.setActiveCurrency(currency)
       await recalculateCurrencyWidgets()
       return
     }
-    activeCurrency = currency
-    isUserInputVisible = true
+    
     await interactor.setActiveCurrency(currency)
+    await setKeyboardIsShown(true, currency)
     await recalculateCurrencyWidgets()
   }
 }
@@ -228,8 +272,8 @@ extension MainScreenPresenter: SceneViewModel {
 private extension MainScreenPresenter {
   @MainActor
   func validateRatesData() async {
-    let appSettingsModel = await interactor.getAppSettingsModel()
-    isCurrencyListEmpty = appSettingsModel.allCurrencyRate.isEmpty || currencyWidgets.isEmpty
+    let appSettingsModel = await getAppSettingsModel()
+    isCurrencyListEmpty = appSettingsModel.allCurrencyRate.isEmpty
     leftBarAddButton?.isEnabled = !appSettingsModel.allCurrencyRate.isEmpty
     rightBarShareButton?.isEnabled = !appSettingsModel.allCurrencyRate.isEmpty
   }
@@ -237,6 +281,48 @@ private extension MainScreenPresenter {
   func createCollectionViewSnapshot() async {
     let finalImage = await interactor.createCollectionViewSnapshot()
     await moduleOutput?.openImageViewer(image: finalImage)
+  }
+  
+  func triggerHapticFeedback(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(type)
+  }
+  
+  func setCurrencyRateText() async {
+    let appSettingsModel = await getAppSettingsModel()
+    
+    currencyWidgets.forEach { currencyWidgetsModel in
+      if let currencyRateIdentifiableModel = currencyRateIdentifiable.first(
+        where: {
+          $0.currency.rawValue == currencyWidgetsModel.additionalID
+        }) {
+        let rightSideLargeTextModel = currencyWidgetsModel.rightSideLargeTextModel
+        rightSideLargeTextModel?.text = currencyRateIdentifiableModel.rateText
+        rightSideLargeTextModel?.textStyle = currencyRateIdentifiableModel.rateDouble == .zero ? .netural : .standart
+        currencyWidgetsModel.rightSideLargeTextModel = rightSideLargeTextModel
+        
+        let keyboardModelUpdate = currencyWidgetsModel.keyboardModel
+        keyboardModelUpdate?.value = currencyRateIdentifiableModel.rateText
+        currencyWidgetsModel.keyboardModel = keyboardModelUpdate
+      }
+    }
+    
+    if let currencyWidgetsModel = currencyWidgets.first(
+      where: {
+        $0.additionalID == appSettingsModel.activeCurrency.rawValue
+      }),
+       let currencyRateIdentifiableModel = currencyRateIdentifiable.first(
+        where: {
+          $0.currency.rawValue == appSettingsModel.activeCurrency.rawValue
+        }) {
+      let keyboardModelUpdate = currencyWidgetsModel.keyboardModel
+      let countCharactersAfterComma = interactor.textFormatterService.countCharactersAfterComma(
+        in: currencyRateIdentifiableModel.rateText
+      ) ?? .zero
+      keyboardModelUpdate?.keyboardIsBlock = countCharactersAfterComma >= appSettingsModel.currencyDecimalPlaces.rawValue
+      keyboardModelUpdate?.value = currencyRateIdentifiableModel.rateText
+      currencyWidgetsModel.keyboardModel = keyboardModelUpdate
+    }
   }
 }
 

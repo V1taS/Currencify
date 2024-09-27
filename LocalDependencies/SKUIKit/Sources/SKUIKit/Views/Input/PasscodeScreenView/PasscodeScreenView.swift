@@ -65,12 +65,17 @@ private extension PasscodeScreenView {
       
       Spacer()
       
-      KeyboardView(value: pin, isEnabled: isEnabledKeyboard, onChange: { newValue in
-        guard newValue.count <= maxDigits else {
-          return
-        }
-        pin = newValue
-        onChangeAccessCode?(newValue)
+      KeyboardView(
+        isEnabled: isEnabledKeyboard,
+        keyboardModel: .init(),
+        onChange: { newValue in
+          guard newValue.count <= maxDigits else {
+            return
+          }
+          pin = newValue
+          onChangeAccessCode?(
+            newValue
+          )
       })
       .padding(.bottom, .s10)
     }

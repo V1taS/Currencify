@@ -92,9 +92,9 @@ private extension MainScreenView {
     VStack {
       SearchCurrencyRateView(
         placeholder: CurrencifyStrings.MainScreenLocalization.SearchCurrency.placeholder,
-        currencyRates: presenter.allCurrencyRate,
-        availableCurrencyRate: presenter.availableCurrencyRate,
-        currencyTypes: presenter.currencyTypes,
+        currencyRates: presenter.appSettingsModel.allCurrencyRate,
+        availableCurrencyRate: presenter.appSettingsModel.selectedCurrencyRate,
+        currencyTypes: presenter.appSettingsModel.currencyTypes,
         action: { newValue in
           Task {
             await presenter.userAddCurrencyRate(newValue: newValue)
@@ -158,7 +158,7 @@ private extension MainScreenView {
           WidgetCryptoView(model)
             .clipShape(RoundedRectangle(cornerRadius: .s3))
             .if(
-              (CurrencyRate.Currency(rawValue: model.additionalID) ?? .USD == presenter.activeCurrency),
+              (CurrencyRate.Currency(rawValue: model.additionalID) ?? .USD == presenter.appSettingsModel.activeCurrency),
               transform: { view in
                 view
                   .overlay(
@@ -216,31 +216,34 @@ private extension MainScreenView {
   
   // Действие при касании вне всех WidgetCryptoView и навигационной панели
   func handleTouchOutside(isTouchInsideNavigationBar: Bool) {
-    // Если касание внутри навигационной панели, выполняем проверку состояний
-    if isTouchInsideNavigationBar {
-      // Если isUserInputVisible, игнорируем касание
-      if presenter.isUserInputVisible {
-        return
+    Task {
+      let appSettingsModel = presenter.appSettingsModel
+      
+      // Если касание внутри навигационной панели, выполняем проверку состояний
+      if isTouchInsideNavigationBar {
+        // Если isUserInputVisible, игнорируем касание
+        if appSettingsModel.isUserInputVisible {
+          return
+        }
+        
+        // Если isSearchViewVisible, обрабатываем касание
+        if presenter.isSearchViewVisible {
+          presenter.isSearchViewVisible = false
+          return
+        }
       }
       
-      // Если isSearchViewVisible, обрабатываем касание
+      Task {
+        // Скрыть клавиатуру, если она видима
+        if appSettingsModel.isUserInputVisible {
+          await presenter.setKeyboardIsShown(false, appSettingsModel.activeCurrency)
+        }
+      }
+      
+      // Скрыть панель поиска, если она видима
       if presenter.isSearchViewVisible {
         presenter.isSearchViewVisible = false
-        return
       }
-    }
-    
-    Task {
-      // Скрыть клавиатуру, если она видима
-      if presenter.isUserInputVisible {
-        presenter.isUserInputVisible = false
-        await presenter.recalculateCurrencyWidgets()
-      }
-    }
-    
-    // Скрыть панель поиска, если она видима
-    if presenter.isSearchViewVisible {
-      presenter.isSearchViewVisible = false
     }
   }
 }

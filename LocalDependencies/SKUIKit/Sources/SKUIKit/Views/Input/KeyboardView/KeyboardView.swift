@@ -12,7 +12,8 @@ public struct KeyboardView: View {
   
   // MARK: - Private properties
   
-  @State private var value: String
+  @ObservedObject private var keyboardModel: WidgetCryptoView.KeyboardModel
+  
   private var isEnabled: Bool
   private let buttonSize: CGSize = .init(width: CGFloat.s18, height: .s12)
   private let onChange: ((_ newValue: String) -> Void)?
@@ -21,16 +22,16 @@ public struct KeyboardView: View {
   
   /// Инициализатор
   /// - Parameters:
-  ///   - value: Пин код
   ///   - isEnabled: Клавиатура включена
+  ///   - keyboardModel: Модель клавиатуры
   ///   - onChange: Акшен на каждый ввод с клавиатуры
   public init(
-    value: String,
     isEnabled: Bool,
+    keyboardModel: WidgetCryptoView.KeyboardModel,
     onChange: ((_ newValue: String) -> Void)?
   ) {
-    self.value = value
     self.isEnabled = isEnabled
+    self.keyboardModel = keyboardModel
     self.onChange = onChange
   }
   
@@ -42,9 +43,6 @@ public struct KeyboardView: View {
       createNumberLine(numbers: Constants.secondLine)
       createNumberLine(numbers: Constants.thirdLine)
       createNumberLine(numbers: Constants.fourthLine)
-    }
-    .onChange(of: value) { newValue in
-      self.onChange?(newValue)
     }
   }
 }
@@ -91,14 +89,17 @@ private extension KeyboardView {
             Spacer()
           case Constants.remove:
             createRemoveButton {
-              if !value.isEmpty {
-                value.removeLast()
+              if !keyboardModel.value.isEmpty {
+                keyboardModel.value.removeLast()
+                onChange?(keyboardModel.value)
               }
             }
           default:
             createButton(title: number) {
-              value.append(number)
+              keyboardModel.value.append(number)
+              onChange?(keyboardModel.value)
             }
+            .disabled(keyboardModel.keyboardIsBlock)
           }
         }
       }
@@ -171,8 +172,8 @@ struct KeyboardView_Previews: PreviewProvider {
         
         HStack {
           KeyboardView(
-            value: "", 
             isEnabled: true,
+            keyboardModel: .init(),
             onChange: { newValue in }
           )
         }
@@ -181,5 +182,10 @@ struct KeyboardView_Previews: PreviewProvider {
     }
     .background(SKStyleAsset.onyx.swiftUIColor)
     .ignoresSafeArea(.all)
+  }
+  
+  func triggerHapticFeedback(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(type)
   }
 }

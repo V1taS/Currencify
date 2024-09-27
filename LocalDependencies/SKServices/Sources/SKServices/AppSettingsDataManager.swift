@@ -94,6 +94,14 @@ public final class AppSettingsDataManager: IAppSettingsDataManager {
     }
   }
   
+  public func setUserInputIsVisible(_ value: Bool, completion: @escaping () -> Void) {
+    getAppSettingsModel { [weak self] model in
+      var updatedModel = model
+      updatedModel.isUserInputVisible = value
+      self?.saveAppSettingsModel(updatedModel, completion: completion)
+    }
+  }
+  
   public func setPremiumList(
     _ premiumList: [PremiumModel],
     completion: @escaping () -> Void
