@@ -197,7 +197,7 @@ private extension WidgetCryptoView {
   func createRightLargeText(model: WidgetCryptoView.Model) -> AnyView {
     if let rightSideLargeText = model.rightSideLargeTextModel {
       return AnyView(
-        HStack(spacing: .s2) {
+        HStack(spacing: .zero) {
           Spacer(minLength: .zero)
           Text(rightSideLargeText.text.isEmpty ? "0" : rightSideLargeText.text)
             .foregroundColor(rightSideLargeText.textStyle.color)
@@ -206,25 +206,13 @@ private extension WidgetCryptoView {
             .foregroundColor(rightSideLargeText.textStyle.color)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
-            .allowsHitTesting(false)
-          
-          if model.isClearButton {
-            TapGestureView(style: .animationZoomOut) {
-              model.isClearButtonAction?()
-            } content: {
-              Image(systemName: "xmark.circle")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: .s6)
-                .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor.opacity(0.5))
-            }
-          }
         }
           .frame(
             width: UIScreen.main.bounds.width / 1.98,
             height: .infinity
           )
           .layoutPriority(2)
+          .allowsHitTesting(false)
       )
     }
     return AnyView(EmptyView())

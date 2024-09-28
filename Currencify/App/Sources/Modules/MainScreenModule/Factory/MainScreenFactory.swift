@@ -17,9 +17,6 @@ protocol MainScreenFactoryOutput: AnyObject {
   
   /// Пользователь вводит сумму
   func userDidEnterAmount(_ newValue: String) async
-  
-  /// Пользователь нажал на кнопку стереть весь текст
-  func userDidSelectClearButtonAction() async
 }
 
 /// Cобытия которые отправляем от Presenter к Factory
@@ -127,12 +124,6 @@ private extension MainScreenFactory {
       leadingPadding: .s2,
       trailingPadding: .s3,
       verticalPadding: .zero,
-      isClearButtonAction: { [weak self] in
-        Task { [weak self] in
-          guard let self else { return }
-          await output?.userDidSelectClearButtonAction()
-        }
-      },
       action: { [weak self] in
         Task { [weak self] in
           guard let self else { return }

@@ -12,3 +12,4 @@
 "Error.Load.Data.Descriptor" = "Проверьте соединение";
 "SearchCurrency.Placeholder" = "Название валюты";
 "CurrencyDelete" = "Удалить";
+"Clear.Title" = "Очистить";

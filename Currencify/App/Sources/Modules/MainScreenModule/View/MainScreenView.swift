@@ -165,6 +165,16 @@ private extension MainScreenView {
                     RoundedRectangle(cornerRadius: .s3)
                       .stroke(SKStyleAsset.constantAzure.swiftUIColor, lineWidth: 0.5)
                   )
+                  .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    Button {
+                      Task {
+                        await presenter.userDidEnterAmount("0")
+                      }
+                    } label: {
+                      Text(CurrencifyStrings.MainScreenLocalization.Clear.title)
+                    }
+                    .tint(.orange)
+                  }
               }
             )
             .background(
