@@ -24,6 +24,8 @@ extension WidgetCryptoView {
     @Published public var additionCenterTextModel: TextModel?
     @Published public var additionCenterContent: AnyView?
     @Published public var keyboardModel: KeyboardModel?
+    @Published public var isClearButton: Bool
+    @Published public var isClearButtonAction: (() -> Void)?
     @Published public var isSelectable: Bool
     @Published public var backgroundColor: Color?
     @Published public var action: (() -> Void)?
@@ -43,27 +45,31 @@ extension WidgetCryptoView {
     ///   - additionCenterTextModel: Дополнительный текст по центру
     ///   - additionCenterContent: Дополнительный контент по центру
     ///   - keyboardModel: Клавиатура
+    ///   - isClearButton: Кнопка очистить
     ///   - isSelectable: Можно ли нажать на ячейку
     ///   - backgroundColor: Цвет фона виджета
     ///   - horizontalSpacing: Горизонтальный внутренний отступ
     ///   - leadingPadding: Левый внешний отступ
     ///   - trailingPadding: Правый внешний отступ
     ///   - verticalPadding: Вертикальный внешний отступ
+    ///   - isClearButtonAction: События по нажатию на кнопку очистить
     ///   - action: Замыкание, которое будет выполняться при нажатии на виджет
     public init(
       additionalID: String = UUID().uuidString,
-      leftSide: ContentModel?,
+      leftSide: ContentModel? = nil,
       rightSide: ContentModel? = nil,
       rightSideLargeTextModel: TextModel? = nil,
       additionCenterTextModel: TextModel? = nil,
       additionCenterContent: AnyView? = nil,
       keyboardModel: KeyboardModel? = nil,
+      isClearButton: Bool = false,
       isSelectable: Bool = true,
       backgroundColor: Color? = nil,
       horizontalSpacing: CGFloat = .s4,
       leadingPadding: CGFloat = .s4,
       trailingPadding: CGFloat = .s4,
       verticalPadding: CGFloat = .s3,
+      isClearButtonAction: (() -> Void)? = nil,
       action: (() -> Void)? = nil
     ) {
       self.id = UUID().uuidString
@@ -74,12 +80,14 @@ extension WidgetCryptoView {
       self.additionCenterTextModel = additionCenterTextModel
       self.additionCenterContent = additionCenterContent
       self.keyboardModel = keyboardModel
+      self.isClearButton = isClearButton
       self.isSelectable = isSelectable
       self.backgroundColor = backgroundColor
       self.horizontalSpacing = horizontalSpacing
       self.leadingPadding = leadingPadding
       self.trailingPadding = trailingPadding
       self.verticalPadding = verticalPadding
+      self.isClearButtonAction = isClearButtonAction
       self.action = action
     }
   }

@@ -184,6 +184,10 @@ extension MainScreenPresenter: MainScreenInteractorOutput {}
 // MARK: - MainScreenFactoryOutput
 
 extension MainScreenPresenter: MainScreenFactoryOutput {
+  func userDidSelectClearButtonAction() async {
+    await userDidEnterAmount("0")
+  }
+  
   func userDidEnterAmount(_ newValue: String) async {
     let newValue = modifyAmount(newValue)
     let appSettingsModel = await getAppSettingsModel()
@@ -332,6 +336,14 @@ private extension MainScreenPresenter {
       ) ?? .zero
       keyboardModelUpdate?.keyboardIsBlock = countCharactersAfterComma >= appSettingsModel.currencyDecimalPlaces.rawValue
       currencyWidgetsModel.keyboardModel = keyboardModelUpdate
+      
+      if let keyboardModelUpdate,
+         keyboardModelUpdate.isKeyboardShown,
+         currencyRateIdentifiableModel.rateDouble != .zero {
+        currencyWidgetsModel.isClearButton = true
+      } else {
+        currencyWidgetsModel.isClearButton = false
+      }
     }
   }
   
