@@ -177,6 +177,51 @@ private extension MainScreenView {
                   }
               }
             )
+//            .if(
+//              (CurrencyRate.Currency(rawValue: model.additionalID) ?? .USD == presenter.appSettingsModel.activeCurrency) &&
+//              presenter.appSettingsModel.isUserInputVisible,
+//              transform: { view in
+//                view
+//                  .overlay(
+//                    RoundedRectangle(cornerRadius: .s3)
+//                      .stroke(SKStyleAsset.constantAzure.swiftUIColor, lineWidth: 0.5)
+//                  )
+//                  .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//                    // Addition Button
+//                    Button {
+//                      
+//                    } label: {
+//                      Label("Add", systemImage: "plus")
+//                    }
+//                    .tint(.green)
+//                    
+//                    // Subtraction Button
+//                    Button {
+//                      
+//                    } label: {
+//                      Label("Subtract", systemImage: "minus")
+//                    }
+//                    .tint(.blue)
+//                    
+//                    // Multiplication Button
+//                    Button {
+//                      
+//                    } label: {
+//                      Label("Multiply", systemImage: "multiply")
+//                    }
+//                    .tint(.purple)
+//                    
+//                    // Division Button
+//                    Button {
+//                      
+//                    } label: {
+//                      Label("Divide", systemImage: "divide")
+//                    }
+//                    .tint(.orange)
+//                    .tint(.green)
+//                  }
+//              }
+//            )
             .background(
               GeometryReader { geometry in
                 Color.clear
