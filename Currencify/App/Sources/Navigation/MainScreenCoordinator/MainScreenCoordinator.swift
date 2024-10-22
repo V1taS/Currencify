@@ -224,7 +224,7 @@ private extension MainScreenCoordinator {
   func presentSalePremium() {
     let count = getCounterOnScreenOpen()
     services.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
-      guard let self, !appSettingsModel.isPremium, count.isMultiple(of: 10), Secrets.isPremiumMode else { return }
+      guard let self, !appSettingsModel.isPremium, count.isMultiple(of: 10) else { return }
       DispatchQueue.main.async { [weak self] in
         self?.openPremiumScreenModule(isSale: true)
       }

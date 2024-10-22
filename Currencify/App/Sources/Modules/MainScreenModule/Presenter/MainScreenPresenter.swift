@@ -53,6 +53,7 @@ final class MainScreenPresenter: ObservableObject {
   lazy var viewWillAppear: (() -> Void)? = { [weak self] in
     Task { [weak self] in
       guard let self else { return }
+      await interactor.fetchCurrencyRates()
       await moduleOutput?.premiumModeCheck()
     }
   }
@@ -72,8 +73,7 @@ final class MainScreenPresenter: ObservableObject {
     isSearchViewVisible = false
     
     if !appSettingsModel.isPremium,
-       appSettingsModel.selectedCurrencyRate.count >= 3,
-       Secrets.isPremiumMode {
+       appSettingsModel.selectedCurrencyRate.count >= 3 {
       await moduleOutput?.limitOfAddedCurrenciesHasBeenExceeded()
       return
     }

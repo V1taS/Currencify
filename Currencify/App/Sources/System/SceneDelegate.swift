@@ -12,7 +12,6 @@ import SKAbstractions
 import SKServices
 import SwiftUI
 import BackgroundTasks
-import ApphudSDK
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
@@ -45,12 +44,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   ) {
     guard let windowScene = scene as? UIWindowScene else { return }
     window = TouchObservingWindow(windowScene: windowScene)
-    ConfigurationValueConfigurator(services: services).configure()
+    
     FirstLaunchConfigurator(services: services).configure()
+    ConfigurationValueConfigurator(services: services).configure()
     AppearanceConfigurator(services: services).configure()
-    CurrencyRatesConfigurator(services: services).configure()
-    Apphud.start(apiKey: Secrets.apiKeyApphud)
-    PremiumConfigurator(services: services).configure()
     
     rootCoordinator = RootCoordinator(services)
     rootCoordinator?.start()
@@ -59,9 +56,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneDidBecomeActive(_ scene: UIScene) {
     if firstStart {
       [
-        ConfigurationValueConfigurator(services: services),
-        PremiumConfigurator(services: services),
-        CurrencyRatesConfigurator(services: services)
+        ConfigurationValueConfigurator(services: services)
       ].configure()
     }
     firstStart = true

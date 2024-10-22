@@ -8,6 +8,7 @@
 
 import UIKit
 import SKAbstractions
+import ApphudSDK
 
 final class ConfigurationValueConfigurator: Configurator {
   
@@ -26,89 +27,88 @@ final class ConfigurationValueConfigurator: Configurator {
   // MARK: - Internal func
   
   func configure() {
-    getApiKeyApphud()
-    getSupportOChatMail()
-    getPremiumList()
-    getIsPremiumMode()
+    let isReachable = services.accessAndSecurityManagementService.networkReachabilityService?.isReachable ?? false
+    guard isReachable else { return }
+    
+    Task {
+      await getApiKeyApphud()
+      await getSupportOChatMail()
+      await getPremiumList()
+    }
   }
 }
 
 // MARK: - Private
 
 private extension ConfigurationValueConfigurator {
-  func getIsPremiumMode() {
-    if let value = getConfigurationValue(forKey: Constants.isPremiumMode) {
-      Secrets.isPremiumMode = Bool(value) ?? true
+  func getApiKeyApphud() async {
+    if let value = await getConfigurationValue(forKey: Constants.apiKeyApphud) {
+      DispatchQueue.main.async {
+        Apphud.start(apiKey: value)
+      }
     }
   }
   
-  func getApiKeyApphud() {
-    if let value = getConfigurationValue(forKey: Constants.apiKeyApphud) {
-      Secrets.apiKeyApphud = value
-    }
-  }
-  
-  func getSupportOChatMail() {
-    if let value = getConfigurationValue(forKey: Constants.supportOChatMail) {
+  func getSupportOChatMail() async {
+    if let value = await getConfigurationValue(forKey: Constants.supportOChatMail) {
       Secrets.supportMail = value
     }
   }
   
-  func getPremiumList() {
-    if let value = getConfigurationValue(forKey: Constants.premiumList) {
+  func getPremiumList() async {
+    if let value = await getConfigurationValue(forKey: Constants.premiumList) {
       guard let jsonData = value.data(using: .utf8) else {
         return
       }
       let premiumList = PremiumModel.decodeFromJSON(jsonData)
-      Secrets.premiumList = premiumList
+      await setPremium(premiumList: premiumList)
     }
   }
   
-  func getConfigurationValue(forKey key: String) -> String? {
-    if let value = secureDataManagerService.getString(for: key), !isMoreThan15MinutesPassed() {
-      return value
-    }
-    
-    let semaphore = DispatchSemaphore(value: .zero)
-    var retrievedValue: String?
-    
-    cloudKitService.getConfigurationValue(from: key) { [weak self] (result: Result<String?, Error>) in
-      if case let .success(value) = result, let value {
-        retrievedValue = value
-        self?.secureDataManagerService.saveString(value, key: key)
+  func getConfigurationValue(forKey key: String) async -> String? {
+    await withCheckedContinuation { continuation in
+      cloudKitService.getConfigurationValue(from: key) { (result: Result<String?, Error>) in
+        if case let .success(value) = result, let value {
+          continuation.resume(returning: value)
+        } else {
+          continuation.resume(returning: nil)
+        }
       }
-      semaphore.signal()
     }
-    
-    // Ожидаем завершения асинхронной операции
-    semaphore.wait()
-    return retrievedValue
   }
 }
 
 // MARK: - Private
 
 private extension ConfigurationValueConfigurator {
-  // Проверяет, что прошло больше 15 минут с сохраненной даты
-  func isMoreThan15MinutesPassed() -> Bool {
-    guard let storedDate = getDateFromStorage() else { return true }
-    let timeInterval = Date().timeIntervalSince(storedDate)
-    return timeInterval > 15 * 60
+  func setPremium(premiumList: [PremiumModel]) async {
+    let checkIsPremium = await checkIsPremium()
+    let isPremium = manualIsPremiumCheck(premiumList) || checkIsPremium
+    await setIsPremiumEnabled(isPremium)
+  }
+    
+    func setIsPremiumEnabled(_ isPremium: Bool) async {
+      await withCheckedContinuation { continuation in
+        services.appSettingsDataManager.setIsPremiumEnabled(isPremium) {
+          continuation.resume()
+        }
+      }
+    }
+  
+  func manualIsPremiumCheck(_ premiumList: [PremiumModel]) -> Bool {
+    let systemService = services.userInterfaceAndExperienceService.systemService
+    let vendorID = systemService.getDeviceIdentifier()
+    let user = premiumList.first(where: { $0.id == vendorID })
+    print("✅ vendorID: \(vendorID)")
+    return user?.isPremium ?? false
   }
   
-  // Получает дату из стораджа по ключу
-  func getDateFromStorage() -> Date? {
-    guard let dateString = secureDataManagerService.getString(for: Constants.oneDayPassKey) else { return nil }
-    let dateFormatter = ISO8601DateFormatter()
-    return dateFormatter.date(from: dateString)
-  }
-  
-  // Сохраняет текущую дату в сторадж по ключу
-  func saveDateToStorage() {
-    let currentDate = Date()
-    let dateFormatter = ISO8601DateFormatter()
-    let dateString = dateFormatter.string(from: currentDate)
-    secureDataManagerService.saveString(dateString, key: Constants.oneDayPassKey)
+  func checkIsPremium() async -> Bool {
+    await withCheckedContinuation { continuation in
+      services.appPurchasesService.isValidatePurchase { isValidate in
+        continuation.resume(returning: isValidate)
+      }
+    }
   }
 }
 
@@ -118,7 +118,6 @@ private enum Constants {
   static let supportOChatMail = "SupportOChatMail"
   static let premiumList = "PremiumList"
   static let apiKeyApphud = "ApiKeyApphud"
-  static let isPremiumMode = "isPremiumModeV2"
   
   static let oneDayPassKey = "OneDayPassKey"
 }

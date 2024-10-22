@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SKAbstractions
+import SKUIKit
 
 /// События которые отправляем из Interactor в Presenter
 protocol MainScreenInteractorOutput: AnyObject {}
@@ -146,8 +147,15 @@ extension MainScreenInteractor: MainScreenInteractorInput {
   }
   
   func fetchCurrencyRates() async {
+    let appSettingsModel = await getAppSettingsModel()
+    
+    if appSettingsModel.allCurrencyRate.isEmpty {
+      startLoader()
+    }
+    
     await withCheckedContinuation { continuation in
       currencyRatesService.fetchCurrencyRates {
+        stopLoader()
         continuation.resume()
       }
     }

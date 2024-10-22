@@ -13,11 +13,18 @@ import SKServices
 // MARK: - AccessAndSecurityManagementService
 
 final class AccessAndSecurityManagementService: IAccessAndSecurityManagementService {
-  
+
   // MARK: - Properties
   
   /// Возвращает сервис запроса доступов.
   var permissionService: IPermissionService {
     PermissionService()
   }
+  
+  /// Сервис по проверки доступности интернета
+  var networkReachabilityService: INetworkReachabilityService? {
+    networkReachabilityServiceImpl
+  }
 }
+
+private let networkReachabilityServiceImpl = NetworkReachabilityService()

@@ -12,11 +12,10 @@ import SKAbstractions
 
 public final class NotificationService: INotificationService {
   
-  // MARK: - Singleton
-  
+  // Создаем синглтон
   public static let shared = NotificationService()
   
-  // Приватный инициализатор для предотвращения создания других экземпляров
+  // Закрываем инициализатор для предотвращения создания дополнительных экземпляров
   private init() {}
   
   private let notifications = Notifications()

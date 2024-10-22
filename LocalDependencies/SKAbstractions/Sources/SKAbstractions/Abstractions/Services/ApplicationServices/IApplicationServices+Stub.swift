@@ -16,7 +16,9 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IAnalyticsService, ISecureDataManagerService,
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
-                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService {
+                                            IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService, INetworkReachabilityService {
+  public var isReachable: Bool { false }
+  public var networkReachabilityService: (any INetworkReachabilityService)? { self }
   public func setEnteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) {}
   public func enteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) { }
   public func removeLeadingZeroIfNoComma(in string: String) -> String { "" }

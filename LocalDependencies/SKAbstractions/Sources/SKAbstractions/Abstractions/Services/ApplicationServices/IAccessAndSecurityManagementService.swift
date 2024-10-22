@@ -12,4 +12,7 @@ public protocol IAccessAndSecurityManagementService {
   /// Возвращает сервис запроса доступов.
   /// - Returns: Сервис управления доступами.
   var permissionService: IPermissionService { get }
+  
+  /// Сервис проверки доступности сети
+  var networkReachabilityService: INetworkReachabilityService? { get }
 }
