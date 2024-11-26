@@ -104,11 +104,7 @@ private extension ConfigurationValueConfigurator {
   }
   
   func checkIsPremium() async -> Bool {
-    await withCheckedContinuation { continuation in
-      services.appPurchasesService.isValidatePurchase { isValidate in
-        continuation.resume(returning: isValidate)
-      }
-    }
+    return await services.appPurchasesService.restorePurchase()
   }
 }
 

@@ -76,14 +76,19 @@ final class PremiumScreenInteractor: PremiumScreenInteractorInput {
   
   func restorePurchase() {
     output?.startPaymentProcessing()
-    appPurchasesService.restorePurchase { [weak self] isValidate in
-      self?.output?.stopPaymentProcessing()
-      
-      switch isValidate {
-      case true:
-        self?.output?.didReceiveRestoredSuccess()
-      case false:
-        self?.output?.didReceivePurchasesMissing()
+    
+    Task { [weak self] in
+      guard let self else { return }
+      let isValidate = await appPurchasesService.restorePurchase()
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        switch isValidate {
+        case true:
+          output?.didReceiveRestoredSuccess()
+        case false:
+          output?.didReceivePurchasesMissing()
+        }
+        output?.stopPaymentProcessing()
       }
     }
   }

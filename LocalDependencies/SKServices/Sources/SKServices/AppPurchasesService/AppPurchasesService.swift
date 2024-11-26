@@ -26,12 +26,9 @@ public final class AppPurchasesService: IAppPurchasesService {
   // MARK: - Internal func
   
   @MainActor
-  public func restorePurchase(completion: @escaping (_ isValidate: Bool) -> Void) {
-    Apphud.restorePurchases { [weak self] _, _, _ in
-      DispatchQueue.main.async {
-        self?.isValidatePurchase(completion: completion)
-      }
-    }
+  public func restorePurchase() async -> Bool {
+    await Apphud.restorePurchases()
+    return await isValidatePurchase()
   }
   
   @MainActor
@@ -77,15 +74,14 @@ public final class AppPurchasesService: IAppPurchasesService {
     }
   }
   
-  @MainActor 
-  public func isValidatePurchase(completion: @escaping (_ isValidate: Bool) -> Void) {
+  private func isValidatePurchase() async -> Bool {
     let isSubscription = Apphud.hasActiveSubscription()
-    let isNonRenewingPurchase = Apphud.isNonRenewingPurchaseActive(
+    let isNonRenewingPurchase = await Apphud.isNonRenewingPurchaseActive(
       productIdentifier: PremiumScreenPurchaseType.lifetime.productIdentifiers
     )
-    let isNonRenewingPurchaseSale = Apphud.isNonRenewingPurchaseActive(
+    let isNonRenewingPurchaseSale = await Apphud.isNonRenewingPurchaseActive(
       productIdentifier: PremiumScreenPurchaseType.lifetimeSale.productIdentifiers
     )
-    completion(isSubscription || isNonRenewingPurchase || isNonRenewingPurchaseSale)
+    return isSubscription || isNonRenewingPurchase || isNonRenewingPurchaseSale
   }
 }

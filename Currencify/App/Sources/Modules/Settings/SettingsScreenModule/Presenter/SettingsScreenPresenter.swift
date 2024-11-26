@@ -18,6 +18,7 @@ final class SettingsScreenPresenter: ObservableObject {
   @Published var stateCurrentLanguage: AppLanguageType = .english
   @Published var stateTopWidgetModels: [WidgetCryptoView.Model] = []
   @Published var stateBottomWidgetModels: [WidgetCryptoView.Model] = []
+  @Published var appSettingsModel: AppSettingsModel?
   
   // MARK: - Internal properties
   
@@ -136,6 +137,7 @@ private extension SettingsScreenPresenter {
     await getPremiumActivatedState()
     stateCurrentLanguage = interactor.getCurrentLanguage()
     let appSettingsModel = await interactor.getAppSettingsModel()
+    self.appSettingsModel = appSettingsModel
     let languageValue = factory.createLanguageValue(from: stateCurrentLanguage)
     
     stateTopWidgetModels = factory.createTopWidgetModels(

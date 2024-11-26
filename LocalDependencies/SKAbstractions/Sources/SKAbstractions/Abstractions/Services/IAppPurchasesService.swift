@@ -25,9 +25,5 @@ public protocol IAppPurchasesService {
   
   /// Восстановить покупки
   /// - Parameter completion: Возвращает результат валидации
-  func restorePurchase(completion: @escaping (_ isValidate: Bool) -> Void)
-  
-  /// Проверка валидации
-  /// - Parameter completion: Возвращает результат валидации
-  func isValidatePurchase(completion: @escaping (_ isValidate: Bool) -> Void)
+  func restorePurchase() async -> Bool
 }

@@ -17,6 +17,7 @@ public final class ApplicationServicesStub: IApplicationServices, IDataManagerSe
                                             IDataManagementService,
                                             IAccessAndSecurityManagementService, IUserInterfaceAndExperienceService,
                                             IAppSettingsDataManager, IAppPurchasesService, ICloudKitService, ICurrencyRatesService, ITextFormatterService, INetworkReachabilityService {
+  public func restorePurchase() async -> Bool { true }
   public var isReachable: Bool { false }
   public var networkReachabilityService: (any INetworkReachabilityService)? { self }
   public func setEnteredCurrencyAmountRaw(_ value: String, completion: @escaping () -> Void) {}
