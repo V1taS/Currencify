@@ -60,7 +60,17 @@ private extension WidgetCryptoView {
                 createFirstLineContent(model: model)
                 createSecondLineContent(model: model)
               }
-              .layoutPriority(2)
+              // TODO: - Костыль что бы значение валюты растягивалось на весь экран
+              .if(
+                model.rightSide?.imageModel == nil && model.rightSide?.itemModel == nil,
+                transform: { view in
+                  view
+                    .fixedSize(horizontal: true, vertical: false)
+                },
+                else: { view in
+                  view
+                }
+              )
               
               createRightSideImage(model: model)
               createRightSideItem(model: model)
@@ -141,8 +151,8 @@ private extension WidgetCryptoView {
           if let image = imageModel.image {
             image
               .resizable()
-              .frame(width: imageModel.size.width, height: imageModel.size.height)
               .aspectRatio(contentMode: .fit)
+              .frame(width: imageModel.size.width, height: imageModel.size.height)
               .if(imageModel.imageColor?.foregroundColor != nil, transform: { view in
                 view.foregroundColor(imageModel.imageColor ?? SKStyleAsset.constantAzure.swiftUIColor)
               })
@@ -207,11 +217,6 @@ private extension WidgetCryptoView {
             .lineLimit(1)
             .minimumScaleFactor(0.7)
         }
-          .frame(
-            width: UIScreen.main.bounds.width / 1.98,
-            height: .infinity
-          )
-          .layoutPriority(2)
           .allowsHitTesting(false)
       )
     }
@@ -236,6 +241,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionModel = model.leftSide?.titleAdditionModel {
@@ -246,6 +252,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleAdditionModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionRoundedModel = model.leftSide?.titleAdditionRoundedModel {
@@ -257,39 +264,43 @@ private extension WidgetCryptoView {
             .truncationMode(.middle)
             .roundedEdge(backgroundColor: titleAdditionRoundedModel.textStyle.color.opacity(0.07))
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
-        Spacer()
+        Spacer(minLength: .zero)
         
         if let titleAdditionRoundedModel = model.rightSide?.titleAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
             .font(titleAdditionRoundedModel.textFont)
             .foregroundColor(titleAdditionRoundedModel.textStyle.color)
-            .multilineTextAlignment(.leading)
+            .multilineTextAlignment(.trailing)
             .lineLimit(titleAdditionRoundedModel.lineLimit)
             .truncationMode(.middle)
             .roundedEdge(backgroundColor: titleAdditionRoundedModel.textStyle.color.opacity(0.07))
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionModel = model.rightSide?.titleAdditionModel {
           Text(titleAdditionModel.text)
             .font(titleAdditionModel.textFont)
             .foregroundColor(titleAdditionModel.textStyle.color)
-            .multilineTextAlignment(.leading)
+            .multilineTextAlignment(.trailing)
             .lineLimit(titleAdditionModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleModel = model.rightSide?.titleModel {
           Text(titleModel.textIsSecure ? Constants.secureText : titleModel.text)
             .font(titleModel.textFont)
             .foregroundColor(titleModel.textStyle.color)
-            .multilineTextAlignment(.leading)
+            .multilineTextAlignment(.trailing)
             .lineLimit(titleModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
       }
     )
@@ -306,6 +317,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionModel = model.leftSide?.descriptionAdditionModel {
@@ -316,6 +328,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleAdditionModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionRoundedModel = model.leftSide?.descriptionAdditionRoundedModel {
@@ -327,9 +340,10 @@ private extension WidgetCryptoView {
             .truncationMode(.middle)
             .roundedEdge(backgroundColor: titleAdditionRoundedModel.textStyle.color.opacity(0.07))
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
-        Spacer()
+        Spacer(minLength: .zero)
         
         if let titleAdditionRoundedModel = model.rightSide?.descriptionAdditionRoundedModel {
           Text(titleAdditionRoundedModel.text)
@@ -340,6 +354,7 @@ private extension WidgetCryptoView {
             .truncationMode(.middle)
             .roundedEdge(backgroundColor: titleAdditionRoundedModel.textStyle.color.opacity(0.07))
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleAdditionModel = model.rightSide?.descriptionAdditionModel {
@@ -350,6 +365,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleAdditionModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
         
         if let titleModel = model.rightSide?.descriptionModel {
@@ -360,6 +376,7 @@ private extension WidgetCryptoView {
             .lineLimit(titleModel.lineLimit)
             .truncationMode(.middle)
             .allowsHitTesting(false)
+            .fixedSize(horizontal: true, vertical: false)
         }
       }
     )

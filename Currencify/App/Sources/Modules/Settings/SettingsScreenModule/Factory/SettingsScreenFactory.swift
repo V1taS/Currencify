@@ -373,11 +373,6 @@ private extension SettingsScreenFactory {
           text: title,
           lineLimit: 1,
           textStyle: .standart
-        ),
-        descriptionModel: .init(
-          text: description,
-          lineLimit: .max,
-          textStyle: .netural
         )
       ),
       rightSide: .init(
@@ -386,6 +381,20 @@ private extension SettingsScreenFactory {
           isEnabled: isPremium,
           action: action
         )
+      ),
+      additionCenterContent: AnyView(
+        VStack {
+          HStack {
+            Text(description)
+              .font(.fancy.text.small)
+              .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor)
+              .lineLimit(.max)
+              .multilineTextAlignment(.leading)
+              .allowsHitTesting(false)
+            Spacer()
+          }
+          .padding(.bottom, .s1)
+        }
       ),
       isSelectable: !isPremium) {
         action?(true)

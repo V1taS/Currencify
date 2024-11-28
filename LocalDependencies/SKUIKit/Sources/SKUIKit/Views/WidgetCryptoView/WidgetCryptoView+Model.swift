@@ -353,7 +353,7 @@ extension WidgetCryptoView {
           return .init(width: CGFloat.s11, height: .s11)
         }
       case .chevron:
-        return .init(width: CGFloat.s2, height: .s3)
+        return .init(width: CGFloat.s3, height: .s3)
       }
     }
     

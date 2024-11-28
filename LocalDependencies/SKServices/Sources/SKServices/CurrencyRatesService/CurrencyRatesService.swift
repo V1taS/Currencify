@@ -19,7 +19,7 @@ public final class CurrencyRatesService: ICurrencyRatesService {
   
   public static let shared = CurrencyRatesService()
   
-  // MARK: - Private properies
+  // MARK: - Private properties
   
   private let appSettingsDataManager = AppSettingsDataManager.shared
   
@@ -32,7 +32,7 @@ public final class CurrencyRatesService: ICurrencyRatesService {
     appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
       guard let self else { return }
       
-      fetchCBCurrencyRates { [weak self] models in
+      fetchCurrencyBeaconRates { [weak self] models in
         guard let self else { return }
         
         if !models.isEmpty {
@@ -43,12 +43,12 @@ public final class CurrencyRatesService: ICurrencyRatesService {
               guard let self else { return }
               
               currencyRateModels.append(contentsOf: models)
-              appSettingsDataManager.setAllCurrencyRate(currencyRateModels) {
+              self.appSettingsDataManager.setAllCurrencyRate(currencyRateModels) {
                 completion?()
               }
             }
           } else {
-            appSettingsDataManager.setAllCurrencyRate(currencyRateModels) {
+            self.appSettingsDataManager.setAllCurrencyRate(currencyRateModels) {
               completion?()
             }
           }
@@ -107,68 +107,87 @@ private extension CurrencyRatesService {
     task.resume()
   }
   
-  // Парсинг данных от Центробанка России с учётом номинала
-  func parseCBRData(_ data: Data) throws -> [CurrencyRate] {
+  // Парсинг данных от CurrencyBeacon
+  func parseCurrencyBeaconData(_ data: Data) throws -> [CurrencyRate] {
+    // Модели для парсинга JSON
+    struct CurrencyBeaconRoot: Codable {
+      let meta: Meta
+      let response: CurrencyBeaconResponse
+    }
+    
+    struct Meta: Codable {
+      let code: Int
+      let disclaimer: String
+    }
+    
+    struct CurrencyBeaconResponse: Codable {
+      let date: String // Пример: "2024-11-28T16:00:23Z"
+      let base: String
+      let rates: [String: Double]
+    }
+    
     let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    let cbrResponse = try decoder.decode(CBCurrencyRates.CBRResponse.self, from: data)
-    let currencies = Array(cbrResponse.valute.values)
+    let root = try decoder.decode(CurrencyBeaconRoot.self, from: data)
+    let response = root.response
     
-    var currencyModels: [CurrencyRate] = currencies.compactMap {
-      guard let currency = CurrencyRate.Currency(rawValue: $0.charCode) else {
-        return nil
-      }
-      // Нормализуем курс, деля Value на Nominal
-      let normalizedRate = $0.value / Double($0.nominal)
-      return CurrencyRate(
-        currency: currency,
-        rate: normalizedRate,
-        lastUpdated: cbrResponse.date
+    // Парсим дату из строки в Date
+    let dateFormatter = ISO8601DateFormatter()
+    dateFormatter.formatOptions = [.withInternetDateTime]
+    guard let lastUpdated = dateFormatter.date(from: response.date) else {
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: [],
+          debugDescription: "Неверный формат даты: \(response.date)"
+        )
       )
     }
     
-    // Добавить рубль с курсом 1
-    currencyModels.append(
-      .init(
-        currency: .RUB,
-        rate: 1.0,
-        lastUpdated: cbrResponse.date
-      )
-    )
-    return currencyModels
-  }
-  
-  // Парсинг данных от Европейского Центрального Банка
-  func parseECBData(_ data: Data) throws -> [CurrencyRate] {
-    let parser = ECBXMLParser(data: data)
-    let ecbData = parser.parse()
+    var currencyRates: [CurrencyRate] = []
     
-    guard let ecbData else { return [] }
-    var currencyModels: [CurrencyRate] = ecbData.currencies.compactMap {
-      guard let currency = CurrencyRate.Currency(rawValue: $0.code) else {
-        return nil
+    // Удаляем базовую валюту из словаря rates
+    var rates = response.rates
+    rates.removeValue(forKey: response.base)
+    
+    // Проходим по оставшимся валютам и инвертируем курсы
+    for (code, rate) in rates {
+      if let currency = CurrencyRate.Currency(rawValue: code) {
+        guard rate != 0 else { continue } // Избегаем деления на ноль
+        let invertedRate = 1 / rate
+        currencyRates.append(
+          CurrencyRate(
+            currency: currency,
+            rate: invertedRate,
+            lastUpdated: lastUpdated
+          )
+        )
       }
-      return CurrencyRate(
-        currency: currency,
-        rate: $0.rate,
-        lastUpdated: ecbData.date
+    }
+    
+    // Добавляем базовую валюту с курсом 1.0
+    if let baseCurrency = CurrencyRate.Currency(rawValue: response.base) {
+      currencyRates.append(
+        CurrencyRate(
+          currency: baseCurrency,
+          rate: 1.0,
+          lastUpdated: lastUpdated
+        )
       )
     }
     
-    // Добавить евро с курсом 1
-    currencyModels.append(
-      .init(
-        currency: .EUR,
-        rate: 1,
-        lastUpdated: ecbData.date
-      )
-    )
-    return currencyModels
+    return currencyRates
   }
   
+  // Запрос курсов валют от CurrencyBeacon
+  func fetchCurrencyBeaconRates(completion: @escaping ([CurrencyRate]) -> Void) {
+    let baseCurrency = CurrencyRate.Currency.RUB.rawValue
+    let apiKey = "5tEsWqbrIgC1F7jz84F2XwhV89DBGm1z"
+    let urlString = "https://api.currencybeacon.com/v1/latest?api_key=\(apiKey)&base=\(baseCurrency)"
+    performRequest(with: urlString, parsingMethod: parseCurrencyBeaconData, completion: completion)
+  }
+  
+  // Парсинг данных от CoinGecko для криптовалют
   func parseCryptoData(_ data: Data) throws -> [CurrencyRate] {
     let decoder = JSONDecoder()
-    // Настройка формата даты с поддержкой миллисекунд
     let iso8601Formatter = ISO8601DateFormatter()
     iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     
@@ -204,18 +223,6 @@ private extension CurrencyRatesService {
     }
     
     return currencyRates
-  }
-  
-  // Запрос курсов валют от Центробанка России
-  func fetchCBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {
-    let urlString = "https://www.cbr-xml-daily.ru/daily_json.js"
-    performRequest(with: urlString, parsingMethod: parseCBRData, completion: completion)
-  }
-  
-  // Запрос курсов валют от Европейского Центрального Банка
-  func fetchECBCurrencyRates(completion: @escaping ([CurrencyRate]) -> Void) {
-    let urlString = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
-    performRequest(with: urlString, parsingMethod: parseECBData, completion: completion)
   }
   
   func fetchTopCryptoCurrencyRates(

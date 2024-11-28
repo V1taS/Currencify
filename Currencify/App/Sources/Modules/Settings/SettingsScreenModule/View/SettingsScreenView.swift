@@ -105,10 +105,25 @@ private extension SettingsScreenView {
         Text(presenter.getAplicationVersion())
           .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor.opacity(0.3))
           .font(.fancy.text.small)
+        
+        if let appSettingsModel = presenter.appSettingsModel,
+           let usd = appSettingsModel.allCurrencyRate.first(where: { $0.currency == .USD }) {
+          Text("\(formatDate(usd.lastUpdated))")
+            .foregroundColor(SKStyleAsset.constantSlate.swiftUIColor.opacity(0.3))
+            .font(.fancy.text.small)
+          
+        }
       }
       .offset(y: -.s3)
     }
     .padding(.top, .s4)
+  }
+  
+  private func formatDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "dd.MM.yyyy HH:mm"
+    formatter.locale = Locale.current
+    return formatter.string(from: date)
   }
 }
 
