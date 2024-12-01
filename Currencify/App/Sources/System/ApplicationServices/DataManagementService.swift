@@ -28,7 +28,7 @@ final class DataManagementService: IDataManagementService {
   
   /// Сервис для работы с CloudKit для получения конфигурационных данных.
   var cloudKitService: ICloudKitService {
-    CloudKitService()
+    CloudKitService.shared
   }
   
   /// Сервис для получения курсов валют

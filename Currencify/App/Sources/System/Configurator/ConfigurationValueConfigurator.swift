@@ -32,7 +32,6 @@ final class ConfigurationValueConfigurator: Configurator {
     
     Task {
       await getApiKeyApphud()
-      await getApiCurrencyBeacon()
       await getSupportOChatMail()
       await getPremiumList()
     }
@@ -47,12 +46,6 @@ private extension ConfigurationValueConfigurator {
       DispatchQueue.main.async {
         Apphud.start(apiKey: value)
       }
-    }
-  }
-  
-  func getApiCurrencyBeacon() async {
-    if let value = await getConfigurationValue(forKey: Constants.apiKeyCurrencyBeacon) {
-      Secrets.currencyBeaconAPI = value
     }
   }
   
@@ -125,7 +118,6 @@ private enum Constants {
   static let supportOChatMail = "SupportOChatMail"
   static let premiumList = "PremiumList"
   static let apiKeyApphud = "ApiKeyApphud"
-  static let apiKeyCurrencyBeacon = "currencybeaconAPI"
   
   static let oneDayPassKey = "OneDayPassKey"
 }

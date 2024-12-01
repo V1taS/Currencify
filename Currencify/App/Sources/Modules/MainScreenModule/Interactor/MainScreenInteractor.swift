@@ -62,6 +62,9 @@ protocol MainScreenInteractorInput {
   
   /// Сервис по форматированию текста
   var textFormatterService: ITextFormatterService { get set }
+  
+  /// Доступность интернета
+  var isReachable: Bool { get }
 }
 
 /// Интерактор
@@ -78,6 +81,7 @@ final class MainScreenInteractor {
   private let appSettingsDataManager: IAppSettingsDataManager
   private let uiService: IUIService
   private let permissionService: IPermissionService
+  private let networkReachabilityService: INetworkReachabilityService?
   
   // MARK: - Initialization
   
@@ -89,12 +93,17 @@ final class MainScreenInteractor {
     uiService = services.userInterfaceAndExperienceService.uiService
     permissionService = services.accessAndSecurityManagementService.permissionService
     textFormatterService = services.textFormatterService
+    networkReachabilityService = services.accessAndSecurityManagementService.networkReachabilityService
   }
 }
 
 // MARK: - MainScreenInteractorInput
 
 extension MainScreenInteractor: MainScreenInteractorInput {
+  var isReachable: Bool {
+    networkReachabilityService?.isReachable ?? false
+  }
+  
   func recalculateCurrencyRates(
     appSettingsModel: AppSettingsModel,
     rawCurrencyRate: String

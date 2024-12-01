@@ -12,11 +12,13 @@ import SKAbstractions
 // MARK: - CloudKitService
 
 public final class CloudKitService: ICloudKitService {
+  public static let shared = CloudKitService()
+  
   /// Интервал таймаута для запросов в секундах.
   private let timeoutInterval: TimeInterval = 10
   
   /// Инициализирует новый экземпляр CloudKitService.
-  public init() {}
+  private init() {}
   
   public func getConfigurationValue<T>(from keyName: String, completion: @escaping (Result<T?, Error>) -> Void) {
     let container = CKContainer(identifier: "iCloud.com.sosinvitalii.Currencify")

@@ -10,5 +10,5 @@ import Foundation
 public enum Secrets {
   public static var supportMail = ""
   public static var apiKeyApphud = ""
-  public static var currencyBeaconAPI = ""
+  public static var currencyBeaconAPI: [String] = []
 }

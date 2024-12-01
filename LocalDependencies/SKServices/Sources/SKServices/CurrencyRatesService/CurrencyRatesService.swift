@@ -27,18 +27,35 @@ public final class CurrencyRatesService: ICurrencyRatesService {
   private init() {}
   
   public func fetchCurrencyRates(_ completion: (() -> Void)?) {
-    var currencyRateModels: [CurrencyRate] = []
+    Task {
+      await getApiCurrencyBeacon()
+      fetchRatesFromAPIs(at: .zero, completion: completion)
+    }
+  }
+  
+  private func fetchRatesFromAPIs(at index: Int, completion: (() -> Void)?) {
+    guard index < Secrets.currencyBeaconAPI.count else {
+      // Все API были опрошены, завершаем без обновления
+      DispatchQueue.main.async {
+        completion?()
+      }
+      return
+    }
     
-    appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
+    let beaconApi = Secrets.currencyBeaconAPI[index]
+    fetchCurrencyBeaconRates(beaconApi: beaconApi) { [weak self] models in
       guard let self else { return }
       
-      fetchCurrencyBeaconRates { [weak self] models in
-        guard let self else { return }
-        currencyRateModels = models
-        
-        self.appSettingsDataManager.setAllCurrencyRate(currencyRateModels) {
-          completion?()
+      if !models.isEmpty {
+        // Успешно получили данные, обновляем и завершаем
+        self.appSettingsDataManager.setAllCurrencyRate(models) {
+          DispatchQueue.main.async {
+            completion?()
+          }
         }
+      } else {
+        // Переходим к следующему API
+        self.fetchRatesFromAPIs(at: index + 1, completion: completion)
       }
     }
   }
@@ -138,11 +155,19 @@ private extension CurrencyRatesService {
         guard rate != 0 else { continue } // Избегаем деления на ноль
         let invertedRate = 1 / rate
         
-        // Проверяем, является ли валюта криптовалютой
-        if currency.details.source == .crypto {
-          // Получаем URL изображения для криптовалюты
+        switch currency.details.source {
+        case .currency:
+          // Для обычных валют
+          currencyRates.append(
+            CurrencyRate(
+              currency: currency,
+              rate: invertedRate,
+              lastUpdated: lastUpdated
+            )
+          )
+        case .crypto:
+          // Для криптовалютой
           let imageURL = getCryptoImageURL(for: code)
-          
           currencyRates.append(
             CurrencyRate(
               currency: currency,
@@ -151,15 +176,7 @@ private extension CurrencyRatesService {
               imageURL: imageURL
             )
           )
-        } else {
-          // Для обычных валют оставляем imageURL пустым
-          currencyRates.append(
-            CurrencyRate(
-              currency: currency,
-              rate: invertedRate,
-              lastUpdated: lastUpdated
-            )
-          )
+        case .stock: break
         }
       }
     }
@@ -179,10 +196,9 @@ private extension CurrencyRatesService {
   }
   
   // Запрос курсов валют от CurrencyBeacon
-  func fetchCurrencyBeaconRates(completion: @escaping ([CurrencyRate]) -> Void) {
+  func fetchCurrencyBeaconRates(beaconApi: String, completion: @escaping ([CurrencyRate]) -> Void) {
     let baseCurrency = CurrencyRate.Currency.RUB.rawValue
-    let apiKey = "5tEsWqbrIgC1F7jz84F2XwhV89DBGm1z"
-    let urlString = "https://api.currencybeacon.com/v1/latest?api_key=\(apiKey)&base=\(baseCurrency)"
+    let urlString = "https://api.currencybeacon.com/v1/latest?api_key=\(beaconApi)&base=\(baseCurrency)"
     performRequest(with: urlString, parsingMethod: parseCurrencyBeaconData, completion: completion)
   }
   
@@ -191,4 +207,36 @@ private extension CurrencyRatesService {
     let imageURL = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/\(lowercasedCode).png"
     return imageURL
   }
+  
+  func getApiCurrencyBeacon() async {
+    if let value = await getConfigurationValue(forKey: Constants.apiKeyCurrencyBeacon) {
+      guard let jsonData = value.data(using: .utf8) else {
+        return
+      }
+      
+      let decoder = JSONDecoder()
+      guard let listBeaconAPI = try? decoder.decode([String].self, from: jsonData) else {
+        return
+      }
+      Secrets.currencyBeaconAPI = listBeaconAPI
+    }
+  }
+  
+  func getConfigurationValue(forKey key: String) async -> String? {
+    await withCheckedContinuation { continuation in
+      CloudKitService.shared.getConfigurationValue(from: key) { (result: Result<String?, Error>) in
+        if case let .success(value) = result, let value {
+          continuation.resume(returning: value)
+        } else {
+          continuation.resume(returning: nil)
+        }
+      }
+    }
+  }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+  static let apiKeyCurrencyBeacon = "currencybeaconAPI"
 }
