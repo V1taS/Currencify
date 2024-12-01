@@ -72,6 +72,8 @@ private extension WidgetCryptoView {
                 }
               )
               
+              Spacer(minLength: .zero)
+              
               createRightSideImage(model: model)
               createRightSideItem(model: model)
               createRightLargeText(model: model)
