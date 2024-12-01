@@ -72,7 +72,9 @@ private extension WidgetCryptoView {
                 }
               )
               
-              Spacer(minLength: .zero)
+              if model.leftSide != nil && model.rightSide == nil {
+                Spacer(minLength: .zero)
+              }
               
               createRightSideImage(model: model)
               createRightSideItem(model: model)

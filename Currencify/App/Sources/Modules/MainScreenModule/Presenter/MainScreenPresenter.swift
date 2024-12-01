@@ -33,6 +33,7 @@ final class MainScreenPresenter: ObservableObject {
   private var leftBarAddButton: SKBarButtonItem?
   private var rawCurrencyRate: String = "0"
   private var currencyRateIdentifiable: [CurrencyRateIdentifiable] = []
+  private var isFirstLaunch: Bool = true
   
   // MARK: - Initialization
   
@@ -47,10 +48,21 @@ final class MainScreenPresenter: ObservableObject {
   
   // MARK: - The lifecycle of a UIViewController
   
-  lazy var viewDidLoad: (() -> Void)? = {}
+  lazy var viewDidLoad: (() -> Void)? = { [weak self] in
+    guard let self, isFirstLaunch else { return }
+    
+    Task { [weak self] in
+      guard let self else { return }
+      await interactor.fetchCurrencyRates()
+      await moduleOutput?.premiumModeCheck()
+      isFirstLaunch = false
+    }
+  }
   
   /// Метод, вызываемый перед появлением представления; проверяет режим Premium.
   lazy var viewWillAppear: (() -> Void)? = { [weak self] in
+    guard let self, !isFirstLaunch else { return }
+    
     Task { [weak self] in
       guard let self else { return }
       await interactor.fetchCurrencyRates()
