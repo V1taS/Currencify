@@ -9,6 +9,7 @@ import SwiftUI
 import SKAbstractions
 import SKUIKit
 import SKStyle
+import SKFoundation
 
 /// Cобытия которые отправляем из Factory в Presenter
 protocol MainScreenFactoryOutput: AnyObject {
@@ -93,7 +94,7 @@ private extension MainScreenFactory {
           size: .custom(width: .infinity, height: nil)
         ),
         titleModel: .init(
-          text: currencyRateIdentifiable.currency.details.name,
+          text: currencyRateIdentifiable.currency.details.name.formatString(minTextLength: 14),
           textFont: .fancy.text.regularMedium,
           lineLimit: 1,
           textStyle: .standart

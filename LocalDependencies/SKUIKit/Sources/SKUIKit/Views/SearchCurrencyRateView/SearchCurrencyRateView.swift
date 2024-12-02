@@ -9,6 +9,7 @@ import SwiftUI
 import SKStyle
 import SKUIKit
 import SKAbstractions
+import SKFoundation
 
 public struct SearchCurrencyRateView: View {
   
@@ -79,7 +80,7 @@ public struct SearchCurrencyRateView: View {
                     item: getleftImageView(currencyRate: currencyRate)
                   ),
                   titleModel: .init(
-                    text: currencyRate.currency.details.name,
+                    text: currencyRate.currency.details.name.formatString(minTextLength: 16),
                     lineLimit: 1,
                     textStyle: .standart
                   ),
@@ -108,7 +109,7 @@ public struct SearchCurrencyRateView: View {
       .cornerRadius(.s3)
       .fixedSize(horizontal: false, vertical: true)
       .animation(.default, value: text)
-      .frame(width: UIScreen.main.bounds.width / 2)
+      .frame(width: UIScreen.main.bounds.width / 1.5)
       
       // Добавляем треугольник
       Triangle()

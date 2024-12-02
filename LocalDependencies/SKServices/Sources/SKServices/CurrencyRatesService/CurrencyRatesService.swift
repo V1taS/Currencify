@@ -18,6 +18,7 @@ public final class CurrencyRatesService: ICurrencyRatesService {
   // MARK: - Singleton
   
   public static let shared = CurrencyRatesService()
+  private var currencyRateModels: [CurrencyRate] = []
   
   // MARK: - Private properties
   
@@ -47,10 +48,38 @@ public final class CurrencyRatesService: ICurrencyRatesService {
       guard let self else { return }
       
       if !models.isEmpty {
-        // Успешно получили данные, обновляем и завершаем
-        self.appSettingsDataManager.setAllCurrencyRate(models) {
-          DispatchQueue.main.async {
-            completion?()
+        // Удаляем дубли по currency
+        var uniqueCurrencyRateModels: [CurrencyRate.Currency: CurrencyRate] = [:]
+        models.forEach { model in
+          uniqueCurrencyRateModels[model.currency] = model
+        }
+        self.currencyRateModels = Array(uniqueCurrencyRateModels.values)
+        
+        self.appSettingsDataManager.getAppSettingsModel { [weak self] appSettingsModel in
+          guard let self else { return }
+          
+          if appSettingsModel.currencyTypes.contains(.crypto) {
+            self.fetchTopCryptoCurrencyRates(baseCurrency: .RUB) { [weak self] cryptoModels in
+              guard let self else { return }
+              
+              // Удаляем дубли при добавлении криптовалют
+              cryptoModels.forEach { model in
+                uniqueCurrencyRateModels[model.currency] = model
+              }
+              self.currencyRateModels = Array(uniqueCurrencyRateModels.values)
+              
+              self.appSettingsDataManager.setAllCurrencyRate(self.currencyRateModels) {
+                DispatchQueue.main.async {
+                  completion?()
+                }
+              }
+            }
+          } else {
+            self.appSettingsDataManager.setAllCurrencyRate(self.currencyRateModels) {
+              DispatchQueue.main.async {
+                completion?()
+              }
+            }
           }
         }
       } else {
@@ -59,6 +88,7 @@ public final class CurrencyRatesService: ICurrencyRatesService {
       }
     }
   }
+  
 }
 
 // MARK: - Private
@@ -232,6 +262,60 @@ private extension CurrencyRatesService {
         }
       }
     }
+  }
+  
+  func fetchTopCryptoCurrencyRates(
+    baseCurrency: CurrencyRate.Currency,
+    completion: @escaping ([CurrencyRate]) -> Void
+  ) {
+    let vsCurrency = baseCurrency.rawValue.lowercased()
+    let perPage = 100
+    let page = 1
+    let urlString = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=\(vsCurrency)&order=market_cap_desc&per_page=\(perPage)&page=\(page)&sparkline=false"
+    
+    performRequest(with: urlString, parsingMethod: parseCryptoData) { currencyRates in
+      completion(currencyRates)
+    }
+  }
+  
+  // Парсинг данных от CoinGecko для криптовалют
+  func parseCryptoData(_ data: Data) throws -> [CurrencyRate] {
+    let decoder = JSONDecoder()
+    let iso8601Formatter = ISO8601DateFormatter()
+    iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    
+    decoder.dateDecodingStrategy = .custom { decoder in
+      let container = try decoder.singleValueContainer()
+      let dateStr = try container.decode(String.self)
+      
+      if let date = iso8601Formatter.date(from: dateStr) {
+        return date
+      }
+      
+      throw DecodingError.dataCorruptedError(
+        in: container,
+        debugDescription: "Невозможно декодировать дату: \(dateStr)"
+      )
+    }
+    
+    // Декодирование массива криптовалют
+    let cryptoCurrencies = try decoder.decode([CryptoCurrencyRates.CryptoCurrency].self, from: data)
+    
+    // Преобразование в [CurrencyRate]
+    let currencyRates: [CurrencyRate] = cryptoCurrencies.compactMap { crypto in
+      guard let currency = CurrencyRate.Currency(rawValue: crypto.symbol.uppercased()) else {
+        return nil
+      }
+      
+      return CurrencyRate(
+        currency: currency,
+        rate: crypto.currentPrice,
+        lastUpdated: crypto.lastUpdated,
+        imageURL: crypto.image
+      )
+    }
+    
+    return currencyRates
   }
 }
 
