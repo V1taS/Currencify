@@ -62,6 +62,17 @@ final class MainScreenPresenter: ObservableObject {
       Task { [weak self] in
         guard let self else { return }
         await interactor.fetchCurrencyRates()
+        
+        let appSettingsModel = await interactor.getAppSettingsModel()
+        
+        if !appSettingsModel.currencyTypes.contains(.crypto),
+           let currencyRate = appSettingsModel.selectedCurrencyRate.filter({
+             $0.details.source == .currency
+           }).first,
+           appSettingsModel.activeCurrency.details.source == .crypto {
+          await interactor.setActiveCurrency(currencyRate)
+        }
+        
         await moduleOutput?.premiumModeCheck()
       }
     }
