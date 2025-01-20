@@ -1,40 +1,35 @@
 #!/bin/sh
-# Этот скрипт предназначен для использования после клонирования репозитория GIT и перед разрешением зависимостей
 
-# ----------------------- 1️⃣ Установка Python и зависимостей -----------------------
+# Этот скрипт предназначен для Xcode Cloud (или любой другой CI-системы),
+# где может не быть ни Tuist, ни mise.
+# Запускается после клонирования репозитория и перед сборкой.
 
+# ----------------------- 1️⃣ Установка/обновление Python и зависимостей -----------------------
 python3 -m pip install --upgrade pip
-pip3 install python-telegram-bot
+pip3 install --upgrade python-telegram-bot
 
-# ----------------------- 2️⃣ Установка Tuist -----------------------
+# ----------------------- 2️⃣ Установка mise -----------------------
+# С помощью официального инсталлятора mise. Он установит mise в ~/.mise/bin.
+# После этого нужно добавить этот путь к $PATH.
+curl -sSL https://get.mise.io | bash
 
-# Скачивает архив Tuist 3.42.2 с GitHub
-curl -L https://github.com/tuist/tuist/releases/download/3.42.2/tuist.zip --output tuist.zip
-# Распаковывает скачанный архив в директорию tuist-installation
-unzip tuist.zip -d tuist-installation
-# Удаляет архив, чтобы освободить место
-rm tuist.zip
+# Добавляем mise в PATH текущей сессии.
+export PATH="$HOME/.mise/bin:$PATH"
 
-# ----------------------- 3️⃣ Настройка Tuist -----------------------
-
-# Добавляет папку с Tuist в переменную окружения PATH, чтобы можно было вызвать Tuist из любого места
-export PATH="$PWD/tuist-installation:$PATH"
-
-# ----------------------- 4️⃣ Подготовка в запуску Tuist generate -----------------------
-
-# Удаляет настройку Xcode, принуждающую использовать только версии пакетов из файла Resolved
-defaults delete com.apple.dt.Xcode IDEPackageOnlyUseVersionsFromResolvedFile
-
-# Удаляет настройку Xcode, отключающую автоматическое разрешение зависимостей
-defaults delete com.apple.dt.Xcode IDEDisableAutomaticPackageResolution
-
-# Отключает валидацию отпечатков макросов Xcode для ускорения процесса сборки
+# ----------------------- 3️⃣ Подготовка Xcode -----------------------
+# (удаляем/устанавливаем нужные дефолты)
+defaults delete com.apple.dt.Xcode IDEPackageOnlyUseVersionsFromResolvedFile 2>/dev/null
+defaults delete com.apple.dt.Xcode IDEDisableAutomaticPackageResolution 2>/dev/null
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
-# ----------------------- 5️⃣ Запуск Tuist -----------------------
+# ----------------------- 4️⃣ Подготовка к запуску Tuist -----------------------
+# Если mise.toml лежит в корне репозитория, переходим в него:
+cd /Volumes/workspace/repository/ || exit 1
 
-# Переход в папку с проектом
-cd /Volumes/workspace/repository/
+# Подтягиваем версию Tuist и других инструментов, прописанных в mise.toml
+mise install
 
-# Запускаем Tuist
-tuist clean && tuist fetch && tuist generate --no-open
+# ----------------------- 5️⃣ Запуск Tuist через mise -----------------------
+mise run tuist clean
+mise run tuist install
+mise run tuist generate --no-open

@@ -10,7 +10,7 @@ import ProjectDescription
 public extension Array<Target> {
   static var app: Self {
     [
-      Target(
+      .target(
         name: Constants.appNameRelease,
         destinations: .iOS,
         product: .app,
@@ -35,7 +35,7 @@ public extension Array<Target> {
         settings: Settings.app
       ),
       // TODO: - Тесты пока не пишем
-      Target(
+      .target(
         name: "\(Constants.appNameRelease)Tests",
         destinations: .iOS,
         product: .unitTests,
