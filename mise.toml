@@ -1,14 +1,2 @@
 [tools]
 tuist = "4.39.1"
-
-[tasks."tuist clean"]
-command = "tuist"
-args = ["clean"]
-
-[tasks."tuist install"]
-command = "tuist"
-args = ["install"]
-
-[tasks."tuist generate"]
-command = "tuist"
-args = ["generate", "--no-open"]

@@ -22,19 +22,23 @@ brew update
 brew install mise
 
 # ----------------------- 4️⃣ Подготовка Xcode -----------------------
-# Удаляем/устанавливаем нужные дефолты.
-defaults delete com.apple.dt.Xcode IDEPackageOnlyUseVersionsFromResolvedFile 2>/dev/null
-defaults delete com.apple.dt.Xcode IDEDisableAutomaticPackageResolution 2>/dev/null
+# Удаляет настройку Xcode, принуждающую использовать только версии пакетов из файла Resolved
+defaults delete com.apple.dt.Xcode IDEPackageOnlyUseVersionsFromResolvedFile
+
+# Удаляет настройку Xcode, отключающую автоматическое разрешение зависимостей
+defaults delete com.apple.dt.Xcode IDEDisableAutomaticPackageResolution
+
+# Отключает валидацию отпечатков макросов Xcode для ускорения процесса сборки
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
 # ----------------------- 5️⃣ Подготовка к запуску Tuist -----------------------
-# Переходим в каталог репозитория (убедитесь, что mise.toml лежит именно здесь).
-cd /Volumes/workspace/repository/ || exit 1
+# Переход в папку с проектом
+cd /Volumes/workspace/repository/
 
 # Подтягиваем версию Tuist и других инструментов, прописанных в mise.toml
-mise install
+mise install tuist
 
 # ----------------------- 6️⃣ Запуск Tuist через mise -----------------------
-mise run tuist clean
-mise run tuist install
-mise run tuist generate --no-open
+tuist clean
+tuist install
+tuist generate --no-open
