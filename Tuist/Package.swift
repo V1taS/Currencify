@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
   name: "Package",
   dependencies: [
-    .package(path: "../../../LocalDependencies/SKUIKit"),
-    .package(path: "../../../LocalDependencies/SKServices")
+    .package(path: "../LocalDependencies/SKUIKit"),
+    .package(path: "../LocalDependencies/SKServices")
   ]
 )
