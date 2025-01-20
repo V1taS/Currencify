@@ -36,20 +36,19 @@ defaults delete com.apple.dt.Xcode IDEDisableAutomaticPackageResolution
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
 # ----------------------- 5️⃣ Подготовка Tuist -----------------------
-# Устанавливаем Tuist через mise
 echo "Устанавливаем Tuist через mise..."
 mise install tuist
 
-# Явно указываем путь к установленному Tuist
-TUIST_PATH="$HOME/.local/share/mise/plugins/tuist/bin/tuist"
+# Поиск установленного Tuist
+echo "Ищем установленный Tuist..."
+TUIST_PATH=$(find $HOME/.local -type f -name "tuist" | head -n 1)
 
-# Проверяем, что Tuist установлен
-if [ ! -x "$TUIST_PATH" ]; then
-  echo "Ошибка: Tuist не найден по пути $TUIST_PATH"
-  exit 1
-else
-  echo "Tuist установлен по пути $TUIST_PATH"
+if [ -z "$TUIST_PATH" ]; then
+    echo "Ошибка: Tuist не найден после установки."
+    exit 1
 fi
+
+echo "Tuist найден по пути: $TUIST_PATH"
 
 # ----------------------- 6️⃣ Подготовка проекта -----------------------
 # Переход в папку с проектом
